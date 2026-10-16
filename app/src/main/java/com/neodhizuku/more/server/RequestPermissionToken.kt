@@ -21,11 +21,24 @@ import java.util.concurrent.ConcurrentHashMap
  * App 伪造的 Intent）走兼容路径，且不会覆盖已有授权。
  */
 object RequestPermissionToken {
-    /** token 有效期 */
-    private const val TTL_MILLIS = 60_000L
+    /**
+     * token 有效期。
+     *
+     * 取值较长是刻意的：授权弹窗改由通知拉起后，用户可能过几分钟才点开，
+     * 60 秒会大量过期。10 分钟兼顾安全性与可用性（进程被回收即失效）。
+     */
+    private const val TTL_MILLIS = 10 * 60 * 1000L
 
     /** 与 DhizukuVariables.PARAM_SERVER_TOKEN 保持一致 */
     const val PARAM_SERVER_TOKEN = "server_token"
+
+    /**
+     * 标记「由本应用的通知拉起」，而非第三方 App 直接 startActivity。
+     *
+     * 该路径下没有 listener 可回调（老版本客户端从未发起过请求），
+     * 授权结果直接写库，不再回调。
+     */
+    const val PARAM_SELF_LAUNCH = "neo_self_launch"
 
     /** AIDL 中 requestPermission 的事务码 */
     const val TRANSACT_REQUEST_PERMISSION = 17
@@ -71,5 +84,18 @@ object RequestPermissionToken {
             record.listener?.onRequestPermission(grantResult)
         } catch (ignored: RemoteException) {
         }
+    }
+
+    /** token 是否仍未被消费（用于判断弹窗有没有真的被拉起来） */
+    fun isPending(token: String?): Boolean {
+        if (token.isNullOrEmpty()) return false
+        val record = tokens[token] ?: return false
+        return System.currentTimeMillis() - record.issuedAt <= TTL_MILLIS
+    }
+
+    /** 清理过期 token，避免长期持有 listener 引用 */
+    fun purgeExpired() {
+        val now = System.currentTimeMillis()
+        tokens.entries.removeIf { now - it.value.issuedAt > TTL_MILLIS }
     }
 }

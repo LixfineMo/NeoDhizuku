@@ -21,13 +21,6 @@ android {
     namespace = "com.neodhizuku.more"
     compileSdk = 37
     buildToolsVersion = "37.0.0"
-
-    // 两个包名分支：
-    //   neo      → com.neodhizuku.more （本项目自身包名）
-    //   official → com.rosan.dhizuku  （原版包名，用于兼容硬编码官方包名的客户端）
-    //
-    // namespace 保持不变（源码包名、R 类、BuildConfig 都在 com.neodhizuku.more 下），
-    // 只有 applicationId 随分支变化，因此源码零改动。
     flavorDimensions += "pkg"
 
     productFlavors {
@@ -38,7 +31,6 @@ android {
         create("official") {
             dimension = "pkg"
             applicationId = "com.rosan.dhizuku"
-            // 版本号带后缀，便于在界面上区分当前装的是哪个分支
             versionNameSuffix = "-official"
         }
     }

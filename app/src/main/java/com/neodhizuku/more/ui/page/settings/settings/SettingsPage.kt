@@ -37,8 +37,6 @@ import com.neodhizuku.more.R
 import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.server.ServiceStatus
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
-import com.neodhizuku.more.ui.page.settings.app_management.AppTab
-import com.neodhizuku.more.ui.page.settings.app_management.AppManagementStartTab
 import com.neodhizuku.more.ui.theme.exclude
 import com.neodhizuku.more.ui.theme.plus
 
@@ -161,7 +159,6 @@ fun SettingsPage(
                                 ServiceStatus.authorizedCount
                             ),
                             onClick = {
-                                AppManagementStartTab.tab = AppTab.Authorized
                                 navController.navigate(SettingsRoute.AppManagement.route)
                             }
                         )

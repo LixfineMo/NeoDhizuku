@@ -349,6 +349,22 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
             // 超时与取消不会覆盖已有授权，因此伪造请求无法撤销他人授权。
         }
 
+        // 由本应用的通知拉起：没有 listener 可回调（老客户端从未发起过请求），
+        // 只按 uid 展示并写库。授权与否仍需用户在弹窗里确认。
+        if (neoHardenedEntry
+            && intent.getBooleanExtra(RequestPermissionToken.PARAM_SELF_LAUNCH, false)
+        ) {
+            val uid = intent.getIntExtra(DhizukuVariables.PARAM_CLIENT_UID, -1)
+            NeoLog.i(NeoLog.PERM) { "request: 通知拉起 uid=$uid（无回调 listener）" }
+            if (uid == -1) return false
+            state = state.copy(
+                uid = uid,
+                signature = packageManager.getPackageInfoForUid(uid)?.signature ?: "",
+                listener = null
+            )
+            return true
+        }
+
         val bundle = listOfNotNull(
             intent.extras,
             intent.getBundleExtra("bundle")

@@ -50,8 +50,6 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
     private var collectRepoJob: Job? = null
 
     fun collectRepo() {
-        // 重新进入页面时按最新状态归类，不再保留上次的改动
-        stickyUids.clear()
         state = state.copy(loading = true)
         collectRepoJob?.cancel()
         collectRepoJob = viewModelScope.launch(Dispatchers.IO) {
@@ -171,34 +169,7 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /**
-     * 本页手动改动过开关的 uid。
-     *
-     * 标签过滤是按 `enabled` 实时算的，改动开关后该项会立刻被挪到另一个标签，
-     * 表现为"卡片当场消失、没法立即改回来"。这些 uid 会被保留在当前标签，
-     * 直到切换标签或重新进入页面时才重新按状态归类。
-     */
-    private val stickyUids = mutableSetOf<Int>()
-
-    /** 切换标签页 */
-    fun setTab(tab: AppTab) {
-        stickyUids.clear()
-        state = state.copy(tab = tab)
-    }
-
-    /** 按当前标签过滤后的列表（黑名单已拆到独立页面） */
-    fun filteredData(): List<AppManagementViewData> = when (state.tab) {
-        AppTab.Authorized -> state.data.filter {
-            !it.blocked && (it.enabled || it.applicationInfo.uid in stickyUids)
-        }
-        else -> state.data.filter {
-            !it.blocked && (!it.enabled || it.applicationInfo.uid in stickyUids)
-        }
-    }
-
     fun setEnabled(uid: Int, bool: Boolean) {
-        // 让改过的项留在当前标签，避免卡片当场消失后无法立刻改回来
-        stickyUids.add(uid)
         NeoLog.d(NeoLog.APPS) { "setEnabled: uid=$uid -> $bool" }
         viewModelScope.launch(Dispatchers.IO) {
             val signature = packageManager.getPackageInfoForUid(uid)?.signature ?: return@launch

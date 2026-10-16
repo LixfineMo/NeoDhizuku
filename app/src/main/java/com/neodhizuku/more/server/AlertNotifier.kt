@@ -3,7 +3,9 @@ package com.neodhizuku.more.server
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 
@@ -29,6 +31,9 @@ object AlertNotifier {
 
     /** 转移已放行（警示） */
     private const val ID_TRANSFER_ALLOWED = 2002
+
+    /** 授权请求（弹窗未出现时的兜底入口） */
+    private const val ID_PERMISSION_REQUEST = 2100
 
     fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -56,24 +61,65 @@ object AlertNotifier {
         context: Context,
         id: Int,
         title: String,
-        text: String
+        text: String,
+        contentIntent: PendingIntent? = null
     ) {
         if (!canPost(context)) {
             android.util.Log.w("Dhizuku", "[Alert] 无通知权限，跳过：$title")
             return
         }
         ensureChannel(context)
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.round_hourglass_empty_black_24)
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .build()
+        if (contentIntent != null) builder.setContentIntent(contentIntent)
         runCatching {
-            NotificationManagerCompat.from(context).notify(id, notification)
+            NotificationManagerCompat.from(context).notify(id, builder.build())
         }
+    }
+
+    /**
+     * 授权请求兜底通知。
+     *
+     * 弹窗因后台启动限制没能直接拉起时，改由用户点通知进入授权页 ——
+     * 用户点击属于用户发起，不受 Android 10+ 后台启动 Activity 的限制。
+     */
+    fun permissionRequest(context: Context, uid: Int, token: String?) {
+        val label = runCatching {
+            val pm = context.packageManager
+            val name = pm.getNameForUid(uid)
+            if (name.isNullOrBlank()) uid.toString()
+            else pm.getApplicationLabel(pm.getApplicationInfo(name, 0)).toString()
+        }.getOrNull() ?: uid.toString()
+
+        val intent = Intent(
+            com.rosan.dhizuku.shared.DhizukuVariables.getActionRequestPermission(
+                context.packageName
+            )
+        )
+            .setPackage(context.packageName)
+            .putExtra(com.rosan.dhizuku.shared.DhizukuVariables.PARAM_CLIENT_UID, uid)
+            .putExtra(RequestPermissionToken.PARAM_SERVER_TOKEN, token)
+            .putExtra(RequestPermissionToken.PARAM_SELF_LAUNCH, true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val pending = runCatching {
+            PendingIntent.getActivity(context, ID_PERMISSION_REQUEST, intent, flags)
+        }.getOrNull()
+
+        post(
+            context,
+            ID_PERMISSION_REQUEST,
+            context.getString(R.string.alert_permission_request_title),
+            context.getString(R.string.alert_permission_request_text, label),
+            pending
+        )
     }
 
     /** 转移被拦截 */

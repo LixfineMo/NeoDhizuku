@@ -172,4 +172,6 @@
     <string name="home_restart_dsp">重启守护服务，恢复对第三方应用的 API 支持。</string>
     <string name="call_log_copy_done">已复制到剪贴板</string>
     <string name="call_log_long_press_hint">长按卡片可复制全部内容</string>
+    <string name="alert_permission_request_title">有应用请求 Dhizuku 授权</string>
+    <string name="alert_permission_request_text">「%1$s」请求使用 Dhizuku。点击处理此请求。</string>
 </resources>

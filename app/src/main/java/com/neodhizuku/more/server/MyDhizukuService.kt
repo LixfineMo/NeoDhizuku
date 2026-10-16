@@ -126,12 +126,42 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             .getOrDefault(false)
 
         NeoLog.i(NeoLog.PERM) { "requestPermission: startActivity=$started" }
+
+        // 不再在失败时立刻回调"拒绝"。
+        //
+        // 后台启动 Activity 限制（Android 10+）下，从后台 startActivity 可能
+        // **静默失败**：既不弹窗也不抛异常。此时若回调 DENIED，客户端会认为
+        // 用户拒绝了，之后不再重试 —— 表现为"永远无法授权"。
+        //
+        // 改为：保留 token，延迟确认弹窗是否真的起来；没起来就发通知，
+        // 由用户点击拉起（用户点击属于用户发起，不受后台启动限制）。
         if (!started) {
-            RequestPermissionToken.revoke(token)
-            runCatching { listener?.onRequestPermission(android.content.pm.PackageManager.PERMISSION_DENIED) }
+            AlertNotifier.permissionRequest(context, uid, token)
+        } else {
+            scheduleFallbackNotify(uid, token)
         }
         reply?.writeNoException()
         return true
+    }
+
+    /**
+     * 兜底通知：startActivity 调用成功不代表弹窗真的出现了（BAL 静默拦截）。
+     *
+     * 短暂延迟后检查 token 是否仍未被消费；未被消费说明用户根本没看到弹窗，
+     * 此时补发通知。
+     */
+    private fun scheduleFallbackNotify(uid: Int, token: String?) {
+        auditScope.launch {
+            kotlinx.coroutines.delay(FALLBACK_NOTIFY_DELAY_MILLIS)
+            if (!RequestPermissionToken.isPending(token)) {
+                NeoLog.d(NeoLog.PERM) { "requestPermission: 弹窗已被处理，跳过兜底通知 uid=$uid" }
+                return@launch
+            }
+            NeoLog.w(NeoLog.PERM) {
+                "requestPermission: 弹窗未出现（疑似被后台启动限制拦截），补发通知 uid=$uid"
+            }
+            AlertNotifier.permissionRequest(context, uid, token)
+        }
     }
 
     override fun checkCallingPermission(func: String?, callingUid: Int, callingPid: Int): Boolean {
@@ -258,6 +288,13 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                     AppEntity(uid = callingUid, signature = signature, allowApi = false)
                 )
                 NeoLog.i(NeoLog.PERM) { "caller entry: 已登记未授权应用 uid=$callingUid ($pkg)" }
+
+                // 老版本客户端（Maven 上的官方 API）压根不会发起授权弹窗，
+                // 只是查一下 isPermissionGranted() 就走了 —— 既没弹窗也没入口。
+                // 首次登记时补一条通知，让用户有办法点进去授权。
+                if (NeoDhizuku.on(NeoDhizuku.HardenPermissionEntry)) {
+                    AlertNotifier.permissionRequest(context, callingUid, null)
+                }
             }.onFailure {
                 NeoLog.e(NeoLog.PERM, { "caller entry: 登记失败 uid=$callingUid" }, it)
             }
@@ -402,5 +439,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     private companion object {
         /** 每条调用记录附带的运行日志行数 */
         const val LOG_EXCERPT_LINES = 20
+
+        /** 兜底通知的判定延迟：够弹窗起来，又不至于让用户等太久 */
+        const val FALLBACK_NOTIFY_DELAY_MILLIS = 3000L
     }
 }

@@ -42,7 +42,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -77,8 +76,6 @@ fun AppManagementPage(
     viewModel: AppManagementViewModel = koinViewModel()
 ) {
     LaunchedEffect(Unit) {
-        // 从设置页跳转过来时，落到指定的标签
-        viewModel.setTab(AppManagementStartTab.tab)
         viewModel.collect()
     }
     Scaffold(
@@ -107,13 +104,6 @@ fun AppManagementPage(
         }) {
         @Suppress("AnimatedContentLabel")
         AnimatedContent(targetState = viewModel.state.data.isEmpty()) { isEmpty ->
-            if (NeoDhizuku.on(NeoDhizuku.UseAppManagementTabs)) {
-                AppManagementWithTabs(
-                    viewModel = viewModel,
-                    contentPadding = it + contentPadding
-                )
-                return@AnimatedContent
-            }
             val pullToRefreshState = rememberPullToRefreshState()
             Box(
                 modifier = Modifier
@@ -348,63 +338,3 @@ private fun LazyItemScope.ItemWidget(
     }
 }
 
-/**
- * 带「已授权 / 未授权」两个标签的软件管理布局。
- * 列表只包含声明了 Dhizuku API 权限的应用（见 ViewModel 的过滤）。
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AppManagementWithTabs(
-    viewModel: AppManagementViewModel,
-    contentPadding: PaddingValues
-) {
-    val tabs = AppTab.entries
-    Column(modifier = Modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = viewModel.state.tab.ordinal) {
-            tabs.forEach { tab ->
-                Tab(
-                    selected = viewModel.state.tab == tab,
-                    onClick = { viewModel.setTab(tab) },
-                    text = {
-                        Text(
-                            stringResource(
-                                when (tab) {
-                                    AppTab.Authorized -> R.string.app_tab_authorized
-                                    else -> R.string.app_tab_unauthorized
-                                }
-                            ),
-                            maxLines = 1
-                        )
-                    }
-                )
-            }
-        }
-
-        val list = viewModel.filteredData()
-        if (list.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(
-                    stringResource(
-                        when (viewModel.state.tab) {
-                            AppTab.Authorized -> R.string.app_empty_authorized
-                            else -> R.string.app_empty_unauthorized
-                        }
-                    ),
-                    modifier = Modifier
-                        .padding(contentPadding + PaddingValues(16.dp))
-                        .align(Alignment.Center)
-                )
-            }
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp) + contentPadding,
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(list, key = { it.applicationInfo.uid }) {
-                    ItemWidget(viewModel = viewModel, data = it)
-                }
-            }
-        }
-    }
-}
