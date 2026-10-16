@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name" translatable="false">NeoDhizuku</string>
+    <string name="agreement_title">Policy</string>
+    <string name="agreement_text">Here is our user policy, Please read and agree to it. &lt;a href="https://iamr0s.github.io/Dhizuku/TERMS.html"&gt;Terms of Use&lt;/a&gt;, &lt;a href="https://iamr0s.github.io/Dhizuku/PRIVACY.html"&gt;Privacy Policy&lt;/a&gt; This message won\'t show up again after you agree.</string>
+    <string name="agree_text">Agree</string>
+    <string name="permission_description">Use Dhizuku\'s API</string>
+    <!-- Commonly  used characters -->
+    <string name="copy">Copy</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">You are %1$s!!!</string>
+    <string name="home_status_owner_transferred">%1$s has been transferred!!!</string>
+    <string name="home_status_owner_denied">Waiting for activation</string>
+    <!-- Home - Application Management -->
+    <string name="home_app_management_title">Application Management</string>
+    <string name="home_app_management_dsp">Apps that has requested or declared Dhizuku will show here.</string>
+    <!-- Home - Dhizuku -->
+    <string name="home_dhizuku_title">Activation by Dhizuku</string>
+    <string name="home_dhizuku_dsp">If you have other Dhizuku implementations installed, you can switch between them at will. Please &lt;a href="%1$s"&gt;read the help&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
+    <string name="home_shizuku_title">Activation by Shizuku</string>
+    <string name="home_shizuku_dsp">With Shizuku, you have the ability to run ADB commands without the need for a computer. Please &lt;a href="%1$s"&gt;read the help&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
+    <string name="home_adb_title">Activation by ADB</string>
+    <string name="home_adb_dsp">Through the ADB (Android Debug Bridge) connection, you can execute some privileged commands. Please &lt;a href="%1$s"&gt;read the help&lt;/a&gt;.</string>
+    <string name="home_adb_btn_view_command">View command</string>
+    <!-- Home - PvsD -->
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">Shutdown</string>
+    <string name="home_shutdown_dsp">The API service cannot be fully shut down. After closing, operations will be rejected; only viewing authorization and call logs remains available.</string>
+    <!-- Home - Deactivate-->
+    <string name="home_deactivate_title">Deactivate</string>
+    <string name="home_deactivate_dsp">Are you sure you want to deactivate?</string>
+    <string name="confirm">OK</string>
+    <string name="confirm_device_owner">Device Owner</string>
+    <string name="confirm_profile_owner">Profile Owner</string>
+    <string name="profile_owner_warning_title">Warning</string>
+    <string name="profile_owner_warning_dsp">This is a change that should only be made by users who understand its implications. The developers of Dhizuku cannot guarantee anything about unexpected behavior caused by this mode change.</string>
+    <string name="finish">Finish</string>
+    <string name="donate">Donate</string>
+    <string name="donate_hide_action">Hide</string>
+    <string name="donate_hide_confirm_title">Hide Donate Button</string>
+    <string name="donate_hide_confirm_dsp">This cannot be undone from within the app. Are you sure you want to permanently hide the donate button?</string>
+    <string name="request_permission_text">Allow <b>%1$s</b> to access Dhizuku?</string>
+    <string name="agree">Grant</string>
+    <string name="refuse">Deny</string>
+    <string name="service_channel_name">Background service</string>
+    <string name="service_running">Dhizuku is running</string>
+    <string name="settings">Settings</string>
+    <string name="settings_desc">Configure Dhizuku behavior</string>
+    <string name="enable_dhizuku">Enable Dhizuku</string>
+    <string name="enable_dhizuku_desc">Allow apps to use Dhizuku services</string>
+    <string name="whitelist_mode">Whitelist Mode</string>
+    <string name="whitelist_mode_desc">Only allow pre-approved apps to use Dhizuku</string>
+    <string name="block_app">Block App</string>
+    <string name="auto_deny_in">Auto-deny in</string>
+    <string name="block_app_desc">Completely deny access to Dhizuku</string>
+    <string name="app_blocked_notice">This app is blocked and cannot access Dhizuku</string>
+    <string name="allow_dhizuku_access">Allow Dhizuku Access</string>
+    <string name="unblock_app">Unblock App</string>
+    <string name="auto_deny_in_seconds">Auto-deny in %d seconds</string>
+    <string name="denying_access">Denying access…</string>
+
+    <string name="daemon_service_notification_title">Dhizuku Daemon</string>
+    <string name="daemon_service_notification_text">This is a Dhizuku notification to ensure service availability at any time. You can long press to hide this notification.</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui is not running. Opening the download page…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">Accounts exist on this device</string>
+    <string name="activate_err_account_exists_advice">Android requires all accounts to be removed before setting a device owner. Please remove them in system settings, then try again.</string>
+    <string name="activate_err_owner_exists">A device owner or profile owner is already set</string>
+    <string name="activate_err_owner_exists_advice">Only one owner can exist at a time. Remove the existing owner first, or transfer ownership from Dhizuku.</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui is unavailable</string>
+    <string name="activate_err_shizuku_down_advice">Please start Shizuku (or install Sui) and grant permission to Dhizuku, then try again.</string>
+    <string name="activate_err_hidden_api">This system blocks the required private API</string>
+    <string name="activate_err_hidden_api_advice">Please activate via ADB or QR provisioning instead. See the home page for instructions.</string>
+    <string name="activate_err_not_admin">The target component is not a valid device admin</string>
+    <string name="activate_err_not_admin_advice">The selected app does not declare a device admin receiver. Please choose another one.</string>
+    <string name="activate_err_cancelled">Activation was cancelled</string>
+    <string name="activate_err_cancelled_advice">You cancelled the request, or the operation timed out. You can try again.</string>
+    <string name="activate_err_unknown">Activation failed</string>
+    <string name="activate_err_unknown_advice">An unexpected error occurred. Copy the diagnostic info and try another activation method.</string>
+    <string name="activate_err_view_detail">View details</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">Provisioning finished</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">Failed to remove the owner. You can remove it manually in system settings.</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">Home</string>
+    <string name="nav_app_management">Apps</string>
+    <string name="nav_call_log">Call log</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">Activated</string>
+    <string name="home_status_tap_to_manage">Tap to open activation and transfer options</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">Authorized</string>
+    <string name="app_tab_unauthorized">Not authorized</string>
+    <string name="app_tab_blocked">Blocklist</string>
+    <string name="app_empty_authorized">No authorized apps</string>
+    <string name="app_empty_unauthorized">No pending apps</string>
+    <string name="app_empty_blocked">No blocked apps</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">Block</string>
+    <string name="request_permission_scope_hint">This app will be able to use device owner capabilities</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">No calls recorded yet</string>
+    <string name="call_log_times">%1$d times</string>
+    <string name="call_log_footer">In-memory only, cleared after restart</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">Authorized apps</string>
+    <string name="home_stat_uptime">Uptime</string>
+    <string name="home_status_version">Version: %1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">Management</string>
+    <string name="settings_manage_apps_desc">%1$d authorized apps</string>
+    <string name="settings_manage_blocklist_desc">Blocked apps will not receive prompts</string>
+    <string name="settings_manage_calllog_desc">Review what apps did through Dhizuku</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">Theme</string>
+    <string name="settings_appearance_section">Appearance</string>
+    <string name="settings_theme_desc">Dark mode, dynamic color</string>
+    <string name="theme_mode_section">Dark mode</string>
+    <string name="theme_color_section">Colors</string>
+    <string name="theme_mode_system">Follow system</string>
+    <string name="theme_mode_system_desc">Switch with the system dark theme setting</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_light_desc">Always use the light theme</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_dark_desc">Always use the dark theme</string>
+    <string name="theme_mode_amoled">Dark (AMOLED)</string>
+    <string name="theme_mode_amoled_desc">Dark theme with a pure black background</string>
+    <string name="theme_monet">Dynamic color</string>
+    <string name="theme_monet_desc">Take accent colors from the system wallpaper</string>
+    <string name="theme_monet_unsupported">Dynamic color requires Android 12 or newer (current: %1$d)</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">安全警示</string>
+    <string name="notifier_channel_security_desc">设备所有者转移等高风险事件的提醒</string>
+    <string name="alert_transfer_blocked_title">已阻止转移设备所有者</string>
+    <string name="alert_transfer_blocked_text">应用「%1$s」尝试把设备所有者转移出去，已被拦截。可在设置中开启「允许第三方应用主动转移设备所有者」后重试。</string>
+    <string name="alert_transfer_allowed_title">设备所有者可能已被转移</string>
+    <string name="alert_transfer_allowed_text">应用「%1$s」已执行设备所有者转移。若该应用不提供授权入口，所有者可能无法再取回。</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">允许第三方应用主动转移设备所有者</string>
+    <string name="settings_allow_owner_transfer_desc">开启后，已授权应用可自行把设备所有者交给其他应用，且过程不可逆</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">调用记录</string>
+    <string name="call_log_tab_runtime">运行日志</string>
+    <string name="call_log_today">今天</string>
+    <string name="call_log_yesterday">昨天</string>
+    <string name="call_log_log_excerpt">日志片段</string>
+    <string name="call_log_clear">清除记录</string>
+    <string name="call_log_clear_confirm">清除全部调用记录与运行日志？此操作不可撤销。</string>
+    <string name="call_log_retention">保留时长</string>
+    <string name="call_log_retention_7">7 天</string>
+    <string name="call_log_retention_30">30 天</string>
+    <string name="call_log_retention_90">90 天</string>
+    <string name="call_log_retention_forever">永久</string>
+    <string name="call_log_empty_runtime">暂无运行日志</string>
+    <string name="settings_security_section">安全</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">Service refused</string>
+    <string name="home_restart_service">重启服务</string>
+    <string name="home_stop_service">停止服务</string>
+    <string name="home_restart_dsp">重启守护服务，恢复对第三方应用的 API 支持。</string>
+    <string name="call_log_copy_done">已复制到剪贴板</string>
+    <string name="call_log_long_press_hint">长按卡片可复制全部内容</string>
+</resources>

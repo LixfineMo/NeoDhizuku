@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agreement_title">温馨提示</string>
+    <string name="agreement_text">根据相关政策规定，您需要先阅读并同意&lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;《用户条款》&lt;/a&gt;与&lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;《隐私政策》&lt;/a&gt;后才能开始使用本软件。同意后不再弹出此提示，可通过设置页点击链接可再次查看相关文件内容。</string>
+    <string name="agree_text">同意</string>
+    <!-- Commonly  used characters -->
+    <string name="cancel">取消</string>
+    <string name="retry">重试</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">已获得所有者权限！</string>
+    <string name="home_status_owner_denied">等待激活</string>
+    <!-- Home - Application Management -->
+    <string name="home_app_management_title">应用管理</string>
+    <string name="home_app_management_dsp">已申请或声明使用 Dhizuku 的应用将在此显示。</string>
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">关闭</string>
+    <string name="home_shutdown_dsp">由于无法关闭 API 服务，关闭后将会拒绝操作，仅保留查看授权与调用记录的能力。</string>
+    <!-- Home - Dhizuku -->
+    <string name="home_dhizuku_title">激活（通过 Dhizuku）</string>
+    <string name="home_dhizuku_dsp">如果您安装了其他的Dhizuku实现，您可以随意在它们之间切换。请&lt;a href=%1$s&gt;阅读帮助&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
+    <string name="home_shizuku_title">激活（通过 Shizuku）</string>
+    <string name="home_shizuku_dsp">使用Shizuku，您无需电脑就可以运行ADB命令。请&lt;a href=%1$s&gt;阅读帮助&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
+    <string name="home_adb_title">激活（通过 ADB）</string>
+    <string name="home_adb_dsp">通过ADB（Android Debug Bridge）连接，可以执行一些特权命令。请&lt;a href=%1$s&gt;阅读帮助&lt;/a&gt;.</string>
+    <string name="home_adb_btn_view_command">查看命令</string>
+    <string name="confirm">确认</string>
+    <string name="finish">完成</string>
+    <string name="home_deactivate_title">取消激活</string>
+    <string name="home_deactivate_dsp">确认要取消激活吗？</string>
+    <string name="donate">捐赠</string>
+    <string name="request_permission_text">是否允许<b>%1$s</b>访问Dhizuku?</string>
+    <string name="agree">同意</string>
+    <string name="refuse">拒绝</string>
+    <string name="service_channel_name">后台服务</string>
+    <string name="service_running">Dhizuku正在运行</string>
+    <string name="permission_description">使用 Dhizuku 的 API</string>
+    <string name="settings">设置</string>
+    <string name="settings_desc">配置 Dhizuku 行为</string>
+    <string name="enable_dhizuku">启用 Dhizuku</string>
+    <string name="enable_dhizuku_desc">允许其他应用使用 Dhizuku</string>
+    <string name="whitelist_mode">白名单模式</string>
+    <string name="whitelist_mode_desc">仅允许已授权应用访问 Dhizuku</string>
+    <string name="block_app">屏蔽应用</string>
+    <string name="auto_deny_in">自动拒绝：</string>
+    <string name="block_app_desc">拒绝访问 Dhizuku</string>
+    <string name="app_blocked_notice">此应用已被屏蔽，无法访问 Dhizuku</string>
+    <string name="allow_dhizuku_access">允许访问 Dhizuku</string>
+    <string name="unblock_app">取消屏蔽应用</string>
+    <string name="auto_deny_in_seconds">将在 %d 秒后自动拒绝</string>
+    <string name="denying_access">拒绝访问…</string>
+    <string name="daemon_service_notification_title">Dhizuku 守护进程</string>
+    <string name="daemon_service_notification_text">这是一个Dhizuku的通知，用于保证随时提供服务，你可以长按隐藏此通知。</string>
+    <string name="copy">复制</string>
+    <string name="confirm_device_owner">设备所有者</string>
+    <string name="confirm_profile_owner">资料所有者</string>
+    <string name="profile_owner_warning_title">警告</string>
+    <string name="profile_owner_warning_dsp">此更改只应由了解其影响的用户进行。Dhizuku 的开发者无法对此模式更改导致的任何意外行为做出任何保证。</string>
+    <string name="donate_hide_action">隐藏</string>
+    <string name="donate_hide_confirm_title">隐藏捐赠按钮</string>
+    <string name="donate_hide_confirm_dsp">此操作无法在应用内撤销。确定要永久隐藏捐赠按钮吗？</string>
+    <string name="home_status_owner_transferred">%1$s已转移！！！</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui 未运行，正在打开下载页…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">设备上仍存在账户</string>
+    <string name="activate_err_account_exists_advice">Android 要求设置设备所有者前移除全部账户。请在系统设置中移除后重试。</string>
+    <string name="activate_err_owner_exists">已存在设备所有者或配置文件所有者</string>
+    <string name="activate_err_owner_exists_advice">同一时间只能有一个所有者。请先移除现有所有者，或从 Dhizuku 转移所有权。</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui 不可用</string>
+    <string name="activate_err_shizuku_down_advice">请启动 Shizuku（或安装 Sui）并授予 Dhizuku 权限后重试。</string>
+    <string name="activate_err_hidden_api">当前系统拦截了所需的私有接口</string>
+    <string name="activate_err_hidden_api_advice">请改用 ADB 命令或二维码配置方式激活，具体做法见首页说明。</string>
+    <string name="activate_err_not_admin">目标组件不是有效的设备管理器</string>
+    <string name="activate_err_not_admin_advice">所选应用未声明设备管理器组件，请换一个应用。</string>
+    <string name="activate_err_cancelled">激活已取消</string>
+    <string name="activate_err_cancelled_advice">你取消了请求，或操作超时。可以再试一次。</string>
+    <string name="activate_err_unknown">激活失败</string>
+    <string name="activate_err_unknown_advice">发生未知错误。可复制诊断信息反馈，或换一种激活方式。</string>
+    <string name="activate_err_view_detail">查看技术详情</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">配置已完成</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">移除所有者失败，可在系统设置中手动移除。</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_app_management">软件管理</string>
+    <string name="nav_call_log">调用记录</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">已激活</string>
+    <string name="home_status_tap_to_manage">点击查看激活与转让选项</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">已授权</string>
+    <string name="app_tab_unauthorized">未授权</string>
+    <string name="app_tab_blocked">黑名单</string>
+    <string name="app_empty_authorized">暂无已授权的应用</string>
+    <string name="app_empty_unauthorized">暂无待授权的应用</string>
+    <string name="app_empty_blocked">黑名单为空</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">加入黑名单</string>
+    <string name="request_permission_scope_hint">该应用将可以使用设备所有者能力</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">暂无调用记录</string>
+    <string name="call_log_times">%1$d 次</string>
+    <string name="call_log_footer">仅保存在内存中，重启后清空</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">授权应用</string>
+    <string name="home_stat_uptime">运行时间</string>
+    <string name="home_status_version">版本：%1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">管理</string>
+    <string name="settings_manage_apps_desc">%1$d 个已授权应用</string>
+    <string name="settings_manage_blocklist_desc">已拉黑的应用不会再收到授权请求</string>
+    <string name="settings_manage_calllog_desc">查看各应用通过 Dhizuku 做过什么</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">主题</string>
+    <string name="settings_appearance_section">外观</string>
+    <string name="settings_theme_desc">深色模式、动态取色</string>
+    <string name="theme_mode_section">深色模式</string>
+    <string name="theme_color_section">配色</string>
+    <string name="theme_mode_system">跟随系统</string>
+    <string name="theme_mode_system_desc">随系统的深色模式设置切换</string>
+    <string name="theme_mode_light">浅色</string>
+    <string name="theme_mode_light_desc">始终使用浅色主题</string>
+    <string name="theme_mode_dark">深色</string>
+    <string name="theme_mode_dark_desc">始终使用深色主题</string>
+    <string name="theme_mode_amoled">深色（纯黑）</string>
+    <string name="theme_mode_amoled_desc">深色主题，背景使用纯黑，OLED 屏更省电</string>
+    <string name="theme_monet">动态取色</string>
+    <string name="theme_monet_desc">从系统壁纸中提取主题色</string>
+    <string name="theme_monet_unsupported">动态取色需要 Android 12 及以上（当前：%1$d）</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">安全警示</string>
+    <string name="notifier_channel_security_desc">设备所有者转移等高风险事件的提醒</string>
+    <string name="alert_transfer_blocked_title">已阻止转移设备所有者</string>
+    <string name="alert_transfer_blocked_text">应用「%1$s」尝试把设备所有者转移出去，已被拦截。可在设置中开启「允许第三方应用主动转移设备所有者」后重试。</string>
+    <string name="alert_transfer_allowed_title">设备所有者可能已被转移</string>
+    <string name="alert_transfer_allowed_text">应用「%1$s」已执行设备所有者转移。若该应用不提供授权入口，所有者可能无法再取回。</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">允许第三方应用主动转移设备所有者</string>
+    <string name="settings_allow_owner_transfer_desc">开启后，已授权应用可自行把设备所有者交给其他应用，且过程不可逆</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">调用记录</string>
+    <string name="call_log_tab_runtime">运行日志</string>
+    <string name="call_log_today">今天</string>
+    <string name="call_log_yesterday">昨天</string>
+    <string name="call_log_log_excerpt">日志片段</string>
+    <string name="call_log_clear">清除记录</string>
+    <string name="call_log_clear_confirm">清除全部调用记录与运行日志？此操作不可撤销。</string>
+    <string name="call_log_retention">保留时长</string>
+    <string name="call_log_retention_7">7 天</string>
+    <string name="call_log_retention_30">30 天</string>
+    <string name="call_log_retention_90">90 天</string>
+    <string name="call_log_retention_forever">永久</string>
+    <string name="call_log_empty_runtime">暂无运行日志</string>
+    <string name="settings_security_section">安全</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">拒绝服务</string>
+    <string name="home_restart_service">重启服务</string>
+    <string name="home_stop_service">停止服务</string>
+    <string name="home_restart_dsp">重启守护服务，恢复对第三方应用的 API 支持。</string>
+    <string name="call_log_copy_done">已复制到剪贴板</string>
+    <string name="call_log_long_press_hint">长按卡片可复制全部内容</string>
+</resources>
