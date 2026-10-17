@@ -74,6 +74,27 @@
             </intent-filter>
         </activity>
 
+        <!--
+            原版 Dhizuku 的授权 action。硬编码官方包名的客户端会用固定 action
+            发起授权请求，此处用 activity-alias 指向同一个 Activity，
+            避免在主 intent-filter 里追加造成重复。
+        -->
+        <activity-alias
+            android:name=".RequestPermissionOfficialEntry"
+            android:targetActivity=".ui.activity.RequestPermissionActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Dhizuku.Translucent">
+
+            <intent-filter>
+                <action android:name="com.rosan.dhizuku.action.request.permission" />
+                <action android:name="com.rosan.dhizuku.action.REQUEST_DHIZUKU_PERMISSION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
         <activity
             android:name=".ui.activity.ProvisioningActivity"
             android:exported="true"

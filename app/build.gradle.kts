@@ -22,69 +22,36 @@ android {
     compileSdk = 37
     buildToolsVersion = "37.0.0"
 
-    // 两个包名分支：
-    //   neo      → com.neodhizuku.more （本项目自身包名）
-    //   official → com.rosan.dhizuku  （原版包名，用于兼容硬编码官方包名的客户端）
+    // 包名固定为 com.neodhizuku.more（namespace、R 类、BuildConfig 都在其下）。
     //
-    // namespace 保持不变（源码包名、R 类、BuildConfig 都在 com.neodhizuku.more 下），
-    // 只有 applicationId 随分支变化，因此源码零改动。
-    flavorDimensions += "pkg"
-
-    // 当前激活的分支。默认只保留 neoCompat，这样 assembleDebug / assembleRelease
-    // 以及 IDE 的 Run 按钮都会直接出接管版，无需手动切换 Build Variant。
+    // provider 注册三个 authority：
+    //   1. com.neodhizuku.more.dhizuku_server.provider  —— 本应用自身，供动态推导 authority 的客户端
+    //   2. com.neodhizuku.more.server.provider          —— 同上，兜底
+    //   3. com.rosan.dhizuku.server.provider            —— 原版 Dhizuku 的固定 authority
     //
-    // 三个分支的配置都完整保留，需要哪个就把它加回这个集合：
-    //   setOf("neo", "neoCompat", "official")
-    val activeFlavors = setOf("neoCompat")
-
-    // 三个分支共用同一份源码，只有 applicationId 与 provider 的 authorities 不同。
+    // 第 3 项让硬编码官方包名的客户端（如 amarok、爱玩机工具箱）也能连到本应用。
+    // ContentProvider authority 全局唯一，因此原版 Dhizuku 必须卸载，
+    // 否则安装时报 INSTALL_FAILED_CONFLICTING_PROVIDER。
     //
-    //   neo       —— 本项目包名，只注册自己的 authority
-    //                → 可与原版 Dhizuku 共存
-    //   neoCompat —— 同上，额外注册原版 Dhizuku 的固定 authority 与授权 action
-    //                → 硬编码官方包名的客户端（部分安装器、工具箱）也能连到本应用
-    //                → 原版 Dhizuku 必须卸载，否则 authority 冲突装不上
-    //   official  —— 直接用原版包名，天然兼容全部客户端
-    //                → 原版 Dhizuku 必须卸载（同包名无法共存）
-    productFlavors {
-        create("neo") {
-            dimension = "pkg"
-            applicationId = "com.neodhizuku.more"
-            manifestPlaceholders["dhizukuAuthorities"] =
-                "com.neodhizuku.more.dhizuku_server.provider;" +
-                "com.neodhizuku.more.server.provider"
-        }
-        create("neoCompat") {
-            dimension = "pkg"
-            applicationId = "com.neodhizuku.more"
-            // 版本号带后缀，便于在界面上区分装的是哪个分支
-            versionNameSuffix = "-compat"
-            manifestPlaceholders["dhizukuAuthorities"] =
-                "com.neodhizuku.more.dhizuku_server.provider;" +
-                "com.neodhizuku.more.server.provider;" +
-                "com.rosan.dhizuku.server.provider"
-        }
-        create("official") {
-            dimension = "pkg"
-            applicationId = "com.rosan.dhizuku"
-            versionNameSuffix = "-official"
-            // 官方包名下 ${applicationId}.server.provider 已经是原版 authority，
-            // 无需再额外声明（重复声明会导致 authority 冲突）。
-            manifestPlaceholders["dhizukuAuthorities"] =
-                "com.rosan.dhizuku.dhizuku_server.provider;" +
-                "com.rosan.dhizuku.server.provider"
-        }
-    }
+    // 授权 action 同理，见 AndroidManifest.xml 中的 RequestPermissionOfficialEntry。
 
     defaultConfig {
         minSdk = 26
         targetSdk = compileSdk
         ndkVersion = "29.0.14206865"
 
+        applicationId = "com.neodhizuku.more"
+        manifestPlaceholders["dhizukuAuthorities"] =
+            "com.neodhizuku.more.dhizuku_server.provider;" +
+            "com.neodhizuku.more.server.provider;" +
+            "com.rosan.dhizuku.server.provider"
+
         val versionProps: Properties = org.jetbrains.kotlin.konan.file.File("$rootDir/version.properties").loadProperties()
         versionCode = versionProps.getProperty("versionCode").toInt()
         versionName = versionProps.getProperty("versionName")
 
+        // D-04：构建期注入自身签名白名单，供启动时完整性校验使用。
+        // 未配置时为空字符串，ManagerIntegrity 会自动跳过校验（方便自行编译调试）。
         val signatureAllowlist = (
             System.getenv("DHIZUKU_SIGNATURE_SHA256")
                 ?: project.findProperty("dhizukuSignatureSha256")?.toString()
