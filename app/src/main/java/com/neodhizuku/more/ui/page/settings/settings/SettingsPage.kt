@@ -87,59 +87,6 @@ fun SettingsPage(
                 .padding(it + contentPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item {
-                ElevatedCard {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.enable_dhizuku),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    stringResource(R.string.enable_dhizuku_desc),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                            Switch(
-                                checked = viewModel.state.dhizukuEnabled,
-                                onCheckedChange = viewModel::setDhizukuEnabled
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.whitelist_mode),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    stringResource(R.string.whitelist_mode_desc),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                            Switch(
-                                checked = viewModel.state.whitelistMode,
-                                onCheckedChange = viewModel::setWhitelistMode
-                            )
-                        }
-                    }
-                }
-            }
-
             // 管理分区只在已激活时显示，未激活时没有可管理的内容
             if (isOwner) item("manage_title") {
                 Text(
@@ -174,7 +121,7 @@ fun SettingsPage(
                 }
             }
 
-            // 安全分区：转移开关默认关闭
+            // 安全：入口形式，具体项在安全页内
             item("security_title") {
                 Text(
                     stringResource(R.string.settings_security_section),
@@ -185,31 +132,14 @@ fun SettingsPage(
 
             item("security_card") {
                 ElevatedCard {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.settings_allow_owner_transfer),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    stringResource(R.string.settings_allow_owner_transfer_desc),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        ManageEntry(
+                            title = stringResource(R.string.security_title),
+                            desc = stringResource(R.string.settings_security_desc),
+                            onClick = {
+                                navController.navigate(SettingsRoute.Security.route)
                             }
-                            Switch(
-                                checked = viewModel.state.allowOwnerTransfer,
-                                onCheckedChange = viewModel::setAllowOwnerTransfer
-                            )
-                        }
+                        )
                     }
                 }
             }

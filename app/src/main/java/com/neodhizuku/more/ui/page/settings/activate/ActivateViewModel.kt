@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
+import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.NeoDhizuku
 import com.rosan.dhizuku.api.Dhizuku
 import com.neodhizuku.more.data.common.util.has
@@ -61,6 +62,10 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         private set
 
     fun collect() {
+        // 进入激活页先同步一次真实所有者状态。
+        // 若上次激活成功但状态未刷新（例如 Shizuku 路径漏了 sync），
+        // 重新进页面即可看到"已激活"，不必再走一遍激活流程。
+        DhizukuState.sync(context)
         collectData()
     }
 
@@ -175,6 +180,13 @@ class ActivateViewModel : ViewModel(), KoinComponent {
     @SuppressLint("PrivateApi")
     private suspend fun activateAsDeviceOwnerByShizuku(who: ComponentName) =
         requireShizukuPermissionGranted() {
+            // 已经是设备所有者就直接返回，避免 setDeviceOwner 抛
+            // IllegalStateException("Trying to set the device owner, but device owner is already set")。
+            // 这种情况在"激活已成功但界面未刷新"时很常见 —— 用户会以为失败并反复重试。
+            if (isAlreadyDeviceOwner(who)) {
+                DhizukuState.sync(context)
+                return@requireShizukuPermissionGranted
+            }
             // wait for the account cache be refreshed
             if (NeoDhizuku.on(NeoDhizuku.FixAccountWait)) {
                 // 轮询等待账户缓存就绪：固定延时在慢设备上不够、快设备上白等
@@ -199,11 +211,18 @@ class ActivateViewModel : ViewModel(), KoinComponent {
                     it.setDeviceOwner(who, null, userId)
                 }
             }
+            // 必须同步状态：Shizuku 路径此前没有调用 sync，
+            // 导致激活确实成功、弹窗提示成功，但首页仍显示未激活。
+            DhizukuState.sync(context)
         }
 
     @SuppressLint("PrivateApi")
     private suspend fun activateAsProfileOwnerByShizuku(who: ComponentName) =
         requireShizukuPermissionGranted() {
+            if (isAlreadyProfileOwner(who)) {
+                DhizukuState.sync(context)
+                return@requireShizukuPermissionGranted
+            }
             // wait for the account cache be refreshed
             if (NeoDhizuku.on(NeoDhizuku.FixAccountWait)) {
                 waitAccountsReady()
@@ -227,7 +246,24 @@ class ActivateViewModel : ViewModel(), KoinComponent {
                     it.setProfileOwner(who, null, userId)
                 }
             }
+            DhizukuState.sync(context)
         }
+
+    /**
+     * 是否已经是指定的设备所有者。
+     *
+     * 用公开 API 判定，不依赖反射；失败一律返回 false（按"还不是"处理，
+     * 走正常激活流程，最坏情况是系统回报 OWNER_ALREADY_SET）。
+     */
+    private fun isAlreadyDeviceOwner(who: ComponentName): Boolean = runCatching {
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+        dpm != null && dpm.isDeviceOwnerApp(who.packageName)
+    }.getOrDefault(false)
+
+    private fun isAlreadyProfileOwner(who: ComponentName): Boolean = runCatching {
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+        dpm != null && dpm.isProfileOwnerApp(who.packageName)
+    }.getOrDefault(false)
 
     private fun DevicePolicyManager.setActiveAdmin(
         policyReceiver: ComponentName,
@@ -328,26 +364,39 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         policyReceiver: ComponentName,
         refreshing: Boolean,
         userHandle: Int
-    ) = setActiveAdmin(policyReceiver, refreshing, userHandle)
+    ) = invokeDpmCompat(
+        this,
+        "setActiveAdmin",
+        arrayOf(policyReceiver, refreshing, userHandle)
+    ) {
+        setActiveAdmin(policyReceiver, refreshing, userHandle)
+    }
 
     private fun IDevicePolicyManager.setDeviceOwnerV2(
         who: ComponentName,
         ownerName: String?,
         userId: Int
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            setDeviceOwner(who, userId, false)
-            return
+        val args = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            arrayOf<Any?>(who, userId)
+        } else {
+            arrayOf<Any?>(who, ownerName, userId)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            setDeviceOwner(who, ownerName, userId, false)
-            return
+        invokeDpmCompat(this, "setDeviceOwner", args) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                setDeviceOwner(who, userId, false)
+                return@invokeDpmCompat
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                setDeviceOwner(who, ownerName, userId, false)
+                return@invokeDpmCompat
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setDeviceOwner(who, ownerName, userId)
+                return@invokeDpmCompat
+            }
+            setDeviceOwner(who.packageName, ownerName)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            setDeviceOwner(who, ownerName, userId)
-            return
-        }
-        setDeviceOwner(who.packageName, ownerName)
     }
 
     private fun IDevicePolicyManager.setProfileOwnerV2(
@@ -355,16 +404,135 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         ownerName: String?,
         userId: Int
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            setProfileOwner(who, userId)
-            return
+        val args = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            arrayOf<Any?>(who, userId)
+        } else {
+            arrayOf<Any?>(who, ownerName, userId)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            setProfileOwner(who, ownerName, userId)
-            return
+        invokeDpmCompat(this, "setProfileOwner", args) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                setProfileOwner(who, userId)
+                return@invokeDpmCompat
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setProfileOwner(who, ownerName, userId)
+                return@invokeDpmCompat
+            }
+            setProfileOwner(who, ownerName)
         }
-        setProfileOwner(who, ownerName)
     }
+
+    /**
+     * 以兼容方式调用 IDevicePolicyManager 上的隐藏方法。
+     *
+     * 直接按编译期签名调用在方法签名变更的系统上会抛 NoSuchMethodError ——
+     * 编译期链接的是 SDK 里的 stub，运行期解析的是设备上的真实 framework，
+     * 两者不一致时调用点在运行期才崩，且是 Error 而非 Exception。
+     *
+     * 策略：先按编译期签名试；仅在"签名不匹配"（NoSuchMethodError /
+     * NoSuchMethodException）时，扫描同名方法、按参数位置匹配，
+     * 多出来的尾部参数按类型填默认值，逐个试直到成功。
+     *
+     * 业务性异常（如"设备所有者已设置"）原样抛出，交给上层错误映射处理。
+     */
+    private fun invokeDpmCompat(
+        target: IDevicePolicyManager,
+        name: String,
+        args: Array<Any?>,
+        preferred: () -> Unit
+    ) {
+        val first = runCatching(preferred)
+        if (first.isSuccess) return
+
+        val err = first.exceptionOrNull()
+        val signatureMismatch = err is NoSuchMethodError || err is NoSuchMethodException
+        if (!signatureMismatch) {
+            throw asRuntime(err)
+        }
+
+        val candidates = target.javaClass.methods
+            .filter { it.name == name }
+            .sortedBy { it.parameterTypes.size }
+        NeoLog.w(NeoLog.ACTIVATE) {
+            "$name 编译期签名不可用，扫描到 ${candidates.size} 个候选：" +
+                candidates.joinToString(" | ") { m ->
+                    m.name + "(" + m.parameterTypes.joinToString(",") { it.simpleName } + ")"
+                }
+        }
+
+        for (m in candidates) {
+            val types = m.parameterTypes
+            if (types.size < args.size) continue
+            val actual = arrayOfNulls<Any?>(types.size)
+            var matched = true
+            for (i in types.indices) {
+                if (i < args.size) {
+                    if (assignable(types[i], args[i])) actual[i] = args[i]
+                    else {
+                        matched = false
+                        break
+                    }
+                } else {
+                    val d = defaultValueOf(types[i])
+                    if (d === NO_DEFAULT) {
+                        matched = false
+                        break
+                    }
+                    actual[i] = d
+                }
+            }
+            if (!matched) continue
+
+            val r = runCatching { m.invoke(target, *actual) }
+            if (r.isSuccess) {
+                NeoLog.i(NeoLog.ACTIVATE) {
+                    "$name 已用运行期签名调用：" +
+                        types.joinToString(",") { it.simpleName }
+                }
+                return
+            }
+            val t = r.exceptionOrNull()
+            if (t is InvocationTargetException) {
+                val cause = t.targetException
+                if (cause is NoSuchMethodError || cause is NoSuchMethodException) continue
+                throw asRuntime(cause ?: t)
+            }
+            if (t is NoSuchMethodError || t is NoSuchMethodException) continue
+            throw asRuntime(t)
+        }
+        throw NoSuchMethodError(
+            "No usable signature for $name (args=${args.size}) on API ${Build.VERSION.SDK_INT}"
+        )
+    }
+
+    /** 形参类型与实参是否兼容（含基本类型装箱判定） */
+    private fun assignable(type: Class<*>, value: Any?): Boolean {
+        if (value == null) return !type.isPrimitive
+        return when (type) {
+            java.lang.Boolean.TYPE -> value is Boolean
+            Integer.TYPE -> value is Int
+            java.lang.Long.TYPE -> value is Long
+            java.lang.Float.TYPE -> value is Float
+            java.lang.Double.TYPE -> value is Double
+            else -> type.isAssignableFrom(value.javaClass)
+        }
+    }
+
+    /** 尾部多余形参的默认值；返回 NO_DEFAULT 表示该类型无法自动填充 */
+    private fun defaultValueOf(type: Class<*>): Any? = when (type) {
+        java.lang.Boolean.TYPE -> false
+        Integer.TYPE -> 0
+        java.lang.Long.TYPE -> 0L
+        java.lang.Float.TYPE -> 0f
+        java.lang.Double.TYPE -> 0.0
+        java.lang.String::class.java -> null
+        else -> NO_DEFAULT
+    }
+
+    private val NO_DEFAULT = Any()
+
+    private fun asRuntime(t: Throwable?): RuntimeException =
+        t as? RuntimeException ?: RuntimeException(t)
 
     @SuppressLint("PrivateApi")
     private fun requireBinderWrapperDevicePolicyManager(

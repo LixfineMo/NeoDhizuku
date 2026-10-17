@@ -22,16 +22,33 @@ android {
     compileSdk = 37
     buildToolsVersion = "37.0.0"
     flavorDimensions += "pkg"
-
     productFlavors {
         create("neo") {
             dimension = "pkg"
             applicationId = "com.neodhizuku.more"
+            manifestPlaceholders["dhizukuAuthorities"] =
+                "com.neodhizuku.more.dhizuku_server.provider;" +
+                "com.neodhizuku.more.server.provider"
+        }
+        create("neoCompat") {
+            dimension = "pkg"
+            applicationId = "com.neodhizuku.more"
+            // 版本号带后缀，便于在界面上区分装的是哪个分支
+            versionNameSuffix = "-compat"
+            manifestPlaceholders["dhizukuAuthorities"] =
+                "com.neodhizuku.more.dhizuku_server.provider;" +
+                "com.neodhizuku.more.server.provider;" +
+                "com.rosan.dhizuku.server.provider"
         }
         create("official") {
             dimension = "pkg"
             applicationId = "com.rosan.dhizuku"
             versionNameSuffix = "-official"
+            // 官方包名下 ${applicationId}.server.provider 已经是原版 authority，
+            // 无需再额外声明（重复声明会导致 authority 冲突）。
+            manifestPlaceholders["dhizukuAuthorities"] =
+                "com.rosan.dhizuku.dhizuku_server.provider;" +
+                "com.rosan.dhizuku.server.provider"
         }
     }
 

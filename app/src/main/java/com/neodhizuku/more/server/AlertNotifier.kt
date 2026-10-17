@@ -24,7 +24,25 @@ import com.neodhizuku.more.R
 object AlertNotifier {
 
     const val CHANNEL_ID = "neo_security_alert"
-    private const val CHANNEL_NAME_RES = R.string.notifier_channel_security
+
+    /**
+     * 渠道名。
+     *
+     * 刻意不用 `const val`：`const val` 会把 `R.string.*` 的值在编译期内联，
+     * 若代码与资源不同步（只覆盖了源码没覆盖 res），内联的旧 ID 在运行期
+     * 可能解析不到，`getString()` 会抛 Resources$NotFoundException。
+     * 改成运行期读取即可随资源同步。
+     */
+    private val CHANNEL_NAME_RES = R.string.notifier_channel_security
+
+    /** 资源缺失时的兜底渠道名，保证通知渠道一定能建起来。 */
+    private const val CHANNEL_NAME_FALLBACK = "NeoDhizuku 安全警示"
+
+    /** 安全地取字符串：取不到就用兜底值，绝不抛异常。 */
+    private fun str(context: Context, res: Int, fallback: String, vararg args: Any): String =
+        runCatching {
+            if (args.isEmpty()) context.getString(res) else context.getString(res, *args)
+        }.getOrDefault(fallback)
 
     /** 转移被拦截 */
     private const val ID_TRANSFER_BLOCKED = 2001
@@ -36,17 +54,22 @@ object AlertNotifier {
     private const val ID_PERMISSION_REQUEST = 2100
 
     fun ensureChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-        val manager = context.getSystemService(NotificationManager::class.java) ?: return
-        if (manager.getNotificationChannel(CHANNEL_ID) != null) return
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            context.getString(CHANNEL_NAME_RES),
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = context.getString(R.string.notifier_channel_security_desc)
+        // 通知是辅助功能，任何一步失败都只记录、不外抛
+        runCatching {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+            val manager = context.getSystemService(NotificationManager::class.java) ?: return
+            if (manager.getNotificationChannel(CHANNEL_ID) != null) return
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                str(context, CHANNEL_NAME_RES, CHANNEL_NAME_FALLBACK),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = str(context, R.string.notifier_channel_security_desc, "")
+            }
+            manager.createNotificationChannel(channel)
+        }.onFailure {
+            android.util.Log.w("Dhizuku", "[Alert] 创建通知渠道失败：${it.message}")
         }
-        manager.createNotificationChannel(channel)
     }
 
     private fun canPost(context: Context): Boolean {
@@ -68,17 +91,19 @@ object AlertNotifier {
             android.util.Log.w("Dhizuku", "[Alert] 无通知权限，跳过：$title")
             return
         }
-        ensureChannel(context)
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.round_hourglass_empty_black_24)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-        if (contentIntent != null) builder.setContentIntent(contentIntent)
         runCatching {
+            ensureChannel(context)
+            val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.round_hourglass_empty_black_24)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+            if (contentIntent != null) builder.setContentIntent(contentIntent)
             NotificationManagerCompat.from(context).notify(id, builder.build())
+        }.onFailure {
+            android.util.Log.w("Dhizuku", "[Alert] 发送通知失败：${it.message}")
         }
     }
 
@@ -116,8 +141,8 @@ object AlertNotifier {
         post(
             context,
             ID_PERMISSION_REQUEST,
-            context.getString(R.string.alert_permission_request_title),
-            context.getString(R.string.alert_permission_request_text, label),
+            str(context, R.string.alert_permission_request_title, "授权请求"),
+            str(context, R.string.alert_permission_request_text, "$label 请求授权", label),
             pending
         )
     }
@@ -127,8 +152,8 @@ object AlertNotifier {
         post(
             context,
             ID_TRANSFER_BLOCKED,
-            context.getString(R.string.alert_transfer_blocked_title),
-            context.getString(R.string.alert_transfer_blocked_text, appLabel)
+            str(context, R.string.alert_transfer_blocked_title, "已拦截转移请求"),
+            str(context, R.string.alert_transfer_blocked_text, "已拦截 $appLabel 转移设备所有者", appLabel)
         )
     }
 
@@ -137,8 +162,8 @@ object AlertNotifier {
         post(
             context,
             ID_TRANSFER_ALLOWED,
-            context.getString(R.string.alert_transfer_allowed_title),
-            context.getString(R.string.alert_transfer_allowed_text, appLabel)
+            str(context, R.string.alert_transfer_allowed_title, "设备所有者已转移"),
+            str(context, R.string.alert_transfer_allowed_text, "$appLabel 已转移设备所有者", appLabel)
         )
     }
 }

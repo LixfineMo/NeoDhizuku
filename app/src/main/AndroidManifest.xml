@@ -14,6 +14,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <!-- 免删激活：成为 DEVICE_POLICY_MANAGEMENT 角色持有者后，
+         系统才会把这两个权限 grant 给本应用。必须先在清单里声明，
+         否则 checkSelfPermission 永远返回 PERMISSION_DENIED，
+         表现为「角色授予成功（RC=0）但角色未生效」。 -->
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
+    <uses-permission android:name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -90,7 +96,7 @@
 
         <provider
             android:name=".server.MyDhizukuProvider"
-            android:authorities="${applicationId}.dhizuku_server.provider;${applicationId}.server.provider"
+            android:authorities="${dhizukuAuthorities}"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true">

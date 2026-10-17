@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.os.Parcel
+import android.os.Process
 import android.util.Log
 
 import com.neodhizuku.more.data.settings.model.room.entity.AuditEntity
@@ -22,6 +23,7 @@ import com.neodhizuku.more.data.common.util.getSignaturesForUid
 import com.neodhizuku.more.data.common.util.signature
 import com.neodhizuku.more.data.settings.model.room.entity.AppEntity
 import com.neodhizuku.more.data.settings.repo.AppRepo
+import com.neodhizuku.more.data.settings.repo.DenyMode
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import com.rosan.dhizuku.server_api.DhizukuService
 import com.rosan.dhizuku.shared.DhizukuVariables
@@ -113,6 +115,19 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 "token=${token?.take(8)}… enabled=${settingsRepo.isDhizukuEnabled}"
         }
 
+        // 「不做任何处理」模式：既不拉起授权页，也不回调结果。
+        //
+        // 客户端的 listener 永远收不到回调，于是停在等待状态 ——
+        // 表现为获取授权时一直转圈。这里刻意**不阻塞**当前线程：
+        // 挂起靠"不回调"实现，而不是 sleep，因此不会影响服务处理其他调用。
+        if (DenyMode.from(settingsRepo.denyMode) == DenyMode.NO_ACTION) {
+            NeoLog.i(NeoLog.PERM) {
+                "requestPermission: 挂起（不做任何处理）uid=$uid pkg=$pkg"
+            }
+            reply?.writeNoException()
+            return true
+        }
+
         val intent = Intent(DhizukuVariables.getActionRequestPermission(context.packageName))
             .setPackage(context.packageName)
             .putExtra(DhizukuVariables.PARAM_CLIENT_UID, uid)
@@ -179,14 +194,54 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             return false
         }
 
-        // 用户已停止守护服务：只保留「查看」，拒绝一切实际动作。
+        // 用户已停止守护服务：按拒绝模式处理。
         // 注意 Provider 是 ContentProvider，随进程存活，停掉 DaemonService
         // 并不会让第三方断开，必须在这里显式拦截。
-        if (settingsRepo.isServiceStoppedByUser && func !in READ_ONLY_FUNCS_WHEN_STOPPED) {
-            NeoLog.w(NeoLog.PERM) {
-                "check: 拒绝（服务已停止，仅允许查看）func=$func pkg=$pkg"
+        //
+        // 【必须排除本应用自身】激活流程（ActivateViewModel#activateByDhizuku）
+        // 会用 DhizukuBinderWrapper 包装 DevicePolicyManager 调 transferOwnership，
+        // 走的正是 remote_transact —— 若不排除自身 uid，服务处于停止状态时
+        // 本应用自己激活会被自己拦掉，表现为 NOT_DEVICE_ADMIN。
+        if (settingsRepo.isServiceStoppedByUser && callingUid != Process.myUid()) {
+            val mode = DenyMode.from(settingsRepo.denyMode)
+            val danger = func !in READ_ONLY_FUNCS_WHEN_STOPPED
+            when (mode) {
+                DenyMode.DENY_ALL_FAIL -> {
+                    NeoLog.w(NeoLog.PERM) { "check: 拒绝（完全拒绝）func=$func pkg=$pkg" }
+                    return false
+                }
+                DenyMode.DENY_ALL_SUCCESS -> {
+                    NeoLog.w(NeoLog.PERM) { "check: 放行但无服务能力 func=$func pkg=$pkg" }
+                    return true
+                }
+                DenyMode.DENY_DANGEROUS_FAIL -> {
+                    if (danger) {
+                        NeoLog.w(NeoLog.PERM) {
+                            "check: 拒绝（服务已停止，仅允许查看）func=$func pkg=$pkg"
+                        }
+                        return false
+                    }
+                }
+                DenyMode.DENY_DANGEROUS_SUCCESS -> {
+                    // 危险操作也放行，但在 onRemoteTransact 处不真正执行，
+                    // 只写回一个成功结果。
+                    if (danger) {
+                        NeoLog.w(NeoLog.PERM) {
+                            "check: 放行但不执行（返回成功）func=$func pkg=$pkg"
+                        }
+                    }
+                }
+                DenyMode.NO_ACTION -> {
+                    // 授权请求走 requestPermission 的挂起路径（非阻塞）；
+                    // 其余危险操作按失败处理，避免长时间占用 binder 线程。
+                    if (danger) {
+                        NeoLog.w(NeoLog.PERM) {
+                            "check: 拒绝（不做任何处理）func=$func pkg=$pkg"
+                        }
+                        return false
+                    }
+                }
             }
-            return false
         }
 
         // 优先走内存缓存，缓存未就绪时回退到原来的 runBlocking 查询
@@ -383,16 +438,31 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         reply: Parcel?,
         flags: Int
     ): Boolean {
-        // 双保险：即便调用方绕过了 checkCallingPermission，这里再拦一次
+        // 双保险：即便调用方绕过了 checkCallingPermission，这里再拦一次。
+        // 同样排除本应用自身 uid —— 激活流程要用这条路把所有者转移给自己。
         if (settingsRepo.isServiceStoppedByUser) {
             val uid = Binder.getCallingUid()
-            val label = runCatching {
-                context.packageManager.getNameForUid(uid)
-            }.getOrNull() ?: uid.toString()
-            NeoLog.w(NeoLog.SERVER) {
-                "remote_transact: 拒绝（服务已停止）uid=$uid ($label) code=$code"
+            if (uid != Process.myUid()) {
+                val mode = DenyMode.from(settingsRepo.denyMode)
+                if (mode == DenyMode.DENY_DANGEROUS_SUCCESS || mode == DenyMode.DENY_ALL_SUCCESS) {
+                    // 假装执行成功：不真正 transact，只回一个没有异常的空结果
+                    NeoLog.w(NeoLog.SERVER) {
+                        "remote_transact: 放行但不执行（返回成功）uid=$uid code=$code"
+                    }
+                    reply?.writeNoException()
+                    return true
+                }
+                val label = runCatching {
+                    context.packageManager.getNameForUid(uid)
+                }.getOrNull() ?: uid.toString()
+                NeoLog.w(NeoLog.SERVER) {
+                    "remote_transact: 拒绝（服务已停止）uid=$uid ($label) code=$code"
+                }
+                throw SecurityException("Dhizuku service is stopped by user: uid=$uid")
             }
-            throw SecurityException("Dhizuku service is stopped by user: uid=$uid")
+            NeoLog.i(NeoLog.SERVER) {
+                "remote_transact: 本应用自身调用，服务停止状态下放行 code=$code"
+            }
         }
 
         // remote_transact 是最危险的一条路径：第三方可用 binderWrapper 包装任意
@@ -422,12 +492,19 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 "owner transfer: uid=$uid ($label) allowed=$allowed"
             }
             if (!allowed) {
-                AlertNotifier.transferBlocked(context, label)
+                // 通知只是提示，失败绝不能影响拦截本身
+                runCatching { AlertNotifier.transferBlocked(context, label) }
+                    .onFailure {
+                        NeoLog.w(NeoLog.SERVER) { "拦截通知发送失败：${it.message}" }
+                    }
                 throw SecurityException(
                     "Owner transfer is disabled by user: uid=$uid"
                 )
             }
-            AlertNotifier.transferAllowed(context, label)
+            runCatching { AlertNotifier.transferAllowed(context, label) }
+                .onFailure {
+                    NeoLog.w(NeoLog.SERVER) { "放行通知发送失败：${it.message}" }
+                }
         }
         return super.onRemoteTransact(binder, code, data, reply, flags)
     }

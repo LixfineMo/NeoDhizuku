@@ -118,8 +118,10 @@ fun ThemePage(
 
                         AnimatedVisibility(visible = modeExpanded) {
                             Column(modifier = Modifier.fillMaxWidth()) {
+                                // 列出全部模式：此前用 filter 排除了当前项，
+                                // 导致"选中哪个哪个就从列表里消失"——
+                                // 用户点选后该项变成当前值，下次展开就找不到了。
                                 ThemeMode.entries
-                                    .filter { it != settings.themeMode }
                                     .forEach { mode ->
                                         androidx.compose.material3.HorizontalDivider(
                                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -128,7 +130,7 @@ fun ThemePage(
                                         ThemeModeItem(
                                             label = stringResource(labelResOf(mode)),
                                             desc = stringResource(descResOf(mode)),
-                                            selected = false,
+                                            selected = mode == settings.themeMode,
                                             onClick = {
                                                 NeoLog.d(NeoLog.THEME) {
                                                     "mode selected: ${mode.name} " +
@@ -311,7 +313,7 @@ private fun ThemeModeItem(
                     tint = MaterialTheme.colorScheme.primary
                 )
             } else {
-                RadioButton(selected = false, onClick = onClick)
+                RadioButton(selected = selected, onClick = onClick)
             }
         }
     }

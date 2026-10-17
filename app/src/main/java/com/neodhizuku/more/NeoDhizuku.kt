@@ -5,7 +5,7 @@ package com.neodhizuku.more
  *
  * 设计约定（后续所有修改都遵循这套约定）：
  * 1. [UseNeoDhizuku] 是总开关，置为 false 时所有改动点一律回退到原始实现，
- *    行为与本次修改之前的版本完全一致（原有逻辑被完整保留在 else 分支中）。
+ *    行为与上游 Dhizuku 完全一致（原有逻辑被完整保留在 else 分支中）。
  * 2. 每个改动点另有独立的分项开关（FixXxx / HardenXxx），默认全部为 true。
  *    当总开关为 false 时，分项开关不再生效（见 [on]）；
  *    当总开关为 true 时，可以单独把某一项置为 false 来做对照调试。

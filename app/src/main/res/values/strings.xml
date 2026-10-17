@@ -50,10 +50,10 @@
     <string name="service_running">Dhizuku is running</string>
     <string name="settings">Settings</string>
     <string name="settings_desc">Configure Dhizuku behavior</string>
-    <string name="enable_dhizuku">Enable Dhizuku</string>
-    <string name="enable_dhizuku_desc">Allow apps to use Dhizuku services</string>
-    <string name="whitelist_mode">Whitelist Mode</string>
-    <string name="whitelist_mode_desc">Only allow pre-approved apps to use Dhizuku</string>
+    <string name="enable_dhizuku">Allow other apps to use the API service</string>
+    <string name="enable_dhizuku_desc">When off, third-party apps cannot use the service at all</string>
+    <string name="whitelist_mode">Whitelist mode</string>
+    <string name="whitelist_mode_desc">Only allow pre-approved apps to use the API service</string>
     <string name="block_app">Block App</string>
     <string name="auto_deny_in">Auto-deny in</string>
     <string name="block_app_desc">Completely deny access to Dhizuku</string>
@@ -168,7 +168,7 @@
     <string name="call_log_retention_90">90 天</string>
     <string name="call_log_retention_forever">永久</string>
     <string name="call_log_empty_runtime">暂无运行日志</string>
-    <string name="settings_security_section">安全</string>
+    <string name="settings_security_section">服务策略</string>
     <!-- 服务启停 -->
     <string name="home_service_stopped">Service refused</string>
     <string name="home_restart_service">重启服务</string>
@@ -178,4 +178,56 @@
     <string name="call_log_long_press_hint">长按卡片可复制全部内容</string>
     <string name="alert_permission_request_title">有应用请求 Dhizuku 授权</string>
     <string name="alert_permission_request_text">「%1$s」请求使用 Dhizuku。点击处理（弹窗未自动出现时由此进入）。</string>
+    <string name="quick_activate_title">免删账号临时激活</string>
+    <string name="quick_activate_entry_title">使用免删模式临时激活</string>
+    <string name="quick_activate_entry_dsp">免删除账号，直接激活设备所有者。需要 Android 13 及以上与 Shizuku。</string>
+
+    <string name="quick_activate_warning_title">操作前必读</string>
+    <string name="quick_activate_warning_dsp">激活过程中会把 user_setup_complete 临时置为 0，此时三键导航的「主页 / 最近任务」键会短暂失灵（返回键可用，全屏手势导航不受影响）。流程结束会自动恢复，若中途失败请务必点第 3 步手动恢复。</string>
+    <string name="quick_activate_limit_dsp">限制：仅支持 Android 13（API 33）及以上；需要 Shizuku 或 root 身份执行 shell 命令；部分厂商 ROM 可能封锁相关接口。</string>
+
+    <string name="quick_activate_unsupported_title">当前设备不支持</string>
+    <string name="quick_activate_unsupported_dsp">免删模式依赖 Android 13 引入的设备策略管理角色，当前系统版本为 %1$d。请改用 Shizuku 或 ADB 方式激活。</string>
+
+    <string name="quick_activate_step_open_title">打开向导</string>
+    <string name="quick_activate_step_open_dsp">授予设备策略管理角色，并把 user_setup_complete 置为 0，打开激活所需的向导闸。</string>
+    <string name="quick_activate_step_open_btn">打开向导</string>
+
+    <string name="quick_activate_step_activate_title">尝试激活</string>
+    <string name="quick_activate_step_activate_dsp">同步状态后注册为设备管理员并激活设备所有者。结束后会自动恢复 user_setup_complete。</string>
+    <string name="quick_activate_step_activate_btn">尝试激活</string>
+
+    <string name="quick_activate_step_restore_title">手动恢复</string>
+    <string name="quick_activate_step_restore_dsp">把 user_setup_complete 恢复为 1。若导航键失灵，执行此步即可立刻恢复。</string>
+    <string name="quick_activate_step_restore_btn">手动恢复</string>
+
+    <string name="quick_activate_view_command">查看手动执行指令</string>
+    <string name="quick_activate_result_ok">操作成功</string>
+    <string name="quick_activate_result_fail">操作未完成</string>
+    <string name="quick_activate_success">已激活设备所有者</string>
+    <string name="security_title">服务策略</string>
+    <string name="settings_security_desc">API 服务开关、白名单、关闭服务后的处理方式、设备所有者转移</string>
+    <string name="security_deny_section">拒绝选项</string>
+    <string name="security_deny_mode_title">关闭服务后的处理方式</string>
+    <string name="security_deny_mode_desc">决定第三方应用来调用时，服务如何回应。</string>
+
+    <string name="deny_mode_dangerous_fail">拒绝危险服务并返回失败</string>
+    <string name="deny_mode_dangerous_fail_desc">应用可查询到服务，危险操作被拒绝。</string>
+    <string name="deny_mode_dangerous_success">拒绝危险服务并返回成功</string>
+    <string name="deny_mode_dangerous_success_desc">应用可查询到服务，危险操作返回成功但不实际执行。</string>
+    <string name="deny_mode_all_fail">完全拒绝服务并返回失败</string>
+    <string name="deny_mode_all_fail_desc">应用查询不到服务，等同于未激活。</string>
+    <string name="deny_mode_all_success">完全拒绝服务并返回成功</string>
+    <string name="deny_mode_all_success_desc">应用查询不到服务，但得到的回应是成功。</string>
+    <string name="deny_mode_no_action">不做任何处理</string>
+    <string name="deny_mode_no_action_desc">既不拒绝也不放行，请求被挂起，应用会一直等待。</string>
+
+    <string name="security_api_state_on">API 总开关：已启用</string>
+    <string name="security_api_state_off">API 总开关：已停用，第三方一律无法使用</string>
+
+    <string name="security_service_section">API service</string>
+    <string name="security_transfer_section">Device owner transfer</string>
+
+    <string name="quick_activate_pending_restore">!Setup wizard not restored, please run manual restore!</string>
+
 </resources>

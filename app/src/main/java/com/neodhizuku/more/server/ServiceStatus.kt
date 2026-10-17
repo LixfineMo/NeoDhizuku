@@ -13,8 +13,8 @@ import androidx.compose.runtime.setValue
  * 两个字段：
  * - `authorizedCount`：已授权且未拉黑的应用数量
  * - `startElapsedRealtime`：DaemonService 本次启动的 elapsedRealtime 基准。
- *   服务被杀掉重启后由 DaemonService.onCreate 重新写入，**运行时间归零重算**
- *   （按用户要求：不累计）。
+ *   服务被杀掉重启后由 DaemonService.onCreate 重新写入，运行时间归零重算，
+ *   不跨次累计。
  *
  * 用 SystemClock.elapsedRealtime() 而非 System.currentTimeMillis()，
  * 避免用户改系统时间导致显示负数或跳变。

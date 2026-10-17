@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.twotone.Adb
 import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.AttachMoney
+import androidx.compose.material.icons.twotone.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.twotone.Cancel
 import androidx.compose.material.icons.twotone.Code
@@ -102,6 +103,7 @@ import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.R
 import com.neodhizuku.more.ui.theme.plus
+import com.neodhizuku.more.data.common.util.DpDirectActivation
 import com.neodhizuku.more.data.common.util.checkShizukuWorked
 import com.neodhizuku.more.data.common.util.openUrlInBrowser
 import com.neodhizuku.more.data.common.util.toast
@@ -128,6 +130,17 @@ fun HomePage(
         androidx.compose.foundation.layout.PaddingValues(0.dp)
 ) {
     val dhizukuState = DhizukuState.state
+    val context = LocalContext.current
+
+    // 向导被置 0 后若还没恢复，即使已激活也要保留免删激活入口，
+    // 否则用户找不到「手动恢复」的地方。
+    var setupPendingRestore by remember {
+        mutableStateOf(DpDirectActivation.isPendingRestore(context))
+    }
+    LaunchedEffect(dhizukuState.isOwner) {
+        setupPendingRestore = DpDirectActivation.isPendingRestore(context)
+    }
+
     Scaffold(
         modifier = Modifier
             .windowInsetsPadding(windowInsets.exclude(WindowInsetsSides.Bottom))
@@ -166,6 +179,10 @@ fun HomePage(
             }
             if (!dhizukuState.isOwner) item("shizuku") {
                 ShizukuWidget(navController)
+            }
+            // 未激活时始终显示；已激活但向导未恢复时也保留
+            if (!dhizukuState.isOwner || setupPendingRestore) item("quick_activate") {
+                QuickActivateWidget(navController)
             }
             if (!dhizukuState.isOwner) item("adb") {
                 AdbWidget()
@@ -228,51 +245,58 @@ private fun TopBarActions() {
         }
     }
 
-    // 服务运行时显示叉号（停止），停止后显示重启图标
-    var serviceRunning by remember { mutableStateOf(ServiceStatus.isRunning()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            serviceRunning = ServiceStatus.isRunning()
-            kotlinx.coroutines.delay(500)
-        }
-    }
-
-    if (serviceRunning) {
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
-            tooltip = { PlainTooltip { Text(stringResource(R.string.home_stop_service)) } },
-            state = rememberTooltipState()
-        ) {
-            IconButton(onClick = { shutdownDialogShow = true }) {
-                Icon(
-                    Icons.TwoTone.Cancel,
-                    contentDescription = stringResource(R.string.home_stop_service)
-                )
+    // 服务启停入口只在已激活时提供。
+    //
+    // 未激活时服务本来就不该运行，若照常显示按钮，会落到"服务未运行"分支
+    // 展示重启图标；此时点击会去 startForegroundService，而守护服务在未成为
+    // 所有者时的启动路径会抛异常导致崩溃。
+    // DhizukuState.state 是 mutableStateOf，读取即自动订阅
+    if (DhizukuState.state.isOwner) {
+        var serviceRunning by remember { mutableStateOf(ServiceStatus.isRunning()) }
+        LaunchedEffect(Unit) {
+            while (true) {
+                serviceRunning = ServiceStatus.isRunning()
+                kotlinx.coroutines.delay(500)
             }
         }
-    } else {
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
-            tooltip = { PlainTooltip { Text(stringResource(R.string.home_restart_service)) } },
-            state = rememberTooltipState()
-        ) {
-            IconButton(onClick = {
-                scope.launch {
-                    val appContext = context.applicationContext
-                    settingsRepo.isServiceStoppedByUser = false
-                    ServiceStatus.markStarted()
-                    runCatching {
-                        appContext.startForegroundService(
-                            Intent(appContext, DaemonService::class.java)
-                        )
-                    }
-                    NeoLog.i(NeoLog.HOME) { "restart service requested" }
+
+        if (serviceRunning) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.home_stop_service)) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = { shutdownDialogShow = true }) {
+                    Icon(
+                        Icons.TwoTone.Cancel,
+                        contentDescription = stringResource(R.string.home_stop_service)
+                    )
                 }
-            }) {
-                Icon(
-                    Icons.Filled.RestartAlt,
-                    contentDescription = stringResource(R.string.home_restart_service)
-                )
+            }
+        } else {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.home_restart_service)) } },
+                state = rememberTooltipState()
+            ) {
+                IconButton(onClick = {
+                    scope.launch {
+                        val appContext = context.applicationContext
+                        settingsRepo.isServiceStoppedByUser = false
+                        ServiceStatus.markStarted()
+                        runCatching {
+                            appContext.startForegroundService(
+                                Intent(appContext, DaemonService::class.java)
+                            )
+                        }
+                        NeoLog.i(NeoLog.HOME) { "restart service requested" }
+                    }
+                }) {
+                    Icon(
+                        Icons.Filled.RestartAlt,
+                        contentDescription = stringResource(R.string.home_restart_service)
+                    )
+                }
             }
         }
     }
@@ -640,6 +664,19 @@ private fun LazyItemScope.ShizukuWidget(navController: NavController) {
         Text(stringResource(R.string.home_shizuku_title))
     }, text = {
         HtmlText(stringResource(R.string.home_shizuku_dsp, "https://shizuku.rikka.app/"))
+    })
+}
+
+@Composable
+private fun LazyItemScope.QuickActivateWidget(navController: NavController) {
+    CardWidget(onClick = {
+        navController.navigate(SettingsRoute.QuickActivate.route)
+    }, icon = {
+        Icon(imageVector = Icons.TwoTone.Bolt, contentDescription = null)
+    }, title = {
+        Text(stringResource(R.string.quick_activate_entry_title))
+    }, text = {
+        Text(stringResource(R.string.quick_activate_entry_dsp))
     })
 }
 

@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.core.content.edit
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.data.common.util.asFlow
+import com.neodhizuku.more.data.settings.repo.DenyMode
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
@@ -109,6 +110,16 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
         get() = prefs.getBoolean("service_stopped_by_user", false)
         set(value) = prefs.edit(true) {
             putBoolean("service_stopped_by_user", value)
+        }
+
+    override fun flowDenyMode(): Flow<String> =
+        prefs.asFlow("deny_mode", DenyMode.DEFAULT.name)
+
+    override var denyMode: String
+        get() = prefs.getString("deny_mode", DenyMode.DEFAULT.name)
+            ?: DenyMode.DEFAULT.name
+        set(value) = prefs.edit(true) {
+            putString("deny_mode", value)
         }
 
     private companion object {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        仅 neoCompat 分支注册原版 Dhizuku 的授权 action。
+
+        official 分支下 ${applicationId}.action.request.permission 已经等于
+        com.rosan.dhizuku.action.request.permission，此处再注册会重复，
+        所以这份 manifest 只放在 neoCompat 的 sourceSet 中。
+
+        用 activity-alias 而不是往主 intent-filter 里追加 action，
+        是为了避免两个分支的 action 重复导致 manifest 合并冲突。
+    -->
+    <application>
+        <activity-alias
+            android:name=".RequestPermissionOfficialEntry"
+            android:targetActivity=".ui.activity.RequestPermissionActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Dhizuku.Translucent">
+
+            <intent-filter>
+                <action android:name="com.rosan.dhizuku.action.request.permission" />
+                <action android:name="com.rosan.dhizuku.action.REQUEST_DHIZUKU_PERMISSION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+    </application>
+</manifest>

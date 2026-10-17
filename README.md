@@ -6,7 +6,9 @@
 
 ## ⚠️ 未完工警告
 
-**当前版本开发中，请勿用于日常设备或生产环境。** 部分功能刚落地、未充分真机验证。包名已改为 `com.neodhizuku.more`，与官方版本**不共存**（会成为不同的设备所有者），请先在测试机上验证。不保证与官方版本的数据兼容，迁移前请自行备份。
+**当前版本开发中，请勿用于日常设备或生产环境。
+**部分功能刚落地、部分未充分真机验证。包名已改为 `com.neodhizuku.more`，与官方版本**不共存**（会成为不同的设备所有者），请先在测试机上验证。
+不与官方版本的数据兼容，迁移前请自行备份。
 
 ---
 
@@ -26,14 +28,9 @@
 
 > Manifest 中的 API 权限名与 AIDL 包名**保持原样**，这是为了让现有第三方客户端无需修改即可识别本应用。
 
-### 功能修复
-
-版本信息返回错误、用户服务绑定参数与连接泄漏、白名单模式死代码、授权结果未落库、授权弹窗切后台误判拒绝与旋转丢状态、黑名单被守护服务误删、覆盖安装丢失授权、服务重复启动、签名集合比对、前台服务类型、DE 存储统一、数据库降级重建、图标缓存容量、应用列表查询性能、账户等待改为轮询、Provisioning 完成后刷新状态等。
-
 ### 安全加固
 
 - **授权入口不再信任客户端自报的 UID**：改由服务端用 `Binder.getCallingUid()` 取真实身份并签发一次性令牌（10 分钟有效），Activity 校验通过后才认可该 UID。旧版客户端走兼容路径，不会覆盖已有授权。
-- **服务端接管授权请求**：弹窗改由服务端发起，Android 10+ 后台启动 Activity 限制导致弹窗静默失败时不再回调拒绝，改为发通知由用户点击拉起；老版本客户端（只查询 `isPermissionGranted()`、从不发起请求）首次被拒时会登记并发出授权通知，作为其唯一入口。
 - Provider 鉴权、`remoteProcess` 命令审计、启动时自身签名校验。
 - 签名白名单在**构建期**注入，未配置时自动跳过，方便自行编译调试。
 
@@ -49,6 +46,8 @@
 - **调用记录**：记录各应用调用了哪些能力，全部中文短句描述。**持久化保存，默认保留 30 天**；每条记录附带当时的服务端运行日志片段。另含「运行日志」标签，可查看服务端自身日志，**未激活时也能查看**。
 - **服务启停**：右上角按钮在运行中显示为叉号，停止后变为重启图标；运行时间卡停止时整卡纯红显示「拒绝服务」。停止后仍保留查看授权与调用记录的能力，其余操作一律拒绝。
 - **设备所有者转移拦截**：第三方应用拿到授权后可借 `binderWrapper` 以设备所有者身份调用 DPM 任意方法，若其不提供授权入口，转移后所有者无法取回。设置项「允许第三方应用主动转移设备所有者」**默认关闭**，关闭时直接拒绝并发出通知。
+- **服务策略页**：设置页内的二级菜单，集中管理 API 服务总开关、白名单模式、关闭服务后的处理方式，以及设备所有者转移开关。
+- **免删账号临时激活**：免去了上游「必须先移除全部账号」的要求，详见后文专章。
 - **主题页**：深色模式四档（跟随系统 / 浅色 / 深色 / 深色纯黑 AMOLED）+ 动态取色开关，深色模式用折叠选择器。
 - **设置页**：新增「管理」分区入口，**未激活时整个分区隐藏**。
 - **激活错误提示**：英文原始报错映射为中文原因 + 处理建议 + 复制诊断信息。
@@ -68,9 +67,42 @@ adb logcat -s NeoDhizuku:V | grep Nav   # 只看导航
 
 ### 激活
 
-与上游一致，支持 Shizuku、ADB、QR 码等方式成为设备所有者。**注意上游提示：建议在设备上没有任何账号时配置**；若已有账号可能需要先移除。
+与上游一致，支持 Shizuku、ADB、免删除账号模式 成为设备所有者。
+**注意上游提示：建议在设备上没有任何账号时配置**；若已有账号可能需要先移除。
 
 成为设备所有者后，第三方应用即可通过 Dhizuku API 申请使用设备所有者能力。
+
+### 免删账号临时激活
+
+上游建议在**设备上没有任何账号时**配置，否则需先移除账号。本方案绕开了这条限制。
+
+**原理**：`DevicePolicyManagerService` 中，账户检查 `hasIncompatibleAccountsOrNonAdb` 只在 `isAdb` 分支内被读取。原版走 ADB（`dpm set-device-owner`）即 `isAdb=true`，三道闸全读；本方案以**应用自身 uid** 直接调用，`isAdb=false`，只校验 `hasUserSetupCompleted`，**完全不读账户**。
+
+**七步链路**：
+
+| 步骤 | 执行者 | 内容 |
+|---|---|---|
+| ① | shell | `cmd role set-bypassing-role-qualification true` |
+| ② | shell | `cmd role add-role-holder --user 0 android.app.role.DEVICE_POLICY_MANAGEMENT <pkg>` |
+| ③ | shell | `settings put secure user_setup_complete 0` |
+| ④ | 应用自身 | 反射 `forceUpdateUserSetupComplete(0)`，把③的值搬进 DPM 内存态 |
+| ⑤ | 应用自身 | 反射 `setActiveAdmin` |
+| ⑥ | 应用自身 | 反射 `setDeviceOwner` |
+| ⑦ | shell | `settings put secure user_setup_complete 1` |
+
+③ 与 ④ **必须配对**：只做③无效，内存态不变、闸仍关闭。④ 的参数是 userId 而非状态值，它把 Settings 的真实值双向搬进内存，所以③不可省。
+
+**三个前提条件**：
+
+- Shizuku 或 root 权限（执行 ①③⑦ 的 shell 命令，普通应用拿不到 `WRITE_SECURE_SETTINGS`）
+- Android 13（API 33）及以上（`DEVICE_POLICY_MANAGEMENT` 角色自该版本引入）
+- 尚未成为设备所有者
+
+**副作用**：置 0 期间三键导航的 Home 与最近任务键失效（返回键可用，手势导航不受影响）。代码在 `finally` 中必定恢复，不会把设备留在「未完成向导」状态。
+
+**失败排查**：角色若返回 `RC=0` 但权限仍为 DENIED，多为清单未声明 `MANAGE_DEVICE_ADMINS` / `MANAGE_PROFILE_AND_DEVICE_OWNERS`——这两个是 signature 级权限，必须先声明系统才会在授予角色时 grant。页面会直接给出该提示。
+
+若向导未恢复，页面会显示红色提示并禁用前两步，只保留「手动恢复」。
 
 ### 授权管理
 
@@ -91,10 +123,33 @@ const val DebugLog: Boolean = true        // 分项：调试日志
 
 排查问题建议：先置 `UseNeoDhizuku = false` 编一版基线，再切成 `true` 对比；哪个分项出问题就单独关掉它定位。
 
+### 服务策略
+
+设置页 →「服务策略」，三个分区：
+
+**① API 服务**：总开关（允许其他应用使用 API 服务）、白名单模式（仅允许白名单应用使用 API 服务）。
+
+**② 关闭服务后的处理方式**（抽屉式选择，仅在服务被关闭后生效）：
+
+| 选项 | 行为 |
+|---|---|
+| 拒绝危险服务并返回失败 | 可查询到服务，非只读操作一律拒绝 |
+| 拒绝危险服务并返回成功 | 放行但不实际执行，只回成功 |
+| 完全拒绝服务并返回失败 | 返回 null，其他应用查不到服务 |
+| 完全拒绝服务并返回成功 | 返回空结果 |
+| 不做任何处理 | 挂起授权请求，客户端无限等待 |
+
+「不做任何处理」通过**不回调**实现而非阻塞线程，因此不会影响服务处理其他调用。
+
+**③ 设备所有者转移**：即上文「设备所有者转移拦截」的开关。
+
 ### 已知限制
 
 - 悬浮底栏未改成左右滑动切页的 Pager 结构，只能点击切换。
 - 主题用 Material3 原生 `dynamicColorScheme`（Android 12+ 系统支持），未引入第三方配色库。
+- **与原版 Dhizuku 共存时**：硬编码官方包名 authority 的客户端（如 amarok、爱玩机工具箱）会连到原版而非本应用，出现「原版弹窗、本应用不响应」的现象。ContentProvider authority 全局唯一，无法抢注，出路是卸载原版后改用 `neoCompat` 或 `official` 分支。
+- **免删账号激活仅支持 Android 13+**，低版本页面会显示不支持并隐藏步骤。
+- Shizuku API 14 将移除 `newProcess`，届时免删激活中基于它的 shell 执行需迁移到 User Service。
 
 ---
 
@@ -107,36 +162,43 @@ SDK Manager 中需安装 SDK Platform 37、Build Tools 37.0.0、NDK 29.0.1420686
 
 ### 构建
 
-项目有两个包名分支（product flavor），`namespace` 与源码包名固定为 `com.neodhizuku.more`，
-只有 `applicationId` 随分支变化：
+项目有三个分支（product flavor），`namespace` 与源码包名固定为 `com.neodhizuku.more`，
+只有 `applicationId` 与 provider 的 authorities 随分支变化：
 
-| 分支 | applicationId | 用途 |
-|---|---|---|
-| `neo` | `com.neodhizuku.more` | 本项目自身包名 |
-| `official` | `com.rosan.dhizuku` | 原版包名，用于兼容硬编码官方包名的第三方客户端 |
+| 分支 | applicationId | 注册原版 authority | 与原版 Dhizuku 共存 | 兼容硬编码官方包名的客户端 |
+|---|---|---|---|---|
+| `neo` | `com.neodhizuku.more` | 否 | **能** | 否 |
+| `neoCompat` | `com.neodhizuku.more` | 是 | 不能 | **能** |
+| `official` | `com.rosan.dhizuku` | — 本身就是 | 不能（同包名） | **能** |
+
+`neo` 与 `neoCompat` 的 applicationId 相同，只能二选一安装，可各编一份用于对比测试。
 
 ```
-./gradlew assembleNeoDebug        # neo 分支调试版
-./gradlew assembleOfficialDebug   # official 分支调试版
-./gradlew assembleNeoRelease      # neo 分支发布版
-./gradlew assembleOfficialRelease # official 分支发布版
+./gradlew assembleNeoDebug        共存版（推荐日常使用）
+./gradlew assembleNeoCompatDebug  接管版（需先卸载原版 Dhizuku）
+./gradlew assembleOfficialDebug   官方包名版（需先卸载原版 Dhizuku）
+
+./gradlew assembleBothDebug       一次出 neo + neoCompat 两个调试包
+./gradlew assembleAllDebug        一次出三个调试包
 ```
 
-> **重要**：两个分支是**不同的应用**，设备所有者同时只能属于一个包名。
-> 装 `official` 版后必须重新激活，且会抢走 `neo` 版的所有者身份。
-> 建议日常只用 `neo` 分支，确有客户端硬编码官方包名时再单独出 `official` 版实测。
+发布版把 `Debug` 换成 `Release`（另有 `assembleAllRelease` 一次出三个）。
+
+> **重要**：设备所有者同时只能属于一个包名，`neoCompat` / `official` 都需要
+> **先卸载原版 Dhizuku**，否则 provider authority 冲突导致装不上
+> （`INSTALL_FAILED_CONFLICTING_PROVIDER`）。装后需重新激活。
 
 仓库内默认是调试签名（`keystore/`），正式分发前请替换为自己的签名配置。
 
 ---
 
-## 四、后期规划
+## 四、后期规划（完成并测试后正式发布Release版本）
 
-- [ ] **免删账号的设备所有者激活**：借助 Shizuku 将 `user_setup_complete` 临时置 0，绕过「必须无账号」的限制完成激活，**不删除设备上已有的账号**，激活后恢复原值。需处理 `DEVICE_POLICY_MANAGEMENT` 角色的版本限制（自 Android 13 / API 33 引入，低版本需给出明确判定与降级提示）。
-- [ ] 授权入口「UID 自报」的实际可利用性用 Demo 实测（静态上攻击面存在，实际影响未确认）。
-- [ ] 授权弹窗权限范围展示。
-- [ ] 委托作用域（delegated scopes）配置入口 —— API 已支持但界面无入口。
-- [ ] **已授权状态下更新应用**：成为设备所有者后无法直接安装更新（`INSTALL_FAILED_...` / 包安装器拒绝覆盖设备所有者）。需研究能否在保持所有者身份的前提下完成自更新，例如借助 Dhizuku 自身的 `remote_transact` 走 `IPackageInstaller` 静默安装，或临时委托/转移后再取回。需实测各 Android 版本行为差异。
+- [-] **授权入口改造**：让所有第三方应用都能稳定发起授权请求。现状是部分客户端（多为依赖旧版 API 的）既不弹窗也不发起请求；尝试过的服务端接管方案实测无效，需先定位真实失败点（客户端是否调用 `requestPermission`、listener 能否收到回调、通知是否真的发出）再重新设计。
+- [√] ~~免删账号的设备所有者激活~~ —— 已实现（见「免删账号临时激活」）
+- [-] 授权入口「UID 自报」的实际可利用性用 Demo 实测（静态上攻击面存在，实际影响未确认）。
+- [-] 授权弹窗权限范围展示。
+- [-] 委托作用域（delegated scopes）配置入口 —— API 已支持但界面无入口。
 
 ---
 

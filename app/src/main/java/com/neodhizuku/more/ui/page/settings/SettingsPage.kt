@@ -23,6 +23,8 @@ import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.ui.component.FloatingNavBar
 import com.neodhizuku.more.ui.component.NavDestination
 import com.neodhizuku.more.ui.page.settings.activate.ActivatePage
+import com.neodhizuku.more.ui.page.settings.security.SecurityPage
+import com.neodhizuku.more.ui.page.settings.quickactivate.QuickActivatePage
 import com.neodhizuku.more.ui.page.settings.app_management.AppManagementPage
 import com.neodhizuku.more.ui.page.settings.blocklist.BlocklistPage
 import com.neodhizuku.more.ui.page.settings.calllog.CallLogPage
@@ -129,6 +131,12 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     startOnRuntime = !isOwner
                 )
             }
+            composable(route = SettingsRoute.Security.route) {
+                SecurityPage(
+                    windowInsets = windowInsets,
+                    navController = navController
+                )
+            }
             composable(route = SettingsRoute.Settings.route) {
                 SettingsScreen(
                     windowInsets = windowInsets,
@@ -138,6 +146,12 @@ fun SettingsPage(windowInsets: WindowInsets) {
             composable(route = SettingsRoute.Theme.route) {
                 ThemePage(
                     context = LocalContext.current.applicationContext,
+                    navController = navController
+                )
+            }
+            composable(route = SettingsRoute.QuickActivate.route) {
+                QuickActivatePage(
+                    windowInsets = windowInsets,
                     navController = navController
                 )
             }

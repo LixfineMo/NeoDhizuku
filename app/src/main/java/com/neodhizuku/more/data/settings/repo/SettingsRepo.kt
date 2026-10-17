@@ -8,6 +8,9 @@ interface SettingsRepo {
     fun flowDonateButtonHidden(): Flow<Boolean>
     fun flowAllowOwnerTransfer(): Flow<Boolean>
     fun flowServiceStoppedByUser(): Flow<Boolean>
+    fun flowDenyMode(): Flow<String>
+    /** 服务拒绝模式，见 [DenyMode] */
+    var denyMode: String
     var isWhitelistMode: Boolean
     var isDhizukuEnabled: Boolean
     var isDonateButtonHidden: Boolean
