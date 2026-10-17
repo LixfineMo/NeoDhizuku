@@ -146,9 +146,9 @@
     <string name="notifier_channel_security">تنبيهات الأمان</string>
     <string name="notifier_channel_security_desc">تنبيهات للأحداث عالية الخطورة مثل نقل مالك الجهاز</string>
     <string name="alert_transfer_blocked_title">تم حظر نقل مالك الجهاز</string>
-    <string name="alert_transfer_blocked_text">حاول "%1$s" نقل مالك الجهاز وتم حظره. يمكنك تمكين "السماح لتطبيقات الطرف الثالث بنقل مالك الجهاز" في الإعدادات ثم المحاولة مرة أخرى.</string>
+    <string name="alert_transfer_blocked_text">حاول \"%1$s\" نقل مالك الجهاز وتم حظره. يمكنك تمكين \"السماح لتطبيقات الطرف الثالث بنقل مالك الجهاز\" في الإعدادات ثم المحاولة مرة أخرى.</string>
     <string name="alert_transfer_allowed_title">ربما تم نقل مالك الجهاز</string>
-    <string name="alert_transfer_allowed_text">نفّذ "%1$s" عملية نقل مالك الجهاز. إذا لم يوفر هذا التطبيق مدخلًا للتفويض، فقد يتعذر استرداد الملكية.</string>
+    <string name="alert_transfer_allowed_text">نفّذ \"%1$s\" عملية نقل مالك الجهاز. إذا لم يوفر هذا التطبيق مدخلًا للتفويض، فقد يتعذر استرداد الملكية.</string>
 
     <!-- 设置：转移开关 -->
     <string name="settings_allow_owner_transfer">السماح لتطبيقات الطرف الثالث بنقل مالك الجهاز</string>
@@ -177,7 +177,7 @@
     <string name="call_log_copy_done">تم النسخ إلى الحافظة</string>
     <string name="call_log_long_press_hint">اضغط مطولًا على البطاقة لنسخ كل المحتوى</string>
     <string name="alert_permission_request_title">هناك تطبيق يطلب تفويض Dhizuku</string>
-    <string name="alert_permission_request_text">يطلب "%1$s" استخدام Dhizuku. اضغط للمعالجة (استخدم هذا إذا لم يظهر مربع الحوار تلقائيًا).</string>
+    <string name="alert_permission_request_text">يطلب \"%1$s\" استخدام Dhizuku. اضغط للمعالجة (استخدم هذا إذا لم يظهر مربع الحوار تلقائيًا).</string>
     <string name="quick_activate_title">تنشيط مؤقت دون إزالة الحسابات</string>
     <string name="quick_activate_entry_title">تنشيط مؤقت دون إزالة الحسابات</string>
     <string name="quick_activate_entry_dsp">التنشيط كمالك للجهاز دون إزالة الحسابات. يتطلب أندرويد 13 أو أحدث وShizuku.</string>

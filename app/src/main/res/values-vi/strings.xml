@@ -146,9 +146,9 @@
     <string name="notifier_channel_security">Cảnh báo bảo mật</string>
     <string name="notifier_channel_security_desc">Cảnh báo cho các sự kiện rủi ro cao như chuyển chủ sở hữu thiết bị</string>
     <string name="alert_transfer_blocked_title">Đã chặn chuyển chủ sở hữu thiết bị</string>
-    <string name="alert_transfer_blocked_text">"%1$s" đã cố chuyển chủ sở hữu thiết bị và bị chặn. Bạn có thể bật "Cho phép ứng dụng bên thứ ba chuyển chủ sở hữu thiết bị" trong cài đặt rồi thử lại.</string>
+    <string name="alert_transfer_blocked_text">\"%1$s\" đã cố chuyển chủ sở hữu thiết bị và bị chặn. Bạn có thể bật \"Cho phép ứng dụng bên thứ ba chuyển chủ sở hữu thiết bị\" trong cài đặt rồi thử lại.</string>
     <string name="alert_transfer_allowed_title">Chủ sở hữu thiết bị có thể đã bị chuyển</string>
-    <string name="alert_transfer_allowed_text">"%1$s" đã thực hiện chuyển chủ sở hữu thiết bị. Nếu ứng dụng đó không cung cấp mục cấp quyền, quyền sở hữu có thể không lấy lại được.</string>
+    <string name="alert_transfer_allowed_text">\"%1$s\" đã thực hiện chuyển chủ sở hữu thiết bị. Nếu ứng dụng đó không cung cấp mục cấp quyền, quyền sở hữu có thể không lấy lại được.</string>
 
     <!-- 设置：转移开关 -->
     <string name="settings_allow_owner_transfer">Cho phép ứng dụng bên thứ ba chuyển chủ sở hữu thiết bị</string>
@@ -177,7 +177,7 @@
     <string name="call_log_copy_done">Đã sao chép vào bộ nhớ tạm</string>
     <string name="call_log_long_press_hint">Nhấn giữ thẻ để sao chép toàn bộ nội dung</string>
     <string name="alert_permission_request_title">Có ứng dụng yêu cầu quyền Dhizuku</string>
-    <string name="alert_permission_request_text">"%1$s" đang yêu cầu sử dụng Dhizuku. Nhấn để xử lý (dùng mục này nếu hộp thoại không tự xuất hiện).</string>
+    <string name="alert_permission_request_text">\"%1$s\" đang yêu cầu sử dụng Dhizuku. Nhấn để xử lý (dùng mục này nếu hộp thoại không tự xuất hiện).</string>
     <string name="quick_activate_title">Kích hoạt tạm thời không cần xóa tài khoản</string>
     <string name="quick_activate_entry_title">Kích hoạt tạm thời không cần xóa tài khoản</string>
     <string name="quick_activate_entry_dsp">Kích hoạt làm chủ sở hữu thiết bị mà không cần xóa tài khoản. Yêu cầu Android 13 trở lên và Shizuku.</string>

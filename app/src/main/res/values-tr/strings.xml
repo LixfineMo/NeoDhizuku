@@ -72,10 +72,10 @@
     <string name="activate_err_account_exists">Bu cihazda hesaplar var</string>
     <string name="activate_err_account_exists_advice">Android, cihaz sahibi ayarlamadan önce tüm hesapların kaldırılmasını gerektirir. Lütfen sistem ayarlarından kaldırıp tekrar deneyin.</string>
     <string name="activate_err_owner_exists">Bir cihaz sahibi veya profil sahibi zaten ayarlanmış</string>
-    <string name="activate_err_owner_exists_advice">Aynı anda yalnızca bir sahip olabilir. Önce mevcut sahibi kaldırın veya Dhizuku'dan sahipliği devredin.</string>
+    <string name="activate_err_owner_exists_advice">Aynı anda yalnızca bir sahip olabilir. Önce mevcut sahibi kaldırın veya Dhizuku\'dan sahipliği devredin.</string>
     <string name="activate_err_shizuku_down">Shizuku / Sui kullanılamıyor</string>
-    <string name="activate_err_shizuku_down_advice">Lütfen Shizuku'yu başlatın (veya Sui'yi kurun) ve Dhizuku'ya izin verin, sonra tekrar deneyin.</string>
-    <string name="activate_err_hidden_api">Bu sistem gerekli gizli API'yi engelliyor</string>
+    <string name="activate_err_shizuku_down_advice">Lütfen Shizuku\'yu başlatın (veya Sui\'yi kurun) ve Dhizuku\'ya izin verin, sonra tekrar deneyin.</string>
+    <string name="activate_err_hidden_api">Bu sistem gerekli gizli API\'yi engelliyor</string>
     <string name="activate_err_hidden_api_advice">Lütfen bunun yerine ADB veya QR sağlama ile etkinleştirin. Talimatlar için ana sayfaya bakın.</string>
     <string name="activate_err_not_admin">Hedef bileşen geçerli bir cihaz yöneticisi değil</string>
     <string name="activate_err_not_admin_advice">Seçilen uygulama bir cihaz yöneticisi alıcısı bildirmiyor. Lütfen başka bir tane seçin.</string>
@@ -146,9 +146,9 @@
     <string name="notifier_channel_security">Güvenlik uyarıları</string>
     <string name="notifier_channel_security_desc">Cihaz sahibi devri gibi yüksek riskli olaylar için uyarılar</string>
     <string name="alert_transfer_blocked_title">Cihaz sahibi devri engellendi</string>
-    <string name="alert_transfer_blocked_text">"%1$s" cihaz sahibini devretmeye çalıştı ve engellendi. Ayarlardan "Üçüncü taraf uygulamaların cihaz sahibini devretmesine izin ver"i etkinleştirip tekrar deneyin.</string>
+    <string name="alert_transfer_blocked_text">\"%1$s\" cihaz sahibini devretmeye çalıştı ve engellendi. Ayarlardan \"Üçüncü taraf uygulamaların cihaz sahibini devretmesine izin ver\"i etkinleştirip tekrar deneyin.</string>
     <string name="alert_transfer_allowed_title">Cihaz sahibi devredilmiş olabilir</string>
-    <string name="alert_transfer_allowed_text">"%1$s" bir cihaz sahibi devri gerçekleştirdi. Bu uygulama bir yetki girişi sağlamıyorsa, sahiplik geri alınamayabilir.</string>
+    <string name="alert_transfer_allowed_text">\"%1$s\" bir cihaz sahibi devri gerçekleştirdi. Bu uygulama bir yetki girişi sağlamıyorsa, sahiplik geri alınamayabilir.</string>
 
     <!-- 设置：转移开关 -->
     <string name="settings_allow_owner_transfer">Üçüncü taraf uygulamaların cihaz sahibini devretmesine izin ver</string>
@@ -177,17 +177,17 @@
     <string name="call_log_copy_done">Panoya kopyalandı</string>
     <string name="call_log_long_press_hint">Tüm içeriği kopyalamak için karta uzun basın</string>
     <string name="alert_permission_request_title">Bir uygulama Dhizuku yetkisi istiyor</string>
-    <string name="alert_permission_request_text">"%1$s" Dhizuku'yu kullanmak istiyor. İşlemek için dokunun (pencere kendiliğinden görünmediyse buradan girin).</string>
+    <string name="alert_permission_request_text">\"%1$s\" Dhizuku\'yu kullanmak istiyor. İşlemek için dokunun (pencere kendiliğinden görünmediyse buradan girin).</string>
     <string name="quick_activate_title">Hesapları kaldırmadan geçici etkinleştirme</string>
     <string name="quick_activate_entry_title">Hesapları kaldırmadan geçici olarak etkinleştir</string>
     <string name="quick_activate_entry_dsp">Hesapları kaldırmadan cihaz sahibi olarak etkinleştirin. Android 13 veya üstü ve Shizuku gerekir.</string>
 
     <string name="quick_activate_warning_title">Devam etmeden önce okuyun</string>
     <string name="quick_activate_warning_dsp">Etkinleştirme sırasında user_setup_complete geçici olarak 0 yapılır. 0 iken üç düğmeli gezinmenin Ana ve Son Kullanılanlar tuşları çalışmaz (Geri hâlâ çalışır; tam ekran hareket gezinmesi etkilenmez). Akış bitince otomatik geri yüklenir — yarıda başarısız olursa 3. adımı (elle geri yükleme) mutlaka çalıştırın.</string>
-    <string name="quick_activate_limit_dsp">Sınırlar: yalnızca Android 13 (API 33) ve üstü; kabuk komutlarını çalıştırmak için Shizuku veya root gerekir; bazı üretici ROM'ları gerekli arayüzleri engelleyebilir.</string>
+    <string name="quick_activate_limit_dsp">Sınırlar: yalnızca Android 13 (API 33) ve üstü; kabuk komutlarını çalıştırmak için Shizuku veya root gerekir; bazı üretici ROM\'ları gerekli arayüzleri engelleyebilir.</string>
 
     <string name="quick_activate_unsupported_title">Bu cihazda desteklenmiyor</string>
-    <string name="quick_activate_unsupported_dsp">Bu mod, Android 13'te tanıtılan cihaz politikası yönetim rolüne dayanır. Mevcut sistem sürümü %1$d. Lütfen bunun yerine Shizuku veya ADB ile etkinleştirin.</string>
+    <string name="quick_activate_unsupported_dsp">Bu mod, Android 13\'te tanıtılan cihaz politikası yönetim rolüne dayanır. Mevcut sistem sürümü %1$d. Lütfen bunun yerine Shizuku veya ADB ile etkinleştirin.</string>
 
     <string name="quick_activate_step_open_title">Sihirbazı aç</string>
     <string name="quick_activate_step_open_dsp">Cihaz politikası yönetim rolünü verir ve user_setup_complete değerini 0 yaparak etkinleştirme için gereken kapıyı açar.</string>
@@ -198,7 +198,7 @@
     <string name="quick_activate_step_activate_btn">Etkinleştir</string>
 
     <string name="quick_activate_step_restore_title">Elle geri yükleme</string>
-    <string name="quick_activate_step_restore_dsp">user_setup_complete değerini 1'e geri yükler. Gezinme tuşları çalışmaz olduysa bu adımı çalıştırın.</string>
+    <string name="quick_activate_step_restore_dsp">user_setup_complete değerini 1\'e geri yükler. Gezinme tuşları çalışmaz olduysa bu adımı çalıştırın.</string>
     <string name="quick_activate_step_restore_btn">Şimdi geri yükle</string>
 
     <string name="quick_activate_view_command">Elle komutları görüntüle</string>

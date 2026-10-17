@@ -146,9 +146,9 @@
     <string name="notifier_channel_security">Peringatan keamanan</string>
     <string name="notifier_channel_security_desc">Peringatan untuk peristiwa berisiko tinggi seperti transfer pemilik perangkat</string>
     <string name="alert_transfer_blocked_title">Transfer pemilik perangkat diblokir</string>
-    <string name="alert_transfer_blocked_text">"%1$s" mencoba mentransfer pemilik perangkat dan diblokir. Aktifkan "Izinkan aplikasi pihak ketiga mentransfer pemilik perangkat" di pengaturan lalu coba lagi.</string>
+    <string name="alert_transfer_blocked_text">\"%1$s\" mencoba mentransfer pemilik perangkat dan diblokir. Aktifkan \"Izinkan aplikasi pihak ketiga mentransfer pemilik perangkat\" di pengaturan lalu coba lagi.</string>
     <string name="alert_transfer_allowed_title">Pemilik perangkat mungkin telah ditransfer</string>
-    <string name="alert_transfer_allowed_text">"%1$s" telah melakukan transfer pemilik perangkat. Jika aplikasi itu tidak menyediakan pintasan otorisasi, kepemilikan mungkin tidak dapat diambil kembali.</string>
+    <string name="alert_transfer_allowed_text">\"%1$s\" telah melakukan transfer pemilik perangkat. Jika aplikasi itu tidak menyediakan pintasan otorisasi, kepemilikan mungkin tidak dapat diambil kembali.</string>
 
     <!-- 设置：转移开关 -->
     <string name="settings_allow_owner_transfer">Izinkan aplikasi pihak ketiga mentransfer pemilik perangkat</string>
@@ -177,7 +177,7 @@
     <string name="call_log_copy_done">Disalin ke papan klip</string>
     <string name="call_log_long_press_hint">Tekan lama kartu untuk menyalin semua konten</string>
     <string name="alert_permission_request_title">Ada aplikasi yang meminta otorisasi Dhizuku</string>
-    <string name="alert_permission_request_text">"%1$s" meminta akses ke Dhizuku. Ketuk untuk menangani (gunakan ini jika dialog tidak muncul sendiri).</string>
+    <string name="alert_permission_request_text">\"%1$s\" meminta akses ke Dhizuku. Ketuk untuk menangani (gunakan ini jika dialog tidak muncul sendiri).</string>
     <string name="quick_activate_title">Aktivasi sementara tanpa menghapus akun</string>
     <string name="quick_activate_entry_title">Aktifkan sementara tanpa menghapus akun</string>
     <string name="quick_activate_entry_dsp">Aktifkan sebagai pemilik perangkat tanpa menghapus akun. Memerlukan Android 13 atau lebih baru dan Shizuku.</string>
