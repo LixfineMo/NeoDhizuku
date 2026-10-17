@@ -1,4 +1,5 @@
 # NeoDhizuku
+中文 | [English](https://github.com/Qingyu-ch/NeoDhizuku/blob/master/docs/README.en.md) | [繁體中文](https://github.com/Qingyu-ch/NeoDhizuku/blob/master/docs/README.zh-rTW.md) | [日本語](https://github.com/Qingyu-ch/NeoDhizuku/blob/master/docs/README.ja.md) | [한국어](https://github.com/Qingyu-ch/NeoDhizuku/blob/master/docs/README.ko.md) | [Deutsch](https://github.com/Qingyu-ch/NeoDhizuku/blob/master/docs/README.de.md)
 
 基于 [Dhizuku](https://github.com/iamr0s/Dhizuku) 的二次开发版本，把设备所有者（DeviceOwner）权限受控地共享给其他应用。
 
