@@ -1,57 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="service_running">Dhizuku działa</string>
-    <string name="service_channel_name">Usługa w tle</string>
-    <string name="home_deactivate_dsp">Czy jesteś pewien że chcesz zdezaktywować?</string>
-    <string name="agree">Udzielono</string>
-    <string name="finish">Skończone</string>
-    <string name="refuse">Odmów</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name" translatable="false">NeoDhizuku</string>
+    <string name="agreement_title">Polityka</string>
+    <string name="agreement_text">Tu jest nasza polityka użytkownika. Proszę przeczytać ją i się zgodzić&lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Polityka użytkowania&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Polityka prywatności&lt;/a&gt; Ta wiadomość się nie pokaże ponownie gdy akceptujesz polityki</string>
+    <string name="agree_text">Zaakceptuj</string>
+    <string name="permission_description">Użyj API Dhizuku</string>
+    <!-- Commonly  used characters -->
+    <string name="copy">Kopiuj</string>
     <string name="cancel">Anuluj</string>
-    <string name="confirm">OK</string>
-    <string name="donate">Darowizna</string>
-    <string name="request_permission_text">Czy wyrażasz zgodę na prośbę o pozwolenie Dhizuku od <b>%1$s</b>\?</string>
-    <string name="home_deactivate_title">Dezaktywuj</string>
-    <string name="home_status_owner_granted">Jesteś Właścicielem!!!</string>
     <string name="retry">Ponów</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">Jesteś Właścicielem!!!</string>
+    <string name="home_status_owner_transferred">%1$s został przeniesiony!!!</string>
     <string name="home_status_owner_denied">Czekam na aktywację</string>
+    <!-- Home - Application Management -->
     <string name="home_app_management_title">Zarządzanie aplikacją</string>
-    <string name="home_shizuku_dsp">Z aplikacją Shizuku, masz możliwość wydawania poleceń ADB bez dostępu do komputera. Proszę &lt;a href=%1$s&gt;przeczytać pomoc&lt;/a&gt;.</string>
     <string name="home_app_management_dsp">Aplikacje, które zarządały lub zadeklarowały Dhizuku pojawią się tutaj.</string>
-    <string name="home_adb_title">Aktywacja przez ADB</string>
+    <!-- Home - Dhizuku -->
     <string name="home_dhizuku_title">Aktywacja z użyciem Dhizuku</string>
     <string name="home_dhizuku_dsp">Jeśli posiadasz inne implementację Dhizuku, możesz się między nimi przełączać. Proszę &lt;a href=%1$s&gt;przeczytać pomoc&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
     <string name="home_shizuku_title">Aktywacja przez Shizuku</string>
+    <string name="home_shizuku_dsp">Z aplikacją Shizuku, masz możliwość wydawania poleceń ADB bez dostępu do komputera. Proszę &lt;a href=%1$s&gt;przeczytać pomoc&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
+    <string name="home_adb_title">Aktywacja przez ADB</string>
     <string name="home_adb_dsp">Poprzez połączenie ADB (Android Debug Bridge) możesz wykonywać niektóre uprzywilejowane polecenia. Proszę &lt;a href=%1$s&gt;przeczytać pomoc&lt;/a&gt;.</string>
     <string name="home_adb_btn_view_command">Pokaż komendę</string>
-    <string name="permission_description">Użyj API Dhizuku</string>
-    <string name="home_shutdown_dsp">System nie będzie w stanie wyłączyć Dhizuku, dopóki Dhizuku nie zrobi tego dobrowolnie.</string>
+    <!-- Home - PvsD -->
+    <!-- Home - Shutdown -->
     <string name="home_shutdown_title">Zamknięcie</string>
-    <string name="agreement_text">Tu jest nasza polityka użytkownika. Proszę przeczytać ją i się zgodzić&lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Polityka użytkowania&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Polityka prywatności&lt;/a&gt; Ta wiadomość się nie pokaże ponownie gdy akceptujesz polityki</string>
-    <string name="agreement_title">Polityka</string>
-    <string name="agree_text">Zaakceptuj</string>
+    <string name="home_shutdown_dsp">System nie będzie w stanie wyłączyć Dhizuku, dopóki Dhizuku nie zrobi tego dobrowolnie.</string>
+    <!-- Home - Deactivate-->
+    <string name="home_deactivate_title">Dezaktywuj</string>
+    <string name="home_deactivate_dsp">Czy jesteś pewien że chcesz zdezaktywować?</string>
+    <string name="confirm">OK</string>
+    <string name="confirm_device_owner">Właściciel urządzenia</string>
+    <string name="confirm_profile_owner">Właściciel profilu</string>
+    <string name="profile_owner_warning_title">Ostrzeżenie</string>
+    <string name="profile_owner_warning_dsp">Jest to zmiana, której powinni dokonywać tylko użytkownicy rozumiejący jej konsekwencje. Twórcy Dhizuku nie mogą zagwarantować niczego w kwestii nieoczekiwanego zachowania spowodowanego tą zmianą trybu.</string>
+    <string name="finish">Skończone</string>
+    <string name="donate">Darowizna</string>
+    <string name="donate_hide_action">Ukryj</string>
+    <string name="donate_hide_confirm_title">Ukryj przycisk darowizny</string>
+    <string name="donate_hide_confirm_dsp">Tej czynności nie można cofnąć w aplikacji. Czy na pewno chcesz na stałe ukryć przycisk darowizny?</string>
+    <string name="request_permission_text">Czy wyrażasz zgodę na prośbę o pozwolenie Dhizuku od <b>%1$s</b>\?</string>
+    <string name="agree">Udzielono</string>
+    <string name="refuse">Odmów</string>
+    <string name="service_channel_name">Usługa w tle</string>
+    <string name="service_running">Dhizuku działa</string>
     <string name="settings">Ustawienia</string>
     <string name="settings_desc">Skonfiguruj zachowanie Dhizuku</string>
     <string name="enable_dhizuku">Włącz Dhizuku</string>
     <string name="enable_dhizuku_desc">Pozwól aby aplikacje używały Dhizuku</string>
     <string name="whitelist_mode">Tryb białej listy</string>
+    <string name="whitelist_mode_desc">Zezwalaj na korzystanie z Dhizuku tylko zatwierdzonym wcześniej aplikacjom</string>
     <string name="block_app">Zablokuj aplikacje</string>
     <string name="auto_deny_in">Auto-blokowanie w</string>
     <string name="block_app_desc">Całkowicie zablokuj dostęp do Dhizuku</string>
     <string name="app_blocked_notice">Ta aplikacja jest zablokowana i nie ma dostępu do Dhizuku</string>
+    <string name="allow_dhizuku_access">Zezwól na dostęp do Dhizuku</string>
     <string name="unblock_app">Odblokuj aplikacje</string>
     <string name="auto_deny_in_seconds">Auto-zablokowanie w %d sekund</string>
     <string name="denying_access">Odmawianie dostępu…</string>
-    <string name="allow_dhizuku_access">Zezwól na dostęp do Dhizuku</string>
-    <string name="whitelist_mode_desc">Zezwalaj na korzystanie z Dhizuku tylko zatwierdzonym wcześniej aplikacjom</string>
+
     <string name="daemon_service_notification_title">Demon Dhizuku</string>
     <string name="daemon_service_notification_text">To jest powiadomienie Dhizuku zapewniające dostępność usługi w każdej chwili. Możesz przytrzymać, aby ukryć to powiadomienie.</string>
-    <string name="copy">Kopiuj</string>
-    <string name="confirm_device_owner">Właściciel urządzenia</string>
-    <string name="confirm_profile_owner">Właściciel profilu</string>
-    <string name="profile_owner_warning_title">Ostrzeżenie</string>
-    <string name="profile_owner_warning_dsp">Jest to zmiana, której powinni dokonywać tylko użytkownicy rozumiejący jej konsekwencje. Twórcy Dhizuku nie mogą zagwarantować niczego w kwestii nieoczekiwanego zachowania spowodowanego tą zmianą trybu.</string>
-    <string name="donate_hide_action">Ukryj</string>
-    <string name="donate_hide_confirm_title">Ukryj przycisk darowizny</string>
-    <string name="donate_hide_confirm_dsp">Tej czynności nie można cofnąć w aplikacji. Czy na pewno chcesz na stałe ukryć przycisk darowizny?</string>
-    <string name="home_status_owner_transferred">%1$s został przeniesiony!!!</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui nie działa. Otwieranie strony pobierania…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">Na tym urządzeniu istnieją konta</string>
+    <string name="activate_err_account_exists_advice">Android wymaga usunięcia wszystkich kont przed ustawieniem właściciela urządzenia. Usuń je w ustawieniach systemowych i spróbuj ponownie.</string>
+    <string name="activate_err_owner_exists">Właściciel urządzenia lub profilu jest już ustawiony</string>
+    <string name="activate_err_owner_exists_advice">Jednocześnie może istnieć tylko jeden właściciel. Najpierw usuń istniejącego właściciela lub przenieś własność z Dhizuku.</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui jest niedostępne</string>
+    <string name="activate_err_shizuku_down_advice">Uruchom Shizuku (lub zainstaluj Sui) i przyznaj uprawnienie Dhizuku, następnie spróbuj ponownie.</string>
+    <string name="activate_err_hidden_api">Ten system blokuje wymagany prywatny interfejs API</string>
+    <string name="activate_err_hidden_api_advice">Aktywuj przez ADB lub inicjowanie obsługi kodem QR. Instrukcje znajdziesz na stronie głównej.</string>
+    <string name="activate_err_not_admin">Komponent docelowy nie jest prawidłowym administratorem urządzenia</string>
+    <string name="activate_err_not_admin_advice">Wybrana aplikacja nie deklaruje odbiornika administratora urządzenia. Wybierz inną.</string>
+    <string name="activate_err_cancelled">Aktywacja została anulowana</string>
+    <string name="activate_err_cancelled_advice">Anulowałeś żądanie lub operacja przekroczyła limit czasu. Możesz spróbować ponownie.</string>
+    <string name="activate_err_unknown">Aktywacja nie powiodła się</string>
+    <string name="activate_err_unknown_advice">Wystąpił nieoczekiwany błąd. Skopiuj informacje diagnostyczne i wypróbuj inną metodę aktywacji.</string>
+    <string name="activate_err_view_detail">Pokaż szczegóły</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">Inicjowanie obsługi zakończone</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">Nie udało się usunąć właściciela. Możesz usunąć go ręcznie w ustawieniach systemowych.</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">Główna</string>
+    <string name="nav_app_management">Aplikacje</string>
+    <string name="nav_call_log">Rekord wywołań</string>
+    <string name="nav_settings">Ustawienia</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">Aktywowano</string>
+    <string name="home_status_tap_to_manage">Dotknij, aby otworzyć opcje aktywacji i przenoszenia</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">Autoryzowane</string>
+    <string name="app_tab_unauthorized">Nieautoryzowane</string>
+    <string name="app_tab_blocked">Lista blokowanych</string>
+    <string name="app_empty_authorized">Brak autoryzowanych aplikacji</string>
+    <string name="app_empty_unauthorized">Brak oczekujących aplikacji</string>
+    <string name="app_empty_blocked">Brak zablokowanych aplikacji</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">Zablokuj</string>
+    <string name="request_permission_scope_hint">Ta aplikacja będzie mogła korzystać z uprawnień właściciela urządzenia</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">Nie zarejestrowano jeszcze żadnych wywołań</string>
+    <string name="call_log_times">%1$d razy</string>
+    <string name="call_log_footer">Tylko w pamięci, czyszczone po restarcie</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">Autoryzowane aplikacje</string>
+    <string name="home_stat_uptime">Czas działania</string>
+    <string name="home_status_version">Wersja: %1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">Zarządzanie</string>
+    <string name="settings_manage_apps_desc">%1$d autoryzowanych aplikacji</string>
+    <string name="settings_manage_blocklist_desc">Zablokowane aplikacje nie otrzymają próśb</string>
+    <string name="settings_manage_calllog_desc">Przejrzyj, co aplikacje zrobiły przez Dhizuku</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">Motyw</string>
+    <string name="settings_appearance_section">Wygląd</string>
+    <string name="settings_theme_desc">Tryb ciemny, kolor dynamiczny</string>
+    <string name="theme_mode_section">Tryb ciemny</string>
+    <string name="theme_color_section">Kolory</string>
+    <string name="theme_mode_system">Zgodnie z systemem</string>
+    <string name="theme_mode_system_desc">Przełączaj zgodnie z ustawieniem ciemnego motywu systemu</string>
+    <string name="theme_mode_light">Jasny</string>
+    <string name="theme_mode_light_desc">Zawsze używaj jasnego motywu</string>
+    <string name="theme_mode_dark">Ciemny</string>
+    <string name="theme_mode_dark_desc">Zawsze używaj ciemnego motywu</string>
+    <string name="theme_mode_amoled">Ciemny (AMOLED)</string>
+    <string name="theme_mode_amoled_desc">Ciemny motyw z czysto czarnym tłem</string>
+    <string name="theme_monet">Kolor dynamiczny</string>
+    <string name="theme_monet_desc">Pobieraj kolory akcentu z tapety systemowej</string>
+    <string name="theme_monet_unsupported">Kolor dynamiczny wymaga Androida 12 lub nowszego (bieżący: %1$d)</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">Alerty bezpieczeństwa</string>
+    <string name="notifier_channel_security_desc">Alerty dla zdarzeń wysokiego ryzyka, takich jak przeniesienie właściciela urządzenia</string>
+    <string name="alert_transfer_blocked_title">Przeniesienie właściciela urządzenia zablokowane</string>
+    <string name="alert_transfer_blocked_text">„%1$s” próbowało przenieść właściciela urządzenia i zostało zablokowane. Włącz „Zezwalaj aplikacjom trzecim na przenoszenie właściciela urządzenia” w ustawieniach i spróbuj ponownie.</string>
+    <string name="alert_transfer_allowed_title">Właściciel urządzenia mógł zostać przeniesiony</string>
+    <string name="alert_transfer_allowed_text">„%1$s” wykonało przeniesienie właściciela urządzenia. Jeśli ta aplikacja nie udostępnia wejścia autoryzacji, własność może być nieodwracalna.</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">Zezwalaj aplikacjom trzecim na przenoszenie właściciela urządzenia</string>
+    <string name="settings_allow_owner_transfer_desc">Gdy włączone, autoryzowane aplikacje mogą samodzielnie przekazać właściciela urządzenia innym aplikacjom. Jest to nieodwracalne.</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">Rekord wywołań</string>
+    <string name="call_log_tab_runtime">Dziennik działania</string>
+    <string name="call_log_today">Dziś</string>
+    <string name="call_log_yesterday">Wczoraj</string>
+    <string name="call_log_log_excerpt">Fragment dziennika</string>
+    <string name="call_log_clear">Wyczyść rekordy</string>
+    <string name="call_log_clear_confirm">Wyczyścić wszystkie rekordy wywołań i dzienniki działania? Tej operacji nie można cofnąć.</string>
+    <string name="call_log_retention">Czas przechowywania</string>
+    <string name="call_log_retention_7">7 dni</string>
+    <string name="call_log_retention_30">30 dni</string>
+    <string name="call_log_retention_90">90 dni</string>
+    <string name="call_log_retention_forever">Bezterminowo</string>
+    <string name="call_log_empty_runtime">Brak dzienników działania</string>
+    <string name="settings_security_section">Zasady usługi</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">Usługa odrzucona</string>
+    <string name="home_restart_service">Uruchom ponownie usługę</string>
+    <string name="home_stop_service">Zatrzymaj usługę</string>
+    <string name="home_restart_dsp">Uruchom ponownie usługę demona i przywróć obsługę API dla aplikacji trzecich.</string>
+    <string name="call_log_copy_done">Skopiowano do schowka</string>
+    <string name="call_log_long_press_hint">Długo naciśnij kartę, aby skopiować całą zawartość</string>
+    <string name="alert_permission_request_title">Aplikacja prosi o autoryzację Dhizuku</string>
+    <string name="alert_permission_request_text">„%1$s” prosi o dostęp do Dhizuku. Dotknij, aby obsłużyć (użyj tego, jeśli okno nie pojawiło się samo).</string>
+    <string name="quick_activate_title">Aktywacja tymczasowa bez usuwania kont</string>
+    <string name="quick_activate_entry_title">Aktywuj tymczasowo bez usuwania kont</string>
+    <string name="quick_activate_entry_dsp">Aktywuj jako właściciel urządzenia bez usuwania kont. Wymaga Androida 13 lub nowszego oraz Shizuku.</string>
+
+    <string name="quick_activate_warning_title">Przeczytaj przed kontynuowaniem</string>
+    <string name="quick_activate_warning_dsp">Podczas aktywacji user_setup_complete jest tymczasowo ustawiane na 0. Gdy wynosi 0, przyciski Ekran główny i Ostatnie w nawigacji trzyprzyciskowej przestają działać (Wstecz nadal działa; nawigacja gestami pełnoekranowymi nie jest naruszona). Wartość zostaje przywrócona automatycznie po zakończeniu — jeśli wystąpi błąd w połowie, koniecznie wykonaj krok 3 (przywracanie ręczne).</string>
+    <string name="quick_activate_limit_dsp">Ograniczenia: tylko Android 13 (API 33) lub nowszy; wymaga Shizuku lub roota do uruchamiania poleceń powłoki; niektóre ROM-y producentów mogą blokować wymagane interfejsy.</string>
+
+    <string name="quick_activate_unsupported_title">Nieobsługiwane na tym urządzeniu</string>
+    <string name="quick_activate_unsupported_dsp">Ten tryb opiera się na roli zarządzania polityką urządzenia wprowadzonej w Androidzie 13. Bieżąca wersja systemu to %1$d. Aktywuj przez Shizuku lub ADB.</string>
+
+    <string name="quick_activate_step_open_title">Otwórz kreatora</string>
+    <string name="quick_activate_step_open_dsp">Nadaje rolę zarządzania polityką urządzenia i ustawia user_setup_complete na 0, otwierając bramkę wymaganą do aktywacji.</string>
+    <string name="quick_activate_step_open_btn">Otwórz kreatora</string>
+
+    <string name="quick_activate_step_activate_title">Spróbuj aktywować</string>
+    <string name="quick_activate_step_activate_dsp">Synchronizuje stan, rejestruje jako administrator urządzenia, a następnie aktywuje właściciela urządzenia. user_setup_complete zostanie przywrócone automatycznie.</string>
+    <string name="quick_activate_step_activate_btn">Aktywuj</string>
+
+    <string name="quick_activate_step_restore_title">Przywracanie ręczne</string>
+    <string name="quick_activate_step_restore_dsp">Przywraca user_setup_complete do 1. Wykonaj ten krok, jeśli przyciski nawigacji przestały działać.</string>
+    <string name="quick_activate_step_restore_btn">Przywróć teraz</string>
+
+    <string name="quick_activate_view_command">Pokaż polecenia ręczne</string>
+    <string name="quick_activate_result_ok">Powiodło się</string>
+    <string name="quick_activate_result_fail">Nie ukończono</string>
+    <string name="quick_activate_success">Właściciel urządzenia aktywowany</string>
+    <string name="security_title">Zasady usługi</string>
+    <string name="settings_security_desc">Przełącznik usługi API, biała lista, zachowanie po zamknięciu usługi, przeniesienie właściciela urządzenia</string>
+    <string name="security_deny_section">Opcje odrzucania</string>
+    <string name="security_deny_mode_title">Zachowanie po zamknięciu usługi</string>
+    <string name="security_deny_mode_desc">Określa, jak usługa odpowiada, gdy wywołują ją aplikacje trzecie.</string>
+
+    <string name="deny_mode_dangerous_fail">Odrzuć niebezpieczne wywołania, zwróć błąd</string>
+    <string name="deny_mode_dangerous_fail_desc">Aplikacja może znaleźć usługę; niebezpieczne operacje są odrzucane.</string>
+    <string name="deny_mode_dangerous_success">Odrzuć niebezpieczne wywołania, zwróć sukces</string>
+    <string name="deny_mode_dangerous_success_desc">Aplikacja może znaleźć usługę; niebezpieczne operacje zgłaszają sukces, ale nie są wykonywane.</string>
+    <string name="deny_mode_all_fail">Odrzuć wszystko, zwróć błąd</string>
+    <string name="deny_mode_all_fail_desc">Aplikacja nie znajdzie usługi, tak jakby była nieaktywna.</string>
+    <string name="deny_mode_all_success">Odrzuć wszystko, zwróć sukces</string>
+    <string name="deny_mode_all_success_desc">Aplikacja nie znajdzie usługi, ale otrzyma odpowiedź o sukcesie.</string>
+    <string name="deny_mode_no_action">Nie rób nic</string>
+    <string name="deny_mode_no_action_desc">Ani nie odrzuca, ani nie pozwala; żądanie zostaje zawieszone i aplikacja czeka w nieskończoność.</string>
+
+    <string name="security_api_state_on">Główny przełącznik API: włączony</string>
+    <string name="security_api_state_off">Główny przełącznik API: wyłączony, aplikacje trzecie nie mogą z niego korzystać</string>
+
+    <string name="security_service_section">Usługa API</string>
+    <string name="security_transfer_section">Przeniesienie właściciela urządzenia</string>
+
+    <string name="quick_activate_pending_restore">!Kreator konfiguracji nie został przywrócony, uruchom przywracanie ręczne!</string>
+
 </resources>

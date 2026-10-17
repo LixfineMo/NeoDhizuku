@@ -1,35 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name" translatable="false">NeoDhizuku</string>
+    <string name="agreement_title">Sözleşme</string>
+    <string name="agreement_text">İşte kullanıcı politikamız, lütfen okuyun ve kabul edin. &lt;a href=\"https://iamr0s.github.io/Dhizuku/TERMS.html\"&gt;Kullanım Şartları&lt;/a&gt;, &lt;a href=\"https://iamr0s.github.io/Dhizuku/PRIVACY.html\"&gt;Gizlilik Politikası&lt;/a&gt;. Kabul ettikten sonra bu mesaj bir daha gösterilmeyecektir.</string>
+    <string name="agree_text">Kabul et</string>
+    <string name="permission_description">Dhizuku\'nun API\'sini kullanın</string>
+    <!-- Commonly  used characters -->
+    <string name="copy">Kopyala</string>
+    <string name="cancel">İptal</string>
+    <string name="retry">Yeniden dene</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">%1$s oldunuz!!!</string>
+    <string name="home_status_owner_transferred">%1$s aktarıldı!!!</string>
+    <string name="home_status_owner_denied">Aktivasyon için bekleniyor</string>
+    <!-- Home - Application Management -->
+    <string name="home_app_management_title">Uygulama Yönetimi</string>
+    <string name="home_app_management_dsp">Shizuku\'yu talep eden veya bildiren uygulamalar burada gösterilecektir.</string>
+    <!-- Home - Dhizuku -->
+    <string name="home_dhizuku_title">Dhizuku\'yla Aktivasyon</string>
+    <string name="home_dhizuku_dsp">Kurulu başka Dhizuku uygulamalarınız varsa, bunlar arasında istediğiniz zaman geçiş yapabilirsiniz. Lütfen &lt;a href=\"%1$s\"&gt;yardımı okuyun&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
+    <string name="home_shizuku_title">Shizuku ile Aktivasyon</string>
+    <string name="home_shizuku_dsp">Shizuku ile bilgisayara ihtiyaç duymadan ADB komutlarını çalıştırma olanağına sahipsiniz. Lütfen &lt;a href=\"%1$s\"&gt;yardımı okuyun&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
+    <string name="home_adb_title">ADB tarafından Aktivasyon</string>
+    <string name="home_adb_dsp">ADB (Android Hata Ayıklama Köprüsü) bağlantısı aracılığıyla bazı ayrıcalıklı komutları çalıştırabilirsiniz. Lütfen &lt;a href=\"%1$s\"&gt;yardımı okuyun&lt;/a&gt;.</string>
+    <string name="home_adb_btn_view_command">Komutu görüntüle</string>
+    <!-- Home - PvsD -->
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">Kapat</string>
+    <string name="home_shutdown_dsp">Dhizuku bunu gönüllü olarak yapmadığı sürece sistem Dhizuku\'yu kapatamayacaktır.</string>
+    <!-- Home - Deactivate-->
     <string name="home_deactivate_title">Devre dışı bırak</string>
     <string name="home_deactivate_dsp">Devre dışı bırakmak istediğinize emin misiniz?</string>
+    <string name="confirm">Onayla</string>
+    <string name="confirm_device_owner">Cihaz Sahibi</string>
+    <string name="confirm_profile_owner">Profil Sahibi</string>
+    <string name="profile_owner_warning_title">Uyarı</string>
+    <string name="profile_owner_warning_dsp">Bu yalnızca sonuçlarını anlayan kullanıcılar tarafından yapılması gereken bir değişikliktir. Dhizuku geliştiricileri bu mod değişikliğinin neden olduğu beklenmedik davranışlar hakkında hiçbir garanti veremez.</string>
+    <string name="finish">Bitti</string>
     <string name="donate">Bağış Yap</string>
+    <string name="donate_hide_action">Gizle</string>
+    <string name="donate_hide_confirm_title">Bağış Yap Düğmesini Gizle</string>
+    <string name="donate_hide_confirm_dsp">Bu işlem uygulama içinden geri alınamaz. Bağış yap düğmesini kalıcı olarak gizlemek istediğinizden emin misiniz?</string>
     <string name="request_permission_text"><b>%1$s</b>\'ın Dhizuku\'ya erişmesine izin verilsin mi?</string>
     <string name="agree">İzin ver</string>
     <string name="refuse">Reddet</string>
     <string name="service_channel_name">Arkaplan hizmeti</string>
     <string name="service_running">Dhizuku çalışıyor</string>
-    <string name="finish">Bitti</string>
-    <string name="confirm">Onayla</string>
-    <string name="cancel">İptal</string>
-    <string name="retry">Yeniden dene</string>
-    <string name="home_status_owner_granted">%1$s oldunuz!!!</string>
-    <string name="home_app_management_title">Uygulama Yönetimi</string>
-    <string name="home_app_management_dsp">Shizuku\'yu talep eden veya bildiren uygulamalar burada gösterilecektir.</string>
-    <string name="home_dhizuku_title">Dhizuku\'yla Aktivasyon</string>
-    <string name="home_shizuku_title">Shizuku ile Aktivasyon</string>
-    <string name="home_shizuku_dsp">Shizuku ile bilgisayara ihtiyaç duymadan ADB komutlarını çalıştırma olanağına sahipsiniz. Lütfen &lt;a href=\"%1$s\"&gt;yardımı okuyun&lt;/a&gt;.</string>
-    <string name="home_adb_title">ADB tarafından Aktivasyon</string>
-    <string name="home_adb_btn_view_command">Komutu görüntüle</string>
-    <string name="home_shutdown_title">Kapat</string>
-    <string name="home_shutdown_dsp">Dhizuku bunu gönüllü olarak yapmadığı sürece sistem Dhizuku\'yu kapatamayacaktır.</string>
-    <string name="home_status_owner_denied">Aktivasyon için bekleniyor</string>
-    <string name="home_dhizuku_dsp">Kurulu başka Dhizuku uygulamalarınız varsa, bunlar arasında istediğiniz zaman geçiş yapabilirsiniz. Lütfen &lt;a href=\"%1$s\"&gt;yardımı okuyun&lt;/a&gt;.</string>
-    <string name="home_adb_dsp">ADB (Android Hata Ayıklama Köprüsü) bağlantısı aracılığıyla bazı ayrıcalıklı komutları çalıştırabilirsiniz. Lütfen &lt;a href=\"%1$s\"&gt;yardımı okuyun&lt;/a&gt;.</string>
-    <string name="permission_description">Dhizuku\'nun API\'sini kullanın</string>
-    <string name="agree_text">Kabul et</string>
-    <string name="agreement_title">Sözleşme</string>
-    <string name="agreement_text">İşte kullanıcı politikamız, lütfen okuyun ve kabul edin. &lt;a href=\"https://iamr0s.github.io/Dhizuku/TERMS.html\"&gt;Kullanım Şartları&lt;/a&gt;, &lt;a href=\"https://iamr0s.github.io/Dhizuku/PRIVACY.html\"&gt;Gizlilik Politikası&lt;/a&gt;. Kabul ettikten sonra bu mesaj bir daha gösterilmeyecektir.</string>
     <string name="settings">Ayarlar</string>
+    <string name="settings_desc">Dhiuzuku davranışını yapılandır</string>
     <string name="enable_dhizuku">Dhizuku\'yu etkinleştir</string>
     <string name="enable_dhizuku_desc">Uygulamaların Dhizuku servislerini kullanmasına izin ver</string>
     <string name="whitelist_mode">Beyaz Liste Modu</string>
@@ -42,16 +62,172 @@
     <string name="unblock_app">Uygulamanın engelini kaldır</string>
     <string name="auto_deny_in_seconds">%d saniyede otomatik reddet</string>
     <string name="denying_access">İzin reddediliyor…</string>
-    <string name="settings_desc">Dhiuzuku davranışını yapılandır</string>
+
     <string name="daemon_service_notification_title">Dhizuku Servisi</string>
     <string name="daemon_service_notification_text">Bu, hizmetin her zaman kullanılabilir olmasını sağlayan bir Dhizuku bildirimidir. Bu bildirimi gizlemek için uzun basabilirsiniz.</string>
-    <string name="copy">Kopyala</string>
-    <string name="confirm_device_owner">Cihaz Sahibi</string>
-    <string name="confirm_profile_owner">Profil Sahibi</string>
-    <string name="profile_owner_warning_title">Uyarı</string>
-    <string name="profile_owner_warning_dsp">Bu yalnızca sonuçlarını anlayan kullanıcılar tarafından yapılması gereken bir değişikliktir. Dhizuku geliştiricileri bu mod değişikliğinin neden olduğu beklenmedik davranışlar hakkında hiçbir garanti veremez.</string>
-    <string name="donate_hide_action">Gizle</string>
-    <string name="donate_hide_confirm_title">Bağış Yap Düğmesini Gizle</string>
-    <string name="donate_hide_confirm_dsp">Bu işlem uygulama içinden geri alınamaz. Bağış yap düğmesini kalıcı olarak gizlemek istediğinizden emin misiniz?</string>
-    <string name="home_status_owner_transferred">%1$s aktarıldı!!!</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui çalışmıyor. İndirme sayfası açılıyor…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">Bu cihazda hesaplar var</string>
+    <string name="activate_err_account_exists_advice">Android, cihaz sahibi ayarlamadan önce tüm hesapların kaldırılmasını gerektirir. Lütfen sistem ayarlarından kaldırıp tekrar deneyin.</string>
+    <string name="activate_err_owner_exists">Bir cihaz sahibi veya profil sahibi zaten ayarlanmış</string>
+    <string name="activate_err_owner_exists_advice">Aynı anda yalnızca bir sahip olabilir. Önce mevcut sahibi kaldırın veya Dhizuku'dan sahipliği devredin.</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui kullanılamıyor</string>
+    <string name="activate_err_shizuku_down_advice">Lütfen Shizuku'yu başlatın (veya Sui'yi kurun) ve Dhizuku'ya izin verin, sonra tekrar deneyin.</string>
+    <string name="activate_err_hidden_api">Bu sistem gerekli gizli API'yi engelliyor</string>
+    <string name="activate_err_hidden_api_advice">Lütfen bunun yerine ADB veya QR sağlama ile etkinleştirin. Talimatlar için ana sayfaya bakın.</string>
+    <string name="activate_err_not_admin">Hedef bileşen geçerli bir cihaz yöneticisi değil</string>
+    <string name="activate_err_not_admin_advice">Seçilen uygulama bir cihaz yöneticisi alıcısı bildirmiyor. Lütfen başka bir tane seçin.</string>
+    <string name="activate_err_cancelled">Etkinleştirme iptal edildi</string>
+    <string name="activate_err_cancelled_advice">İsteği siz iptal ettiniz veya işlem zaman aşımına uğradı. Tekrar deneyebilirsiniz.</string>
+    <string name="activate_err_unknown">Etkinleştirme başarısız</string>
+    <string name="activate_err_unknown_advice">Beklenmeyen bir hata oluştu. Tanılama bilgisini kopyalayın ve başka bir etkinleştirme yöntemi deneyin.</string>
+    <string name="activate_err_view_detail">Ayrıntıları görüntüle</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">Sağlama tamamlandı</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">Sahip kaldırılamadı. Sistem ayarlarından elle kaldırabilirsiniz.</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">Ana sayfa</string>
+    <string name="nav_app_management">Uygulamalar</string>
+    <string name="nav_call_log">Çağrı kaydı</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">Etkinleştirildi</string>
+    <string name="home_status_tap_to_manage">Etkinleştirme ve devir seçeneklerini açmak için dokunun</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">Yetkili</string>
+    <string name="app_tab_unauthorized">Yetkisiz</string>
+    <string name="app_tab_blocked">Engel listesi</string>
+    <string name="app_empty_authorized">Yetkili uygulama yok</string>
+    <string name="app_empty_unauthorized">Bekleyen uygulama yok</string>
+    <string name="app_empty_blocked">Engellenen uygulama yok</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">Engelle</string>
+    <string name="request_permission_scope_hint">Bu uygulama cihaz sahibi yeteneklerini kullanabilecek</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">Henüz çağrı kaydı yok</string>
+    <string name="call_log_times">%1$d kez</string>
+    <string name="call_log_footer">Yalnızca bellekte, yeniden başlatma sonrası temizlenir</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">Yetkili uygulamalar</string>
+    <string name="home_stat_uptime">Çalışma süresi</string>
+    <string name="home_status_version">Sürüm: %1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">Yönetim</string>
+    <string name="settings_manage_apps_desc">%1$d yetkili uygulama</string>
+    <string name="settings_manage_blocklist_desc">Engellenen uygulamalar istem almaz</string>
+    <string name="settings_manage_calllog_desc">Uygulamaların Dhizuku üzerinden ne yaptığını inceleyin</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">Tema</string>
+    <string name="settings_appearance_section">Görünüm</string>
+    <string name="settings_theme_desc">Karanlık mod, dinamik renk</string>
+    <string name="theme_mode_section">Karanlık mod</string>
+    <string name="theme_color_section">Renkler</string>
+    <string name="theme_mode_system">Sistemi izle</string>
+    <string name="theme_mode_system_desc">Sistemin karanlık tema ayarına göre değiştir</string>
+    <string name="theme_mode_light">Açık</string>
+    <string name="theme_mode_light_desc">Her zaman açık temayı kullan</string>
+    <string name="theme_mode_dark">Koyu</string>
+    <string name="theme_mode_dark_desc">Her zaman koyu temayı kullan</string>
+    <string name="theme_mode_amoled">Koyu (AMOLED)</string>
+    <string name="theme_mode_amoled_desc">Saf siyah arka planlı koyu tema</string>
+    <string name="theme_monet">Dinamik renk</string>
+    <string name="theme_monet_desc">Vurgu renklerini sistem duvar kağıdından al</string>
+    <string name="theme_monet_unsupported">Dinamik renk Android 12 veya üstünü gerektirir (mevcut: %1$d)</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">Güvenlik uyarıları</string>
+    <string name="notifier_channel_security_desc">Cihaz sahibi devri gibi yüksek riskli olaylar için uyarılar</string>
+    <string name="alert_transfer_blocked_title">Cihaz sahibi devri engellendi</string>
+    <string name="alert_transfer_blocked_text">"%1$s" cihaz sahibini devretmeye çalıştı ve engellendi. Ayarlardan "Üçüncü taraf uygulamaların cihaz sahibini devretmesine izin ver"i etkinleştirip tekrar deneyin.</string>
+    <string name="alert_transfer_allowed_title">Cihaz sahibi devredilmiş olabilir</string>
+    <string name="alert_transfer_allowed_text">"%1$s" bir cihaz sahibi devri gerçekleştirdi. Bu uygulama bir yetki girişi sağlamıyorsa, sahiplik geri alınamayabilir.</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">Üçüncü taraf uygulamaların cihaz sahibini devretmesine izin ver</string>
+    <string name="settings_allow_owner_transfer_desc">Etkinleştirildiğinde, yetkili uygulamalar cihaz sahibini kendi başlarına diğer uygulamalara devredebilir. Bu geri alınamaz.</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">Çağrı kaydı</string>
+    <string name="call_log_tab_runtime">Çalışma zamanı günlüğü</string>
+    <string name="call_log_today">Bugün</string>
+    <string name="call_log_yesterday">Dün</string>
+    <string name="call_log_log_excerpt">Günlük alıntısı</string>
+    <string name="call_log_clear">Kayıtları temizle</string>
+    <string name="call_log_clear_confirm">Tüm çağrı kayıtları ve çalışma zamanı günlükleri temizlensin mi? Bu işlem geri alınamaz.</string>
+    <string name="call_log_retention">Saklama süresi</string>
+    <string name="call_log_retention_7">7 gün</string>
+    <string name="call_log_retention_30">30 gün</string>
+    <string name="call_log_retention_90">90 gün</string>
+    <string name="call_log_retention_forever">Süresiz</string>
+    <string name="call_log_empty_runtime">Çalışma zamanı günlüğü yok</string>
+    <string name="settings_security_section">Hizmet politikası</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">Hizmet reddedildi</string>
+    <string name="home_restart_service">Hizmeti yeniden başlat</string>
+    <string name="home_stop_service">Hizmeti durdur</string>
+    <string name="home_restart_dsp">Arka plan hizmetini yeniden başlatın ve üçüncü taraf uygulamalar için API desteğini geri getirin.</string>
+    <string name="call_log_copy_done">Panoya kopyalandı</string>
+    <string name="call_log_long_press_hint">Tüm içeriği kopyalamak için karta uzun basın</string>
+    <string name="alert_permission_request_title">Bir uygulama Dhizuku yetkisi istiyor</string>
+    <string name="alert_permission_request_text">"%1$s" Dhizuku'yu kullanmak istiyor. İşlemek için dokunun (pencere kendiliğinden görünmediyse buradan girin).</string>
+    <string name="quick_activate_title">Hesapları kaldırmadan geçici etkinleştirme</string>
+    <string name="quick_activate_entry_title">Hesapları kaldırmadan geçici olarak etkinleştir</string>
+    <string name="quick_activate_entry_dsp">Hesapları kaldırmadan cihaz sahibi olarak etkinleştirin. Android 13 veya üstü ve Shizuku gerekir.</string>
+
+    <string name="quick_activate_warning_title">Devam etmeden önce okuyun</string>
+    <string name="quick_activate_warning_dsp">Etkinleştirme sırasında user_setup_complete geçici olarak 0 yapılır. 0 iken üç düğmeli gezinmenin Ana ve Son Kullanılanlar tuşları çalışmaz (Geri hâlâ çalışır; tam ekran hareket gezinmesi etkilenmez). Akış bitince otomatik geri yüklenir — yarıda başarısız olursa 3. adımı (elle geri yükleme) mutlaka çalıştırın.</string>
+    <string name="quick_activate_limit_dsp">Sınırlar: yalnızca Android 13 (API 33) ve üstü; kabuk komutlarını çalıştırmak için Shizuku veya root gerekir; bazı üretici ROM'ları gerekli arayüzleri engelleyebilir.</string>
+
+    <string name="quick_activate_unsupported_title">Bu cihazda desteklenmiyor</string>
+    <string name="quick_activate_unsupported_dsp">Bu mod, Android 13'te tanıtılan cihaz politikası yönetim rolüne dayanır. Mevcut sistem sürümü %1$d. Lütfen bunun yerine Shizuku veya ADB ile etkinleştirin.</string>
+
+    <string name="quick_activate_step_open_title">Sihirbazı aç</string>
+    <string name="quick_activate_step_open_dsp">Cihaz politikası yönetim rolünü verir ve user_setup_complete değerini 0 yaparak etkinleştirme için gereken kapıyı açar.</string>
+    <string name="quick_activate_step_open_btn">Sihirbazı aç</string>
+
+    <string name="quick_activate_step_activate_title">Etkinleştirmeyi dene</string>
+    <string name="quick_activate_step_activate_dsp">Durumu eşitler, cihaz yöneticisi olarak kaydeder ve cihaz sahibini etkinleştirir. user_setup_complete sonrasında otomatik olarak geri yüklenir.</string>
+    <string name="quick_activate_step_activate_btn">Etkinleştir</string>
+
+    <string name="quick_activate_step_restore_title">Elle geri yükleme</string>
+    <string name="quick_activate_step_restore_dsp">user_setup_complete değerini 1'e geri yükler. Gezinme tuşları çalışmaz olduysa bu adımı çalıştırın.</string>
+    <string name="quick_activate_step_restore_btn">Şimdi geri yükle</string>
+
+    <string name="quick_activate_view_command">Elle komutları görüntüle</string>
+    <string name="quick_activate_result_ok">Başarılı</string>
+    <string name="quick_activate_result_fail">Tamamlanmadı</string>
+    <string name="quick_activate_success">Cihaz sahibi etkinleştirildi</string>
+    <string name="security_title">Hizmet politikası</string>
+    <string name="settings_security_desc">API hizmeti anahtarı, beyaz liste, hizmet kapatıldıktan sonraki davranış, cihaz sahibi devri</string>
+    <string name="security_deny_section">Reddetme seçenekleri</string>
+    <string name="security_deny_mode_title">Hizmet kapatıldıktan sonraki davranış</string>
+    <string name="security_deny_mode_desc">Üçüncü taraf uygulamalar çağırdığında hizmetin nasıl yanıt vereceğini belirler.</string>
+
+    <string name="deny_mode_dangerous_fail">Tehlikeli çağrıları reddet, hata döndür</string>
+    <string name="deny_mode_dangerous_fail_desc">Uygulama servisi bulabilir; tehlikeli işlemler reddedilir.</string>
+    <string name="deny_mode_dangerous_success">Tehlikeli çağrıları reddet, başarı döndür</string>
+    <string name="deny_mode_dangerous_success_desc">Uygulama servisi bulabilir; tehlikeli işlemler başarı döner ama gerçekleştirilmez.</string>
+    <string name="deny_mode_all_fail">Her şeyi reddet, hata döndür</string>
+    <string name="deny_mode_all_fail_desc">Uygulama servisi bulamaz, etkin değilmiş gibi.</string>
+    <string name="deny_mode_all_success">Her şeyi reddet, başarı döndür</string>
+    <string name="deny_mode_all_success_desc">Uygulama servisi bulamaz ama başarı yanıtı alır.</string>
+    <string name="deny_mode_no_action">Hiçbir şey yapma</string>
+    <string name="deny_mode_no_action_desc">Ne reddeder ne izin verir; istek askıda kalır ve uygulama sonsuza kadar bekler.</string>
+
+    <string name="security_api_state_on">API ana anahtarı: etkin</string>
+    <string name="security_api_state_off">API ana anahtarı: devre dışı, üçüncü taraf uygulamalar kullanamaz</string>
+
+    <string name="security_service_section">API hizmeti</string>
+    <string name="security_transfer_section">Cihaz sahibi devri</string>
+
+    <string name="quick_activate_pending_restore">!Kurulum sihirbazı geri yüklenmedi, lütfen elle geri yükleme yapın!</string>
+
 </resources>

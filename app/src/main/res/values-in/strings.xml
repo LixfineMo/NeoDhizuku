@@ -1,34 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name" translatable="false">NeoDhizuku</string>
+    <string name="agreement_title">Lisensi</string>
+    <string name="agreement_text">Berikut adalah kebijakan pengguna kami. Harap baca dan setujui. &lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Persyaratan Penggunaan&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Kebijakan Privasi&lt;/a&gt; Pesan ini tidak akan muncul lagi setelah Anda setuju.</string>
+    <string name="agree_text">Setuju</string>
+    <string name="permission_description">Gunakan API Dhizuku</string>
+    <!-- Commonly  used characters -->
+    <string name="copy">Salin</string>
     <string name="cancel">Batal</string>
-    <string name="confirm">Oke</string>
-    <string name="home_deactivate_title">Nonaktifkan</string>
-    <string name="home_deactivate_dsp">Apakah Anda yakin ingin menonaktifkan?</string>
-    <string name="donate">Donasi</string>
-    <string name="agree">Izinkan</string>
-    <string name="refuse">Tolak</string>
-    <string name="finish">Selesai</string>
-    <string name="service_channel_name">Layanan latar belakang</string>
-    <string name="request_permission_text">Izinkan <b>%1$s</b> mengakses Dhizuku?</string>
-    <string name="service_running">Dhizuku sedang berjalan</string>
-    <string name="home_dhizuku_dsp">Jika Anda memiliki implementasi Dhizuku lain yang terinstal, Anda dapat beralih di antara keduanya sesuka hati. Silakan &lt;a href=\"%1$s\"&gt;baca bantuan&lt;/a&gt;.</string>
-    <string name="home_status_owner_denied">Menunggu Aktivasi</string>
-    <string name="home_shizuku_dsp">Dengan Shizuku, Anda dapat menjalankan perintah ADB tanpa memerlukan komputer. Silakan &lt;a href=\"%1$s\"&gt;baca bantuan&lt;/a&gt;.</string>
     <string name="retry">Coba lagi</string>
+    <!-- Home - Status -->
     <string name="home_status_owner_granted">Anda adalah Pemilik !!!</string>
+    <string name="home_status_owner_transferred">%1$s telah dipindahkan!!!</string>
+    <string name="home_status_owner_denied">Menunggu Aktivasi</string>
+    <!-- Home - Application Management -->
     <string name="home_app_management_title">Manajemen Aplikasi</string>
     <string name="home_app_management_dsp">Aplikasi yang telah meminta atau mendeklarasikan Dhizuku akan ditampilkan di sini.</string>
+    <!-- Home - Dhizuku -->
     <string name="home_dhizuku_title">Aktivasi oleh Dhizuku</string>
+    <string name="home_dhizuku_dsp">Jika Anda memiliki implementasi Dhizuku lain yang terinstal, Anda dapat beralih di antara keduanya sesuka hati. Silakan &lt;a href=\"%1$s\"&gt;baca bantuan&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
     <string name="home_shizuku_title">Aktivasi oleh Shizuku</string>
+    <string name="home_shizuku_dsp">Dengan Shizuku, Anda dapat menjalankan perintah ADB tanpa memerlukan komputer. Silakan &lt;a href=\"%1$s\"&gt;baca bantuan&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
     <string name="home_adb_title">Aktivasi oleh ADB</string>
-    <string name="home_shutdown_dsp">Sistem tidak akan dapat mematikan Dhizuku kecuali Dhizuku melakukannya secara sukarela.</string>
-    <string name="home_shutdown_title">Penutupan</string>
-    <string name="permission_description">Gunakan API Dhizuku</string>
     <string name="home_adb_dsp">Melalui koneksi ADB (Android Debug Bridge), Anda dapat menjalankan beberapa perintah istimewa. Harap &lt;a href=%1$s&gt;baca bantuannya&lt;/a&gt;.</string>
     <string name="home_adb_btn_view_command">Lihat perintah</string>
-    <string name="agreement_title">Lisensi</string>
-    <string name="agree_text">Setuju</string>
-    <string name="agreement_text">Berikut adalah kebijakan pengguna kami. Harap baca dan setujui. &lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Persyaratan Penggunaan&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Kebijakan Privasi&lt;/a&gt; Pesan ini tidak akan muncul lagi setelah Anda setuju.</string>
+    <!-- Home - PvsD -->
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">Penutupan</string>
+    <string name="home_shutdown_dsp">Sistem tidak akan dapat mematikan Dhizuku kecuali Dhizuku melakukannya secara sukarela.</string>
+    <!-- Home - Deactivate-->
+    <string name="home_deactivate_title">Nonaktifkan</string>
+    <string name="home_deactivate_dsp">Apakah Anda yakin ingin menonaktifkan?</string>
+    <string name="confirm">Oke</string>
+    <string name="confirm_device_owner">Pemilik Perangkat</string>
+    <string name="confirm_profile_owner">Pemilik Profil</string>
+    <string name="profile_owner_warning_title">Peringatan</string>
+    <string name="profile_owner_warning_dsp">Ini adalah perubahan yang hanya boleh dilakukan oleh pengguna yang memahami implikasinya. Pengembang Dhizuku tidak dapat menjamin apa pun terkait perilaku tak terduga yang disebabkan oleh perubahan mode ini.</string>
+    <string name="finish">Selesai</string>
+    <string name="donate">Donasi</string>
+    <string name="donate_hide_action">Sembunyikan</string>
+    <string name="donate_hide_confirm_title">Sembunyikan Tombol Donasi</string>
+    <string name="donate_hide_confirm_dsp">Tindakan ini tidak dapat dibatalkan dari dalam aplikasi. Apakah Anda yakin ingin menyembunyikan tombol donasi secara permanen?</string>
+    <string name="request_permission_text">Izinkan <b>%1$s</b> mengakses Dhizuku?</string>
+    <string name="agree">Izinkan</string>
+    <string name="refuse">Tolak</string>
+    <string name="service_channel_name">Layanan latar belakang</string>
+    <string name="service_running">Dhizuku sedang berjalan</string>
     <string name="settings">Setelan</string>
     <string name="settings_desc">Konfigurasikan perilaku Dhizuku</string>
     <string name="enable_dhizuku">Aktifkan Dhizuku</string>
@@ -43,15 +62,172 @@
     <string name="unblock_app">Buka Blokir Aplikasi</string>
     <string name="auto_deny_in_seconds">Penolakan otomatis dalam %d detik</string>
     <string name="denying_access">Menolak akses…</string>
+
     <string name="daemon_service_notification_title">Dhizuku Daemon</string>
     <string name="daemon_service_notification_text">Ini adalah notifikasi Dhizuku untuk memastikan ketersediaan layanan setiap saat. Tekan dan tahan untuk menyembunyikan notifikasi ini.</string>
-    <string name="copy">Salin</string>
-    <string name="confirm_device_owner">Pemilik Perangkat</string>
-    <string name="confirm_profile_owner">Pemilik Profil</string>
-    <string name="profile_owner_warning_title">Peringatan</string>
-    <string name="profile_owner_warning_dsp">Ini adalah perubahan yang hanya boleh dilakukan oleh pengguna yang memahami implikasinya. Pengembang Dhizuku tidak dapat menjamin apa pun terkait perilaku tak terduga yang disebabkan oleh perubahan mode ini.</string>
-    <string name="donate_hide_action">Sembunyikan</string>
-    <string name="donate_hide_confirm_title">Sembunyikan Tombol Donasi</string>
-    <string name="donate_hide_confirm_dsp">Tindakan ini tidak dapat dibatalkan dari dalam aplikasi. Apakah Anda yakin ingin menyembunyikan tombol donasi secara permanen?</string>
-    <string name="home_status_owner_transferred">%1$s telah dipindahkan!!!</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui tidak berjalan. Membuka halaman unduhan…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">Ada akun di perangkat ini</string>
+    <string name="activate_err_account_exists_advice">Android mengharuskan semua akun dihapus sebelum menetapkan pemilik perangkat. Silakan hapus di pengaturan sistem, lalu coba lagi.</string>
+    <string name="activate_err_owner_exists">Pemilik perangkat atau pemilik profil sudah ditetapkan</string>
+    <string name="activate_err_owner_exists_advice">Hanya satu pemilik yang dapat ada pada satu waktu. Hapus pemilik yang ada terlebih dahulu, atau transfer kepemilikan dari Dhizuku.</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui tidak tersedia</string>
+    <string name="activate_err_shizuku_down_advice">Silakan mulai Shizuku (atau pasang Sui) dan berikan izin ke Dhizuku, lalu coba lagi.</string>
+    <string name="activate_err_hidden_api">Sistem ini memblokir API pribadi yang diperlukan</string>
+    <string name="activate_err_hidden_api_advice">Silakan aktifkan melalui ADB atau provisioning QR sebagai gantinya. Lihat beranda untuk petunjuk.</string>
+    <string name="activate_err_not_admin">Komponen target bukan admin perangkat yang valid</string>
+    <string name="activate_err_not_admin_advice">Aplikasi yang dipilih tidak mendeklarasikan penerima admin perangkat. Silakan pilih yang lain.</string>
+    <string name="activate_err_cancelled">Aktivasi dibatalkan</string>
+    <string name="activate_err_cancelled_advice">Anda membatalkan permintaan, atau operasi kehabisan waktu. Anda dapat mencoba lagi.</string>
+    <string name="activate_err_unknown">Aktivasi gagal</string>
+    <string name="activate_err_unknown_advice">Terjadi kesalahan tak terduga. Salin info diagnostik dan coba metode aktivasi lain.</string>
+    <string name="activate_err_view_detail">Lihat detail</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">Provisioning selesai</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">Gagal menghapus pemilik. Anda dapat menghapusnya manual di pengaturan sistem.</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_app_management">Aplikasi</string>
+    <string name="nav_call_log">Catatan panggilan</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">Diaktifkan</string>
+    <string name="home_status_tap_to_manage">Ketuk untuk membuka opsi aktivasi dan transfer</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">Diotorisasi</string>
+    <string name="app_tab_unauthorized">Belum diotorisasi</string>
+    <string name="app_tab_blocked">Daftar blokir</string>
+    <string name="app_empty_authorized">Tidak ada aplikasi yang diotorisasi</string>
+    <string name="app_empty_unauthorized">Tidak ada aplikasi tertunda</string>
+    <string name="app_empty_blocked">Tidak ada aplikasi yang diblokir</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">Blokir</string>
+    <string name="request_permission_scope_hint">Aplikasi ini akan dapat menggunakan kemampuan pemilik perangkat</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">Belum ada panggilan yang dicatat</string>
+    <string name="call_log_times">%1$d kali</string>
+    <string name="call_log_footer">Hanya di memori, dibersihkan setelah mulai ulang</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">Aplikasi diotorisasi</string>
+    <string name="home_stat_uptime">Waktu aktif</string>
+    <string name="home_status_version">Versi: %1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">Kelola</string>
+    <string name="settings_manage_apps_desc">%1$d aplikasi diotorisasi</string>
+    <string name="settings_manage_blocklist_desc">Aplikasi yang diblokir tidak akan menerima prompt</string>
+    <string name="settings_manage_calllog_desc">Tinjau apa yang dilakukan aplikasi melalui Dhizuku</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">Tema</string>
+    <string name="settings_appearance_section">Tampilan</string>
+    <string name="settings_theme_desc">Mode gelap, warna dinamis</string>
+    <string name="theme_mode_section">Mode gelap</string>
+    <string name="theme_color_section">Warna</string>
+    <string name="theme_mode_system">Ikuti sistem</string>
+    <string name="theme_mode_system_desc">Berubah mengikuti pengaturan tema gelap sistem</string>
+    <string name="theme_mode_light">Terang</string>
+    <string name="theme_mode_light_desc">Selalu gunakan tema terang</string>
+    <string name="theme_mode_dark">Gelap</string>
+    <string name="theme_mode_dark_desc">Selalu gunakan tema gelap</string>
+    <string name="theme_mode_amoled">Gelap (AMOLED)</string>
+    <string name="theme_mode_amoled_desc">Tema gelap dengan latar hitam pekat</string>
+    <string name="theme_monet">Warna dinamis</string>
+    <string name="theme_monet_desc">Ambil warna aksen dari wallpaper sistem</string>
+    <string name="theme_monet_unsupported">Warna dinamis memerlukan Android 12 atau lebih baru (saat ini: %1$d)</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">Peringatan keamanan</string>
+    <string name="notifier_channel_security_desc">Peringatan untuk peristiwa berisiko tinggi seperti transfer pemilik perangkat</string>
+    <string name="alert_transfer_blocked_title">Transfer pemilik perangkat diblokir</string>
+    <string name="alert_transfer_blocked_text">"%1$s" mencoba mentransfer pemilik perangkat dan diblokir. Aktifkan "Izinkan aplikasi pihak ketiga mentransfer pemilik perangkat" di pengaturan lalu coba lagi.</string>
+    <string name="alert_transfer_allowed_title">Pemilik perangkat mungkin telah ditransfer</string>
+    <string name="alert_transfer_allowed_text">"%1$s" telah melakukan transfer pemilik perangkat. Jika aplikasi itu tidak menyediakan pintasan otorisasi, kepemilikan mungkin tidak dapat diambil kembali.</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">Izinkan aplikasi pihak ketiga mentransfer pemilik perangkat</string>
+    <string name="settings_allow_owner_transfer_desc">Jika diaktifkan, aplikasi yang diotorisasi dapat menyerahkan pemilik perangkat ke aplikasi lain dengan sendirinya. Ini tidak dapat dibatalkan.</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">Catatan panggilan</string>
+    <string name="call_log_tab_runtime">Log runtime</string>
+    <string name="call_log_today">Hari ini</string>
+    <string name="call_log_yesterday">Kemarin</string>
+    <string name="call_log_log_excerpt">Kutipan log</string>
+    <string name="call_log_clear">Hapus catatan</string>
+    <string name="call_log_clear_confirm">Hapus semua catatan panggilan dan log runtime? Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="call_log_retention">Retensi</string>
+    <string name="call_log_retention_7">7 hari</string>
+    <string name="call_log_retention_30">30 hari</string>
+    <string name="call_log_retention_90">90 hari</string>
+    <string name="call_log_retention_forever">Selamanya</string>
+    <string name="call_log_empty_runtime">Tidak ada log runtime</string>
+    <string name="settings_security_section">Kebijakan layanan</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">Layanan ditolak</string>
+    <string name="home_restart_service">Mulai ulang layanan</string>
+    <string name="home_stop_service">Hentikan layanan</string>
+    <string name="home_restart_dsp">Mulai ulang layanan daemon dan pulihkan dukungan API untuk aplikasi pihak ketiga.</string>
+    <string name="call_log_copy_done">Disalin ke papan klip</string>
+    <string name="call_log_long_press_hint">Tekan lama kartu untuk menyalin semua konten</string>
+    <string name="alert_permission_request_title">Ada aplikasi yang meminta otorisasi Dhizuku</string>
+    <string name="alert_permission_request_text">"%1$s" meminta akses ke Dhizuku. Ketuk untuk menangani (gunakan ini jika dialog tidak muncul sendiri).</string>
+    <string name="quick_activate_title">Aktivasi sementara tanpa menghapus akun</string>
+    <string name="quick_activate_entry_title">Aktifkan sementara tanpa menghapus akun</string>
+    <string name="quick_activate_entry_dsp">Aktifkan sebagai pemilik perangkat tanpa menghapus akun. Memerlukan Android 13 atau lebih baru dan Shizuku.</string>
+
+    <string name="quick_activate_warning_title">Baca sebelum melanjutkan</string>
+    <string name="quick_activate_warning_dsp">Selama aktivasi, user_setup_complete untuk sementara disetel ke 0. Saat bernilai 0, tombol Beranda dan Aplikasi Terbaru pada navigasi tiga tombol berhenti berfungsi (tombol Kembali tetap berfungsi; navigasi gestur layar penuh tidak terpengaruh). Nilainya dipulihkan otomatis saat alur selesai — jika gagal di tengah, pastikan menjalankan langkah 3 (pemulihan manual).</string>
+    <string name="quick_activate_limit_dsp">Batasan: hanya Android 13 (API 33) atau lebih baru; memerlukan Shizuku atau root untuk menjalankan perintah shell; beberapa ROM vendor dapat memblokir antarmuka yang diperlukan.</string>
+
+    <string name="quick_activate_unsupported_title">Tidak didukung di perangkat ini</string>
+    <string name="quick_activate_unsupported_dsp">Mode ini bergantung pada peran manajemen kebijakan perangkat yang diperkenalkan di Android 13. Versi sistem saat ini adalah %1$d. Silakan aktifkan melalui Shizuku atau ADB.</string>
+
+    <string name="quick_activate_step_open_title">Buka wizard</string>
+    <string name="quick_activate_step_open_dsp">Memberikan peran manajemen kebijakan perangkat dan menyetel user_setup_complete ke 0, membuka gerbang yang diperlukan untuk aktivasi.</string>
+    <string name="quick_activate_step_open_btn">Buka wizard</string>
+
+    <string name="quick_activate_step_activate_title">Coba aktifkan</string>
+    <string name="quick_activate_step_activate_dsp">Menyinkronkan status, mendaftar sebagai admin perangkat, lalu mengaktifkan pemilik perangkat. user_setup_complete dipulihkan otomatis setelahnya.</string>
+    <string name="quick_activate_step_activate_btn">Aktifkan</string>
+
+    <string name="quick_activate_step_restore_title">Pemulihan manual</string>
+    <string name="quick_activate_step_restore_dsp">Memulihkan user_setup_complete ke 1. Jalankan langkah ini jika tombol navigasi berhenti berfungsi.</string>
+    <string name="quick_activate_step_restore_btn">Pulihkan sekarang</string>
+
+    <string name="quick_activate_view_command">Lihat perintah manual</string>
+    <string name="quick_activate_result_ok">Berhasil</string>
+    <string name="quick_activate_result_fail">Belum selesai</string>
+    <string name="quick_activate_success">Pemilik perangkat diaktifkan</string>
+    <string name="security_title">Kebijakan layanan</string>
+    <string name="settings_security_desc">Sakelar layanan API, daftar putih, perilaku setelah layanan ditutup, transfer pemilik perangkat</string>
+    <string name="security_deny_section">Opsi penolakan</string>
+    <string name="security_deny_mode_title">Perilaku setelah layanan ditutup</string>
+    <string name="security_deny_mode_desc">Menentukan bagaimana layanan merespons saat aplikasi pihak ketiga memanggil.</string>
+
+    <string name="deny_mode_dangerous_fail">Tolak panggilan berbahaya, kembalikan kegagalan</string>
+    <string name="deny_mode_dangerous_fail_desc">Aplikasi dapat menemukan layanan; operasi berbahaya ditolak.</string>
+    <string name="deny_mode_dangerous_success">Tolak panggilan berbahaya, kembalikan sukses</string>
+    <string name="deny_mode_dangerous_success_desc">Aplikasi dapat menemukan layanan; operasi berbahaya melaporkan sukses tetapi tidak dijalankan.</string>
+    <string name="deny_mode_all_fail">Tolak semua, kembalikan kegagalan</string>
+    <string name="deny_mode_all_fail_desc">Aplikasi tidak dapat menemukan layanan, sama seperti tidak aktif.</string>
+    <string name="deny_mode_all_success">Tolak semua, kembalikan sukses</string>
+    <string name="deny_mode_all_success_desc">Aplikasi tidak dapat menemukan layanan, tetapi menerima respons sukses.</string>
+    <string name="deny_mode_no_action">Jangan lakukan apa pun</string>
+    <string name="deny_mode_no_action_desc">Tidak menolak maupun mengizinkan; permintaan digantung dan aplikasi menunggu selamanya.</string>
+
+    <string name="security_api_state_on">Sakelar utama API: aktif</string>
+    <string name="security_api_state_off">Sakelar utama API: nonaktif, aplikasi pihak ketiga tidak dapat menggunakannya</string>
+
+    <string name="security_service_section">Layanan API</string>
+    <string name="security_transfer_section">Transfer pemilik perangkat</string>
+
+    <string name="quick_activate_pending_restore">!Wizard penyiapan belum dipulihkan, silakan jalankan pemulihan manual!</string>
+
 </resources>

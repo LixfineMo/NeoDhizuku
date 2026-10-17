@@ -1,34 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="service_running">Dhizuku قيد التشغيل</string>
-    <string name="service_channel_name">خدمة الخلفية</string>
-    <string name="home_deactivate_dsp">هل أنت متأكد أنك تريد إلغاء التنشيط؟</string>
-    <string name="agree">منح</string>
-    <string name="finish">إنهاء</string>
-    <string name="refuse">رفض</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name" translatable="false">NeoDhizuku</string>
+    <string name="agreement_title">السياسة</string>
+    <string name="agreement_text">فيما يلي سياسة المستخدم الخاصة بنا، يرجى قراءتها والموافقة عليها. &lt;a href=\"https://iamr0s.github.io/Dhizuku/TERMS.html\"&gt;شروط الاستخدام&lt;/a&gt;، &lt;a href=\"https://iamr0s.github.io/Dhizuku/PRIVACY.html\"&gt;سياسة الخصوصية&lt;/a&gt; لن تظهر هذه الرسالة مرة أخرى بعد موافقتك.</string>
+    <string name="agree_text">موافقة</string>
+    <string name="permission_description">استخدم واجهة برمجة التطبيقات الخاصة بـ Dhizuku</string>
+    <!-- Commonly  used characters -->
+    <string name="copy">نسخ</string>
     <string name="cancel">إلغاء</string>
-    <string name="confirm">موافق</string>
-    <string name="donate">تبرع</string>
-    <string name="request_permission_text">هل تسمح لـ <b>%1$s</b> بالوصول إلى Dhizuku؟</string>
-    <string name="home_deactivate_title">إلغاء التنشيط</string>
+    <string name="retry">إعادة المحاولة</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">أنت المالك!!!</string>
+    <string name="home_status_owner_transferred">تم نقل %1$s!!!</string>
     <string name="home_status_owner_denied">في انتظار التنشيط</string>
+    <!-- Home - Application Management -->
+    <string name="home_app_management_title">إدارة التطبيقات</string>
     <string name="home_app_management_dsp">التطبيقات التي طلبت أو أعلنت Dhizuku ستظهر هنا.</string>
+    <!-- Home - Dhizuku -->
     <string name="home_dhizuku_title">التنشيط بواسطة Dhizuku</string>
+    <string name="home_dhizuku_dsp">إذا كان لديك تطبيقات أخرى من Dhizuku مثبتة، يمكنك التبديل بينها كما تشاء. يرجى &lt;a href=%1$s&gt;قراءة المساعدة&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
     <string name="home_shizuku_title">التنشيط بواسطة Shizuku</string>
     <string name="home_shizuku_dsp">مع Shizuku، لديك القدرة على تشغيل أوامر ADB دون الحاجة إلى جهاز كمبيوتر. يرجى &lt;a href=%1$s&gt;قراءة المساعدة&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
     <string name="home_adb_title">التنشيط بواسطة ADB</string>
-    <string name="home_status_owner_granted">أنت المالك!!!</string>
-    <string name="retry">إعادة المحاولة</string>
-    <string name="home_app_management_title">إدارة التطبيقات</string>
-    <string name="home_dhizuku_dsp">إذا كان لديك تطبيقات أخرى من Dhizuku مثبتة، يمكنك التبديل بينها كما تشاء. يرجى &lt;a href=%1$s&gt;قراءة المساعدة&lt;/a&gt;.</string>
-    <string name="home_adb_btn_view_command">عرض الأمر</string>
-    <string name="home_shutdown_title">إيقاف التشغيل</string>
     <string name="home_adb_dsp">من خلال اتصال ADB (جسر تصحيح أخطاء أندرويد)، يمكنك تنفيذ بعض الأوامر المميزة. يرجى &lt;a href=%1$s&gt;قراءة المساعدة&lt;/a&gt;.</string>
+    <string name="home_adb_btn_view_command">عرض الأمر</string>
+    <!-- Home - PvsD -->
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">إيقاف التشغيل</string>
     <string name="home_shutdown_dsp">لن يتمكن النظام من إيقاف تشغيل Dhizuku ما لم يقم Dhizuku بذلك طواعية.</string>
-    <string name="permission_description">استخدم واجهة برمجة التطبيقات الخاصة بـ Dhizuku</string>
-    <string name="agreement_title">السياسة</string>
-    <string name="agree_text">موافقة</string>
-    <string name="agreement_text">فيما يلي سياسة المستخدم الخاصة بنا، يرجى قراءتها والموافقة عليها. &lt;a href=\"https://iamr0s.github.io/Dhizuku/TERMS.html\"&gt;شروط الاستخدام&lt;/a&gt;، &lt;a href=\"https://iamr0s.github.io/Dhizuku/PRIVACY.html\"&gt;سياسة الخصوصية&lt;/a&gt; لن تظهر هذه الرسالة مرة أخرى بعد موافقتك.</string>
+    <!-- Home - Deactivate-->
+    <string name="home_deactivate_title">إلغاء التنشيط</string>
+    <string name="home_deactivate_dsp">هل أنت متأكد أنك تريد إلغاء التنشيط؟</string>
+    <string name="confirm">موافق</string>
+    <string name="confirm_device_owner">مالك الجهاز</string>
+    <string name="confirm_profile_owner">مالك الملف الشخصي</string>
+    <string name="profile_owner_warning_title">تحذير</string>
+    <string name="profile_owner_warning_dsp">هذا تغيير يجب أن يقوم به فقط المستخدمون الذين يفهمون آثاره. لا يمكن لمطوري Dhizuku ضمان أي شيء بشأن السلوك غير المتوقع الناجم عن تغيير هذا الوضع.</string>
+    <string name="finish">إنهاء</string>
+    <string name="donate">تبرع</string>
+    <string name="donate_hide_action">إخفاء</string>
+    <string name="donate_hide_confirm_title">إخفاء زر التبرع</string>
+    <string name="donate_hide_confirm_dsp">لا يمكن التراجع عن هذا من داخل التطبيق. هل أنت متأكد أنك تريد إخفاء زر التبرع نهائيًا؟</string>
+    <string name="request_permission_text">هل تسمح لـ <b>%1$s</b> بالوصول إلى Dhizuku؟</string>
+    <string name="agree">منح</string>
+    <string name="refuse">رفض</string>
+    <string name="service_channel_name">خدمة الخلفية</string>
+    <string name="service_running">Dhizuku قيد التشغيل</string>
     <string name="settings">الإعدادات</string>
     <string name="settings_desc">ضبط سلوك Dhizuku</string>
     <string name="enable_dhizuku">تفعيلDhizuku</string>
@@ -43,15 +62,172 @@
     <string name="unblock_app">إلغاء حظر التطبيق</string>
     <string name="auto_deny_in_seconds">الرفض التلقائي في d% ثواني</string>
     <string name="denying_access">منع الوصول …</string>
-    <string name="daemon_service_notification_text">هذا إشعار من Dhizuku لضمان توفر الخدمة في أي وقت. يمكنك الضغط مطولاً لإخفاء هذا الإشعار.</string>
+
     <string name="daemon_service_notification_title">Dhizuku Daemon</string>
-    <string name="copy">نسخ</string>
-    <string name="confirm_device_owner">مالك الجهاز</string>
-    <string name="confirm_profile_owner">مالك الملف الشخصي</string>
-    <string name="profile_owner_warning_title">تحذير</string>
-    <string name="profile_owner_warning_dsp">هذا تغيير يجب أن يقوم به فقط المستخدمون الذين يفهمون آثاره. لا يمكن لمطوري Dhizuku ضمان أي شيء بشأن السلوك غير المتوقع الناجم عن تغيير هذا الوضع.</string>
-    <string name="donate_hide_action">إخفاء</string>
-    <string name="donate_hide_confirm_title">إخفاء زر التبرع</string>
-    <string name="donate_hide_confirm_dsp">لا يمكن التراجع عن هذا من داخل التطبيق. هل أنت متأكد أنك تريد إخفاء زر التبرع نهائيًا؟</string>
-    <string name="home_status_owner_transferred">تم نقل %1$s!!!</string>
+    <string name="daemon_service_notification_text">هذا إشعار من Dhizuku لضمان توفر الخدمة في أي وقت. يمكنك الضغط مطولاً لإخفاء هذا الإشعار.</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui لا يعمل. جارٍ فتح صفحة التنزيل…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">توجد حسابات على هذا الجهاز</string>
+    <string name="activate_err_account_exists_advice">يتطلب أندرويد إزالة جميع الحسابات قبل تعيين مالك الجهاز. يُرجى إزالتها في إعدادات النظام ثم المحاولة مرة أخرى.</string>
+    <string name="activate_err_owner_exists">تم تعيين مالك جهاز أو مالك ملف تعريف بالفعل</string>
+    <string name="activate_err_owner_exists_advice">يمكن أن يوجد مالك واحد فقط في كل مرة. أزل المالك الحالي أولًا، أو انقل الملكية من Dhizuku.</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui غير متاح</string>
+    <string name="activate_err_shizuku_down_advice">يُرجى بدء Shizuku (أو تثبيت Sui) ومنح الإذن إلى Dhizuku، ثم المحاولة مرة أخرى.</string>
+    <string name="activate_err_hidden_api">هذا النظام يحجب الواجهة البرمجية الخاصة المطلوبة</string>
+    <string name="activate_err_hidden_api_advice">يُرجى التنشيط عبر ADB أو التزويد برمز QR بدلاً من ذلك. راجع الصفحة الرئيسية للتعليمات.</string>
+    <string name="activate_err_not_admin">المكوّن الهدف ليس مشرف جهاز صالحًا</string>
+    <string name="activate_err_not_admin_advice">التطبيق المحدد لا يصرّح بمستقبل مشرف الجهاز. يُرجى اختيار تطبيق آخر.</string>
+    <string name="activate_err_cancelled">تم إلغاء التنشيط</string>
+    <string name="activate_err_cancelled_advice">لقد ألغيت الطلب، أو انتهت مهلة العملية. يمكنك المحاولة مرة أخرى.</string>
+    <string name="activate_err_unknown">فشل التنشيط</string>
+    <string name="activate_err_unknown_advice">حدث خطأ غير متوقع. انسخ معلومات التشخيص وجرّب طريقة تنشيط أخرى.</string>
+    <string name="activate_err_view_detail">عرض التفاصيل</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">اكتمل التزويد</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">تعذّر إزالة المالك. يمكنك إزالته يدويًا في إعدادات النظام.</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_app_management">التطبيقات</string>
+    <string name="nav_call_log">سجل الاستدعاءات</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">مُفعّل</string>
+    <string name="home_status_tap_to_manage">اضغط لفتح خيارات التنشيط والنقل</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">مُصرّح بها</string>
+    <string name="app_tab_unauthorized">غير مُصرّح بها</string>
+    <string name="app_tab_blocked">قائمة الحظر</string>
+    <string name="app_empty_authorized">لا توجد تطبيقات مصرّح بها</string>
+    <string name="app_empty_unauthorized">لا توجد تطبيقات معلّقة</string>
+    <string name="app_empty_blocked">لا توجد تطبيقات محظورة</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">حظر</string>
+    <string name="request_permission_scope_hint">سيتمكن هذا التطبيق من استخدام قدرات مالك الجهاز</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">لم تُسجَّل أي استدعاءات بعد</string>
+    <string name="call_log_times">%1$d مرة</string>
+    <string name="call_log_footer">في الذاكرة فقط، وتُمحى بعد إعادة التشغيل</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">التطبيقات المُصرّح بها</string>
+    <string name="home_stat_uptime">مدة التشغيل</string>
+    <string name="home_status_version">الإصدار: %1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">الإدارة</string>
+    <string name="settings_manage_apps_desc">%1$d تطبيقًا مُصرّحًا به</string>
+    <string name="settings_manage_blocklist_desc">التطبيقات المحظورة لن تتلقى مطالبات</string>
+    <string name="settings_manage_calllog_desc">راجع ما فعلته التطبيقات عبر Dhizuku</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">السمة</string>
+    <string name="settings_appearance_section">المظهر</string>
+    <string name="settings_theme_desc">الوضع الداكن، اللون الديناميكي</string>
+    <string name="theme_mode_section">الوضع الداكن</string>
+    <string name="theme_color_section">الألوان</string>
+    <string name="theme_mode_system">اتّباع النظام</string>
+    <string name="theme_mode_system_desc">التبديل حسب إعداد السمة الداكنة في النظام</string>
+    <string name="theme_mode_light">فاتح</string>
+    <string name="theme_mode_light_desc">استخدم السمة الفاتحة دائمًا</string>
+    <string name="theme_mode_dark">داكن</string>
+    <string name="theme_mode_dark_desc">استخدم السمة الداكنة دائمًا</string>
+    <string name="theme_mode_amoled">داكن (AMOLED)</string>
+    <string name="theme_mode_amoled_desc">سمة داكنة بخلفية سوداء خالصة</string>
+    <string name="theme_monet">اللون الديناميكي</string>
+    <string name="theme_monet_desc">أخذ ألوان التمييز من خلفية النظام</string>
+    <string name="theme_monet_unsupported">يتطلب اللون الديناميكي أندرويد 12 أو أحدث (الحالي: %1$d)</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">تنبيهات الأمان</string>
+    <string name="notifier_channel_security_desc">تنبيهات للأحداث عالية الخطورة مثل نقل مالك الجهاز</string>
+    <string name="alert_transfer_blocked_title">تم حظر نقل مالك الجهاز</string>
+    <string name="alert_transfer_blocked_text">حاول "%1$s" نقل مالك الجهاز وتم حظره. يمكنك تمكين "السماح لتطبيقات الطرف الثالث بنقل مالك الجهاز" في الإعدادات ثم المحاولة مرة أخرى.</string>
+    <string name="alert_transfer_allowed_title">ربما تم نقل مالك الجهاز</string>
+    <string name="alert_transfer_allowed_text">نفّذ "%1$s" عملية نقل مالك الجهاز. إذا لم يوفر هذا التطبيق مدخلًا للتفويض، فقد يتعذر استرداد الملكية.</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">السماح لتطبيقات الطرف الثالث بنقل مالك الجهاز</string>
+    <string name="settings_allow_owner_transfer_desc">عند التمكين، يمكن للتطبيقات المُصرّح لها تسليم مالك الجهاز إلى تطبيقات أخرى من تلقاء نفسها. هذا لا يمكن التراجع عنه.</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">سجل الاستدعاءات</string>
+    <string name="call_log_tab_runtime">سجل التشغيل</string>
+    <string name="call_log_today">اليوم</string>
+    <string name="call_log_yesterday">أمس</string>
+    <string name="call_log_log_excerpt">مقتطف من السجل</string>
+    <string name="call_log_clear">مسح السجلات</string>
+    <string name="call_log_clear_confirm">مسح جميع سجلات الاستدعاء وسجلات التشغيل؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="call_log_retention">مدة الاحتفاظ</string>
+    <string name="call_log_retention_7">7 أيام</string>
+    <string name="call_log_retention_30">30 يومًا</string>
+    <string name="call_log_retention_90">90 يومًا</string>
+    <string name="call_log_retention_forever">دائمًا</string>
+    <string name="call_log_empty_runtime">لا توجد سجلات تشغيل</string>
+    <string name="settings_security_section">سياسة الخدمة</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">تم رفض الخدمة</string>
+    <string name="home_restart_service">إعادة تشغيل الخدمة</string>
+    <string name="home_stop_service">إيقاف الخدمة</string>
+    <string name="home_restart_dsp">أعد تشغيل خدمة الخفي واستعد دعم API لتطبيقات الطرف الثالث.</string>
+    <string name="call_log_copy_done">تم النسخ إلى الحافظة</string>
+    <string name="call_log_long_press_hint">اضغط مطولًا على البطاقة لنسخ كل المحتوى</string>
+    <string name="alert_permission_request_title">هناك تطبيق يطلب تفويض Dhizuku</string>
+    <string name="alert_permission_request_text">يطلب "%1$s" استخدام Dhizuku. اضغط للمعالجة (استخدم هذا إذا لم يظهر مربع الحوار تلقائيًا).</string>
+    <string name="quick_activate_title">تنشيط مؤقت دون إزالة الحسابات</string>
+    <string name="quick_activate_entry_title">تنشيط مؤقت دون إزالة الحسابات</string>
+    <string name="quick_activate_entry_dsp">التنشيط كمالك للجهاز دون إزالة الحسابات. يتطلب أندرويد 13 أو أحدث وShizuku.</string>
+
+    <string name="quick_activate_warning_title">اقرأ قبل المتابعة</string>
+    <string name="quick_activate_warning_dsp">أثناء التنشيط، تُضبط user_setup_complete مؤقتًا على 0. وأثناء كونها 0، يتوقف زرا الرئيسية والتطبيقات الأخيرة في التنقل ثلاثي الأزرار عن العمل (لا يزال زر الرجوع يعمل؛ ولا يتأثر التنقل بالإيماءات ملء الشاشة). تُستعاد تلقائيًا عند انتهاء التدفق — وإذا فشلت في المنتصف، فتأكد من تنفيذ الخطوة 3 (الاستعادة اليدوية).</string>
+    <string name="quick_activate_limit_dsp">القيود: أندرويد 13 (المستوى 33) أو أحدث فقط؛ يتطلب Shizuku أو صلاحيات root لتنفيذ أوامر shell؛ قد تحجب بعض رومات الشركات المصنّعة الواجهات المطلوبة.</string>
+
+    <string name="quick_activate_unsupported_title">غير مدعوم على هذا الجهاز</string>
+    <string name="quick_activate_unsupported_dsp">يعتمد هذا الوضع على دور إدارة سياسة الجهاز الذي أُدخل في أندرويد 13. إصدار النظام الحالي هو %1$d. يُرجى التنشيط عبر Shizuku أو ADB بدلاً من ذلك.</string>
+
+    <string name="quick_activate_step_open_title">فتح المعالج</string>
+    <string name="quick_activate_step_open_dsp">يمنح دور إدارة سياسة الجهاز ويضبط user_setup_complete على 0، فاتحًا البوابة المطلوبة للتنشيط.</string>
+    <string name="quick_activate_step_open_btn">فتح المعالج</string>
+
+    <string name="quick_activate_step_activate_title">محاولة التنشيط</string>
+    <string name="quick_activate_step_activate_dsp">يزامن الحالة، ويسجّل كمشرف جهاز، ثم ينشّط مالك الجهاز. تُستعاد user_setup_complete تلقائيًا بعد ذلك.</string>
+    <string name="quick_activate_step_activate_btn">تنشيط</string>
+
+    <string name="quick_activate_step_restore_title">الاستعادة اليدوية</string>
+    <string name="quick_activate_step_restore_dsp">يُعيد user_setup_complete إلى 1. نفّذ هذه الخطوة إذا توقفت أزرار التنقل عن العمل.</string>
+    <string name="quick_activate_step_restore_btn">الاستعادة الآن</string>
+
+    <string name="quick_activate_view_command">عرض الأوامر اليدوية</string>
+    <string name="quick_activate_result_ok">نجح</string>
+    <string name="quick_activate_result_fail">لم يكتمل</string>
+    <string name="quick_activate_success">تم تنشيط مالك الجهاز</string>
+    <string name="security_title">سياسة الخدمة</string>
+    <string name="settings_security_desc">مفتاح خدمة API، القائمة البيضاء، السلوك بعد إغلاق الخدمة، نقل مالك الجهاز</string>
+    <string name="security_deny_section">خيارات الرفض</string>
+    <string name="security_deny_mode_title">السلوك بعد إغلاق الخدمة</string>
+    <string name="security_deny_mode_desc">يحدد كيف تستجيب الخدمة عندما تستدعي تطبيقات الطرف الثالث.</string>
+
+    <string name="deny_mode_dangerous_fail">رفض الاستدعاءات الخطرة، وإرجاع فشل</string>
+    <string name="deny_mode_dangerous_fail_desc">يمكن للتطبيق العثور على الخدمة؛ تُرفض العمليات الخطرة.</string>
+    <string name="deny_mode_dangerous_success">رفض الاستدعاءات الخطرة، وإرجاع نجاح</string>
+    <string name="deny_mode_dangerous_success_desc">يمكن للتطبيق العثور على الخدمة؛ تُبلّغ العمليات الخطرة عن نجاح دون تنفيذها فعليًا.</string>
+    <string name="deny_mode_all_fail">رفض كل شيء، وإرجاع فشل</string>
+    <string name="deny_mode_all_fail_desc">لا يمكن للتطبيق العثور على الخدمة، كما لو أنه غير نشط.</string>
+    <string name="deny_mode_all_success">رفض كل شيء، وإرجاع نجاح</string>
+    <string name="deny_mode_all_success_desc">لا يمكن للتطبيق العثور على الخدمة، لكنه يتلقى استجابة نجاح.</string>
+    <string name="deny_mode_no_action">عدم فعل أي شيء</string>
+    <string name="deny_mode_no_action_desc">لا يرفض ولا يسمح؛ يُعلّق الطلب وينتظر التطبيق إلى الأبد.</string>
+
+    <string name="security_api_state_on">المفتاح الرئيسي لـ API: مُفعّل</string>
+    <string name="security_api_state_off">المفتاح الرئيسي لـ API: معطّل، لا يمكن لتطبيقات الطرف الثالث استخدامه</string>
+
+    <string name="security_service_section">خدمة API</string>
+    <string name="security_transfer_section">نقل مالك الجهاز</string>
+
+    <string name="quick_activate_pending_restore">!لم يتم استعادة معالج الإعداد، يُرجى تنفيذ الاستعادة اليدوية!</string>
+
 </resources>

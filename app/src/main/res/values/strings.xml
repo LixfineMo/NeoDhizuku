@@ -143,87 +143,87 @@
     <string name="theme_monet_desc">Take accent colors from the system wallpaper</string>
     <string name="theme_monet_unsupported">Dynamic color requires Android 12 or newer (current: %1$d)</string>
     <!-- 转移拦截与通知 -->
-    <string name="notifier_channel_security">安全警示</string>
-    <string name="notifier_channel_security_desc">设备所有者转移等高风险事件的提醒</string>
-    <string name="alert_transfer_blocked_title">已阻止转移设备所有者</string>
-    <string name="alert_transfer_blocked_text">应用「%1$s」尝试把设备所有者转移出去，已被拦截。可在设置中开启「允许第三方应用主动转移设备所有者」后重试。</string>
-    <string name="alert_transfer_allowed_title">设备所有者可能已被转移</string>
-    <string name="alert_transfer_allowed_text">应用「%1$s」已执行设备所有者转移。若该应用不提供授权入口，所有者可能无法再取回。</string>
+    <string name="notifier_channel_security">Security alerts</string>
+    <string name="notifier_channel_security_desc">Alerts for high-risk events such as device owner transfer</string>
+    <string name="alert_transfer_blocked_title">Device owner transfer blocked</string>
+    <string name="alert_transfer_blocked_text">"%1$s" tried to transfer the device owner and was blocked. Enable "Allow third-party apps to transfer device owner" in settings and try again.</string>
+    <string name="alert_transfer_allowed_title">Device owner may have been transferred</string>
+    <string name="alert_transfer_allowed_text">"%1$s" performed a device owner transfer. If that app provides no authorization entry, ownership may not be recoverable.</string>
 
     <!-- 设置：转移开关 -->
-    <string name="settings_allow_owner_transfer">允许第三方应用主动转移设备所有者</string>
-    <string name="settings_allow_owner_transfer_desc">开启后，已授权应用可自行把设备所有者交给其他应用，且过程不可逆</string>
+    <string name="settings_allow_owner_transfer">Allow third-party apps to transfer device owner</string>
+    <string name="settings_allow_owner_transfer_desc">When enabled, authorized apps can hand the device owner to other apps on their own. This is irreversible.</string>
 
     <!-- 调用记录 -->
-    <string name="call_log_tab_audit">调用记录</string>
-    <string name="call_log_tab_runtime">运行日志</string>
-    <string name="call_log_today">今天</string>
-    <string name="call_log_yesterday">昨天</string>
-    <string name="call_log_log_excerpt">日志片段</string>
-    <string name="call_log_clear">清除记录</string>
-    <string name="call_log_clear_confirm">清除全部调用记录与运行日志？此操作不可撤销。</string>
-    <string name="call_log_retention">保留时长</string>
-    <string name="call_log_retention_7">7 天</string>
-    <string name="call_log_retention_30">30 天</string>
-    <string name="call_log_retention_90">90 天</string>
-    <string name="call_log_retention_forever">永久</string>
-    <string name="call_log_empty_runtime">暂无运行日志</string>
-    <string name="settings_security_section">服务策略</string>
+    <string name="call_log_tab_audit">Call log</string>
+    <string name="call_log_tab_runtime">Runtime log</string>
+    <string name="call_log_today">Today</string>
+    <string name="call_log_yesterday">Yesterday</string>
+    <string name="call_log_log_excerpt">Log excerpt</string>
+    <string name="call_log_clear">Clear records</string>
+    <string name="call_log_clear_confirm">Clear all call records and runtime logs? This cannot be undone.</string>
+    <string name="call_log_retention">Retention</string>
+    <string name="call_log_retention_7">7 days</string>
+    <string name="call_log_retention_30">30 days</string>
+    <string name="call_log_retention_90">90 days</string>
+    <string name="call_log_retention_forever">Forever</string>
+    <string name="call_log_empty_runtime">No runtime logs</string>
+    <string name="settings_security_section">Service policy</string>
     <!-- 服务启停 -->
     <string name="home_service_stopped">Service refused</string>
-    <string name="home_restart_service">重启服务</string>
-    <string name="home_stop_service">停止服务</string>
-    <string name="home_restart_dsp">重启守护服务，恢复对第三方应用的 API 支持。</string>
-    <string name="call_log_copy_done">已复制到剪贴板</string>
-    <string name="call_log_long_press_hint">长按卡片可复制全部内容</string>
-    <string name="alert_permission_request_title">有应用请求 Dhizuku 授权</string>
-    <string name="alert_permission_request_text">「%1$s」请求使用 Dhizuku。点击处理（弹窗未自动出现时由此进入）。</string>
-    <string name="quick_activate_title">免删账号临时激活</string>
-    <string name="quick_activate_entry_title">使用免删模式临时激活</string>
-    <string name="quick_activate_entry_dsp">免删除账号，直接激活设备所有者。需要 Android 13 及以上与 Shizuku。</string>
+    <string name="home_restart_service">Restart service</string>
+    <string name="home_stop_service">Stop service</string>
+    <string name="home_restart_dsp">Restart the daemon service and restore API support for third-party apps.</string>
+    <string name="call_log_copy_done">Copied to clipboard</string>
+    <string name="call_log_long_press_hint">Long-press a card to copy all content</string>
+    <string name="alert_permission_request_title">An app is requesting Dhizuku authorization</string>
+    <string name="alert_permission_request_text">"%1$s" is requesting access to Dhizuku. Tap to handle it (use this if the dialog did not appear on its own).</string>
+    <string name="quick_activate_title">Temporary activation without removing accounts</string>
+    <string name="quick_activate_entry_title">Activate temporarily without removing accounts</string>
+    <string name="quick_activate_entry_dsp">Activate as device owner without removing accounts. Requires Android 13 or newer and Shizuku.</string>
 
-    <string name="quick_activate_warning_title">操作前必读</string>
-    <string name="quick_activate_warning_dsp">激活过程中会把 user_setup_complete 临时置为 0，此时三键导航的「主页 / 最近任务」键会短暂失灵（返回键可用，全屏手势导航不受影响）。流程结束会自动恢复，若中途失败请务必点第 3 步手动恢复。</string>
-    <string name="quick_activate_limit_dsp">限制：仅支持 Android 13（API 33）及以上；需要 Shizuku 或 root 身份执行 shell 命令；部分厂商 ROM 可能封锁相关接口。</string>
+    <string name="quick_activate_warning_title">Read before proceeding</string>
+    <string name="quick_activate_warning_dsp">During activation, user_setup_complete is temporarily set to 0. While it is 0, the Home and Recents keys of three-button navigation stop working (Back still works; full-screen gesture navigation is unaffected). It is restored automatically when the flow finishes — if it fails midway, be sure to run step 3 (manual restore).</string>
+    <string name="quick_activate_limit_dsp">Limits: Android 13 (API 33) or newer only; requires Shizuku or root to run shell commands; some vendor ROMs may block the required interfaces.</string>
 
-    <string name="quick_activate_unsupported_title">当前设备不支持</string>
-    <string name="quick_activate_unsupported_dsp">免删模式依赖 Android 13 引入的设备策略管理角色，当前系统版本为 %1$d。请改用 Shizuku 或 ADB 方式激活。</string>
+    <string name="quick_activate_unsupported_title">Not supported on this device</string>
+    <string name="quick_activate_unsupported_dsp">This mode relies on the device policy management role introduced in Android 13. The current system version is %1$d. Please activate via Shizuku or ADB instead.</string>
 
-    <string name="quick_activate_step_open_title">打开向导</string>
-    <string name="quick_activate_step_open_dsp">授予设备策略管理角色，并把 user_setup_complete 置为 0，打开激活所需的向导闸。</string>
-    <string name="quick_activate_step_open_btn">打开向导</string>
+    <string name="quick_activate_step_open_title">Open the wizard</string>
+    <string name="quick_activate_step_open_dsp">Grants the device policy management role and sets user_setup_complete to 0, opening the gate required for activation.</string>
+    <string name="quick_activate_step_open_btn">Open wizard</string>
 
-    <string name="quick_activate_step_activate_title">尝试激活</string>
-    <string name="quick_activate_step_activate_dsp">同步状态后注册为设备管理员并激活设备所有者。结束后会自动恢复 user_setup_complete。</string>
-    <string name="quick_activate_step_activate_btn">尝试激活</string>
+    <string name="quick_activate_step_activate_title">Attempt activation</string>
+    <string name="quick_activate_step_activate_dsp">Syncs state, registers as a device admin, then activates device owner. user_setup_complete is restored automatically afterwards.</string>
+    <string name="quick_activate_step_activate_btn">Activate</string>
 
-    <string name="quick_activate_step_restore_title">手动恢复</string>
-    <string name="quick_activate_step_restore_dsp">把 user_setup_complete 恢复为 1。若导航键失灵，执行此步即可立刻恢复。</string>
-    <string name="quick_activate_step_restore_btn">手动恢复</string>
+    <string name="quick_activate_step_restore_title">Manual restore</string>
+    <string name="quick_activate_step_restore_dsp">Restores user_setup_complete to 1. Run this step if the navigation keys stopped working.</string>
+    <string name="quick_activate_step_restore_btn">Restore now</string>
 
-    <string name="quick_activate_view_command">查看手动执行指令</string>
-    <string name="quick_activate_result_ok">操作成功</string>
-    <string name="quick_activate_result_fail">操作未完成</string>
-    <string name="quick_activate_success">已激活设备所有者</string>
-    <string name="security_title">服务策略</string>
-    <string name="settings_security_desc">API 服务开关、白名单、关闭服务后的处理方式、设备所有者转移</string>
-    <string name="security_deny_section">拒绝选项</string>
-    <string name="security_deny_mode_title">关闭服务后的处理方式</string>
-    <string name="security_deny_mode_desc">决定第三方应用来调用时，服务如何回应。</string>
+    <string name="quick_activate_view_command">View manual commands</string>
+    <string name="quick_activate_result_ok">Succeeded</string>
+    <string name="quick_activate_result_fail">Not completed</string>
+    <string name="quick_activate_success">Device owner activated</string>
+    <string name="security_title">Service policy</string>
+    <string name="settings_security_desc">API service switch, whitelist, behavior after the service is closed, device owner transfer</string>
+    <string name="security_deny_section">Refusal options</string>
+    <string name="security_deny_mode_title">Behavior after the service is closed</string>
+    <string name="security_deny_mode_desc">Determines how the service responds when third-party apps call in.</string>
 
-    <string name="deny_mode_dangerous_fail">拒绝危险服务并返回失败</string>
-    <string name="deny_mode_dangerous_fail_desc">应用可查询到服务，危险操作被拒绝。</string>
-    <string name="deny_mode_dangerous_success">拒绝危险服务并返回成功</string>
-    <string name="deny_mode_dangerous_success_desc">应用可查询到服务，危险操作返回成功但不实际执行。</string>
-    <string name="deny_mode_all_fail">完全拒绝服务并返回失败</string>
-    <string name="deny_mode_all_fail_desc">应用查询不到服务，等同于未激活。</string>
-    <string name="deny_mode_all_success">完全拒绝服务并返回成功</string>
-    <string name="deny_mode_all_success_desc">应用查询不到服务，但得到的回应是成功。</string>
-    <string name="deny_mode_no_action">不做任何处理</string>
-    <string name="deny_mode_no_action_desc">既不拒绝也不放行，请求被挂起，应用会一直等待。</string>
+    <string name="deny_mode_dangerous_fail">Refuse dangerous calls, return failure</string>
+    <string name="deny_mode_dangerous_fail_desc">The app can find the service; dangerous operations are refused.</string>
+    <string name="deny_mode_dangerous_success">Refuse dangerous calls, return success</string>
+    <string name="deny_mode_dangerous_success_desc">The app can find the service; dangerous operations report success but are not carried out.</string>
+    <string name="deny_mode_all_fail">Refuse everything, return failure</string>
+    <string name="deny_mode_all_fail_desc">The app cannot find the service, the same as being inactive.</string>
+    <string name="deny_mode_all_success">Refuse everything, return success</string>
+    <string name="deny_mode_all_success_desc">The app cannot find the service, but receives a success response.</string>
+    <string name="deny_mode_no_action">Do nothing</string>
+    <string name="deny_mode_no_action_desc">Neither refuses nor allows; the request is left hanging and the app waits forever.</string>
 
-    <string name="security_api_state_on">API 总开关：已启用</string>
-    <string name="security_api_state_off">API 总开关：已停用，第三方一律无法使用</string>
+    <string name="security_api_state_on">API master switch: enabled</string>
+    <string name="security_api_state_off">API master switch: disabled, third-party apps cannot use it</string>
 
     <string name="security_service_section">API service</string>
     <string name="security_transfer_section">Device owner transfer</string>

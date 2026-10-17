@@ -1,34 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="home_app_management_title">Quản lý ứng dụng</string>
-    <string name="home_adb_dsp">Qua kết nối ADB (Android Debug Bridge), bạn có thể chạy một số lệnh đặc quyền. Hãy &lt;a href=%1$s&gt;đọc trợ giúp&lt;/a&gt;.</string>
-    <string name="home_adb_btn_view_command">Xem lệnh</string>
-    <string name="home_dhizuku_dsp">Nếu bạn đã cài đặt các phiên bản Dhizuku khác, bạn có thay đổi tùy theo ý muốn. Hãy &lt;a href=%1$s&gt;đọc trợ giúp&lt;/a&gt;.</string>
-    <string name="home_status_owner_denied">Đang chờ kích hoạt</string>
-    <string name="agreement_text">Đây là chính sách của chúng tôi, vui lòng đọc và đồng ý với chính sách này. &lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Điều khoản sử dụng&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Chính sách bảo mật&lt;/a&gt; Tin nhắn này sẽ không hiển thị lại sau khi bạn đồng ý.</string>
-    <string name="retry">Thử lại</string>
-    <string name="home_shutdown_title">Tắt</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name" translatable="false">NeoDhizuku</string>
     <string name="agreement_title">Chính sách</string>
-    <string name="home_status_owner_granted">Bạn đã là Owner!!!</string>
+    <string name="agreement_text">Đây là chính sách của chúng tôi, vui lòng đọc và đồng ý với chính sách này. &lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Điều khoản sử dụng&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Chính sách bảo mật&lt;/a&gt; Tin nhắn này sẽ không hiển thị lại sau khi bạn đồng ý.</string>
     <string name="agree_text">Đồng ý</string>
     <string name="permission_description">Sử dụng API của Dhizuku</string>
+    <!-- Commonly  used characters -->
+    <string name="copy">Sao chép</string>
     <string name="cancel">Hủy bỏ</string>
+    <string name="retry">Thử lại</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">Bạn đã là Owner!!!</string>
+    <string name="home_status_owner_transferred">%1$s đã được chuyển giao!!!</string>
+    <string name="home_status_owner_denied">Đang chờ kích hoạt</string>
+    <!-- Home - Application Management -->
+    <string name="home_app_management_title">Quản lý ứng dụng</string>
     <string name="home_app_management_dsp">Các ứng dụng đã yêu cầu và khai báo Dhizuku sẽ ở đây.</string>
+    <!-- Home - Dhizuku -->
+    <string name="home_dhizuku_title">Kích hoạt bởi Dhizuku</string>
+    <string name="home_dhizuku_dsp">Nếu bạn đã cài đặt các phiên bản Dhizuku khác, bạn có thay đổi tùy theo ý muốn. Hãy &lt;a href=%1$s&gt;đọc trợ giúp&lt;/a&gt;.</string>
+    <!-- Home - Shizuku -->
     <string name="home_shizuku_title">Kích hoạt bởi Dhizuku</string>
+    <string name="home_shizuku_dsp">Với Shizuku, bạn có thể chạy các tập lệnh ADB mà không cần một chiếc máy tính. Hãy &lt;a href=%1$s&gt;đọc trợ giúp&lt;/a&gt;.</string>
+    <!-- Home - Adb -->
     <string name="home_adb_title">Kích hoạt bởi ADB</string>
+    <string name="home_adb_dsp">Qua kết nối ADB (Android Debug Bridge), bạn có thể chạy một số lệnh đặc quyền. Hãy &lt;a href=%1$s&gt;đọc trợ giúp&lt;/a&gt;.</string>
+    <string name="home_adb_btn_view_command">Xem lệnh</string>
+    <!-- Home - PvsD -->
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">Tắt</string>
     <string name="home_shutdown_dsp">Hệ thống sẽ không thể tắt Dhizuku trừ khi Dhizuku tự nguyện.</string>
+    <!-- Home - Deactivate-->
     <string name="home_deactivate_title">Hủy kích hoạt</string>
     <string name="home_deactivate_dsp">Bạn có chắc chắn muốn hủy kích hoạt?</string>
     <string name="confirm">OK</string>
+    <string name="confirm_device_owner">Chủ sở hữu thiết bị</string>
+    <string name="confirm_profile_owner">Chủ sở hữu hồ sơ</string>
+    <string name="profile_owner_warning_title">Cảnh báo</string>
+    <string name="profile_owner_warning_dsp">Đây là thay đổi chỉ nên được thực hiện bởi những người dùng hiểu rõ tác động của nó. Các nhà phát triển Dhizuku không thể đảm bảo bất cứ điều gì về các hành vi không mong muốn do thay đổi chế độ này gây ra.</string>
     <string name="finish">Đã xong</string>
     <string name="donate">Ủng hộ</string>
+    <string name="donate_hide_action">Ẩn</string>
+    <string name="donate_hide_confirm_title">Ẩn nút ủng hộ</string>
+    <string name="donate_hide_confirm_dsp">Hành động này không thể hoàn tác trong ứng dụng. Bạn có chắc chắn muốn ẩn vĩnh viễn nút ủng hộ không?</string>
     <string name="request_permission_text">Cho phép <b>%1$s</b> truy cập Dhizuku?</string>
     <string name="agree">Cho phép mọi lúc</string>
     <string name="refuse">Từ chối</string>
     <string name="service_channel_name">Dịch vụ nền</string>
     <string name="service_running">Dhizuku đang chạy</string>
-    <string name="home_dhizuku_title">Kích hoạt bởi Dhizuku</string>
-    <string name="home_shizuku_dsp">Với Shizuku, bạn có thể chạy các tập lệnh ADB mà không cần một chiếc máy tính. Hãy &lt;a href=%1$s&gt;đọc trợ giúp&lt;/a&gt;.</string>
     <string name="settings">Cài đặt</string>
     <string name="settings_desc">Cấu hình hành vi của Dhizuku</string>
     <string name="enable_dhizuku">Bật Dhizuku</string>
@@ -36,22 +55,179 @@
     <string name="whitelist_mode">Chế độ danh sách trắng</string>
     <string name="whitelist_mode_desc">Chỉ cho phép các ứng dụng đã được phê duyệt trước sử dụng Dhizuku</string>
     <string name="block_app">Chặn ứng dụng</string>
-    <string name="block_app_desc">Từ chối hoàn toàn quyền truy cập vào Dhizuku</string>
     <string name="auto_deny_in">Tự động từ chối sau</string>
-    <string name="auto_deny_in_seconds">Tự động từ chối sau %d giây</string>
+    <string name="block_app_desc">Từ chối hoàn toàn quyền truy cập vào Dhizuku</string>
     <string name="app_blocked_notice">Ứng dụng này đã bị chặn và không thể truy cập Dhizuku</string>
     <string name="allow_dhizuku_access">Cho phép truy cập Dhizuku</string>
     <string name="unblock_app">Bỏ chặn ứng dụng</string>
+    <string name="auto_deny_in_seconds">Tự động từ chối sau %d giây</string>
     <string name="denying_access">Đang từ chối quyền truy cập…</string>
+
     <string name="daemon_service_notification_title">Trình nền Dhizuku</string>
     <string name="daemon_service_notification_text">Đây là thông báo của Dhizuku nhằm đảm bảo dịch vụ luôn sẵn sàng. Bạn có thể nhấn giữ để ẩn thông báo này.</string>
-    <string name="copy">Sao chép</string>
-    <string name="confirm_device_owner">Chủ sở hữu thiết bị</string>
-    <string name="confirm_profile_owner">Chủ sở hữu hồ sơ</string>
-    <string name="profile_owner_warning_title">Cảnh báo</string>
-    <string name="profile_owner_warning_dsp">Đây là thay đổi chỉ nên được thực hiện bởi những người dùng hiểu rõ tác động của nó. Các nhà phát triển Dhizuku không thể đảm bảo bất cứ điều gì về các hành vi không mong muốn do thay đổi chế độ này gây ra.</string>
-    <string name="donate_hide_action">Ẩn</string>
-    <string name="donate_hide_confirm_title">Ẩn nút ủng hộ</string>
-    <string name="donate_hide_confirm_dsp">Hành động này không thể hoàn tác trong ứng dụng. Bạn có chắc chắn muốn ẩn vĩnh viễn nút ủng hộ không?</string>
-    <string name="home_status_owner_transferred">%1$s đã được chuyển giao!!!</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui không chạy. Đang mở trang tải xuống…</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">Thiết bị này đang có tài khoản</string>
+    <string name="activate_err_account_exists_advice">Android yêu cầu xóa tất cả tài khoản trước khi đặt chủ sở hữu thiết bị. Vui lòng xóa trong cài đặt hệ thống rồi thử lại.</string>
+    <string name="activate_err_owner_exists">Đã đặt chủ sở hữu thiết bị hoặc chủ sở hữu hồ sơ</string>
+    <string name="activate_err_owner_exists_advice">Chỉ có thể tồn tại một chủ sở hữu tại một thời điểm. Hãy xóa chủ sở hữu hiện tại trước hoặc chuyển quyền sở hữu từ Dhizuku.</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui không khả dụng</string>
+    <string name="activate_err_shizuku_down_advice">Vui lòng khởi động Shizuku (hoặc cài Sui) và cấp quyền cho Dhizuku, rồi thử lại.</string>
+    <string name="activate_err_hidden_api">Hệ thống này chặn API riêng cần thiết</string>
+    <string name="activate_err_hidden_api_advice">Vui lòng kích hoạt qua ADB hoặc cấp phép bằng mã QR. Xem hướng dẫn trên trang chủ.</string>
+    <string name="activate_err_not_admin">Thành phần đích không phải là quản trị viên thiết bị hợp lệ</string>
+    <string name="activate_err_not_admin_advice">Ứng dụng đã chọn không khai báo bộ thu quản trị viên thiết bị. Vui lòng chọn ứng dụng khác.</string>
+    <string name="activate_err_cancelled">Đã hủy kích hoạt</string>
+    <string name="activate_err_cancelled_advice">Bạn đã hủy yêu cầu hoặc thao tác hết thời gian chờ. Bạn có thể thử lại.</string>
+    <string name="activate_err_unknown">Kích hoạt không thành công</string>
+    <string name="activate_err_unknown_advice">Đã xảy ra lỗi không mong muốn. Hãy sao chép thông tin chẩn đoán và thử phương thức kích hoạt khác.</string>
+    <string name="activate_err_view_detail">Xem chi tiết</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">Hoàn tất cấp phép</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">Không thể xóa chủ sở hữu. Bạn có thể xóa thủ công trong cài đặt hệ thống.</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_app_management">Ứng dụng</string>
+    <string name="nav_call_log">Bản ghi cuộc gọi</string>
+    <string name="nav_settings">Cài đặt</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">Đã kích hoạt</string>
+    <string name="home_status_tap_to_manage">Nhấn để mở tùy chọn kích hoạt và chuyển quyền</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">Đã cấp quyền</string>
+    <string name="app_tab_unauthorized">Chưa cấp quyền</string>
+    <string name="app_tab_blocked">Danh sách chặn</string>
+    <string name="app_empty_authorized">Không có ứng dụng được cấp quyền</string>
+    <string name="app_empty_unauthorized">Không có ứng dụng đang chờ</string>
+    <string name="app_empty_blocked">Không có ứng dụng bị chặn</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">Chặn</string>
+    <string name="request_permission_scope_hint">Ứng dụng này sẽ có thể sử dụng các năng lực của chủ sở hữu thiết bị</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">Chưa có bản ghi cuộc gọi nào</string>
+    <string name="call_log_times">%1$d lần</string>
+    <string name="call_log_footer">Chỉ trong bộ nhớ, sẽ xóa sau khi khởi động lại</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">Ứng dụng được cấp quyền</string>
+    <string name="home_stat_uptime">Thời gian hoạt động</string>
+    <string name="home_status_version">Phiên bản: %1$s</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">Quản lý</string>
+    <string name="settings_manage_apps_desc">%1$d ứng dụng được cấp quyền</string>
+    <string name="settings_manage_blocklist_desc">Ứng dụng bị chặn sẽ không nhận được lời nhắc</string>
+    <string name="settings_manage_calllog_desc">Xem lại những gì ứng dụng đã thực hiện qua Dhizuku</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">Chủ đề</string>
+    <string name="settings_appearance_section">Giao diện</string>
+    <string name="settings_theme_desc">Chế độ tối, màu động</string>
+    <string name="theme_mode_section">Chế độ tối</string>
+    <string name="theme_color_section">Màu sắc</string>
+    <string name="theme_mode_system">Theo hệ thống</string>
+    <string name="theme_mode_system_desc">Chuyển theo cài đặt chủ đề tối của hệ thống</string>
+    <string name="theme_mode_light">Sáng</string>
+    <string name="theme_mode_light_desc">Luôn dùng chủ đề sáng</string>
+    <string name="theme_mode_dark">Tối</string>
+    <string name="theme_mode_dark_desc">Luôn dùng chủ đề tối</string>
+    <string name="theme_mode_amoled">Tối (AMOLED)</string>
+    <string name="theme_mode_amoled_desc">Chế độ tối với nền đen tuyền</string>
+    <string name="theme_monet">Màu động</string>
+    <string name="theme_monet_desc">Lấy màu nhấn từ hình nền hệ thống</string>
+    <string name="theme_monet_unsupported">Màu động yêu cầu Android 12 trở lên (hiện tại: %1$d)</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">Cảnh báo bảo mật</string>
+    <string name="notifier_channel_security_desc">Cảnh báo cho các sự kiện rủi ro cao như chuyển chủ sở hữu thiết bị</string>
+    <string name="alert_transfer_blocked_title">Đã chặn chuyển chủ sở hữu thiết bị</string>
+    <string name="alert_transfer_blocked_text">"%1$s" đã cố chuyển chủ sở hữu thiết bị và bị chặn. Bạn có thể bật "Cho phép ứng dụng bên thứ ba chuyển chủ sở hữu thiết bị" trong cài đặt rồi thử lại.</string>
+    <string name="alert_transfer_allowed_title">Chủ sở hữu thiết bị có thể đã bị chuyển</string>
+    <string name="alert_transfer_allowed_text">"%1$s" đã thực hiện chuyển chủ sở hữu thiết bị. Nếu ứng dụng đó không cung cấp mục cấp quyền, quyền sở hữu có thể không lấy lại được.</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">Cho phép ứng dụng bên thứ ba chuyển chủ sở hữu thiết bị</string>
+    <string name="settings_allow_owner_transfer_desc">Khi bật, các ứng dụng đã được cấp quyền có thể tự chuyển chủ sở hữu thiết bị cho ứng dụng khác. Thao tác này không thể hoàn tác.</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">Bản ghi cuộc gọi</string>
+    <string name="call_log_tab_runtime">Nhật ký hoạt động</string>
+    <string name="call_log_today">Hôm nay</string>
+    <string name="call_log_yesterday">Hôm qua</string>
+    <string name="call_log_log_excerpt">Trích đoạn nhật ký</string>
+    <string name="call_log_clear">Xóa bản ghi</string>
+    <string name="call_log_clear_confirm">Xóa tất cả bản ghi cuộc gọi và nhật ký hoạt động? Thao tác này không thể hoàn tác.</string>
+    <string name="call_log_retention">Thời gian lưu</string>
+    <string name="call_log_retention_7">7 ngày</string>
+    <string name="call_log_retention_30">30 ngày</string>
+    <string name="call_log_retention_90">90 ngày</string>
+    <string name="call_log_retention_forever">Vĩnh viễn</string>
+    <string name="call_log_empty_runtime">Không có nhật ký hoạt động</string>
+    <string name="settings_security_section">Chính sách dịch vụ</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">Dịch vụ bị từ chối</string>
+    <string name="home_restart_service">Khởi động lại dịch vụ</string>
+    <string name="home_stop_service">Dừng dịch vụ</string>
+    <string name="home_restart_dsp">Khởi động lại dịch vụ nền và khôi phục hỗ trợ API cho ứng dụng bên thứ ba.</string>
+    <string name="call_log_copy_done">Đã sao chép vào bộ nhớ tạm</string>
+    <string name="call_log_long_press_hint">Nhấn giữ thẻ để sao chép toàn bộ nội dung</string>
+    <string name="alert_permission_request_title">Có ứng dụng yêu cầu quyền Dhizuku</string>
+    <string name="alert_permission_request_text">"%1$s" đang yêu cầu sử dụng Dhizuku. Nhấn để xử lý (dùng mục này nếu hộp thoại không tự xuất hiện).</string>
+    <string name="quick_activate_title">Kích hoạt tạm thời không cần xóa tài khoản</string>
+    <string name="quick_activate_entry_title">Kích hoạt tạm thời không cần xóa tài khoản</string>
+    <string name="quick_activate_entry_dsp">Kích hoạt làm chủ sở hữu thiết bị mà không cần xóa tài khoản. Yêu cầu Android 13 trở lên và Shizuku.</string>
+
+    <string name="quick_activate_warning_title">Đọc trước khi tiếp tục</string>
+    <string name="quick_activate_warning_dsp">Trong quá trình kích hoạt, user_setup_complete tạm thời được đặt thành 0. Khi đang là 0, phím Trang chủ và Ứng dụng gần đây của điều hướng ba phím sẽ ngừng hoạt động (phím Quay lại vẫn dùng được; điều hướng cử chỉ toàn màn hình không bị ảnh hưởng). Giá trị này được khôi phục tự động khi quy trình kết thúc — nếu lỗi giữa chừng, hãy chạy bước 3 (khôi phục thủ công).</string>
+    <string name="quick_activate_limit_dsp">Giới hạn: chỉ hỗ trợ Android 13 (API 33) trở lên; cần Shizuku hoặc root để chạy lệnh shell; một số ROM của hãng có thể chặn các giao diện cần thiết.</string>
+
+    <string name="quick_activate_unsupported_title">Thiết bị này không được hỗ trợ</string>
+    <string name="quick_activate_unsupported_dsp">Chế độ này dựa vào vai trò quản lý chính sách thiết bị được giới thiệu trong Android 13. Phiên bản hệ thống hiện tại là %1$d. Vui lòng kích hoạt qua Shizuku hoặc ADB.</string>
+
+    <string name="quick_activate_step_open_title">Mở trình hướng dẫn</string>
+    <string name="quick_activate_step_open_dsp">Cấp vai trò quản lý chính sách thiết bị và đặt user_setup_complete thành 0, mở cổng cần thiết để kích hoạt.</string>
+    <string name="quick_activate_step_open_btn">Mở hướng dẫn</string>
+
+    <string name="quick_activate_step_activate_title">Thử kích hoạt</string>
+    <string name="quick_activate_step_activate_dsp">Đồng bộ trạng thái, đăng ký làm quản trị viên thiết bị rồi kích hoạt chủ sở hữu thiết bị. user_setup_complete sẽ được khôi phục tự động sau đó.</string>
+    <string name="quick_activate_step_activate_btn">Kích hoạt</string>
+
+    <string name="quick_activate_step_restore_title">Khôi phục thủ công</string>
+    <string name="quick_activate_step_restore_dsp">Khôi phục user_setup_complete về 1. Chạy bước này nếu các phím điều hướng ngừng hoạt động.</string>
+    <string name="quick_activate_step_restore_btn">Khôi phục ngay</string>
+
+    <string name="quick_activate_view_command">Xem lệnh thực thi thủ công</string>
+    <string name="quick_activate_result_ok">Thành công</string>
+    <string name="quick_activate_result_fail">Chưa hoàn tất</string>
+    <string name="quick_activate_success">Đã kích hoạt chủ sở hữu thiết bị</string>
+    <string name="security_title">Chính sách dịch vụ</string>
+    <string name="settings_security_desc">Công tắc dịch vụ API, danh sách trắng, hành vi sau khi đóng dịch vụ, chuyển chủ sở hữu thiết bị</string>
+    <string name="security_deny_section">Tùy chọn từ chối</string>
+    <string name="security_deny_mode_title">Hành vi sau khi đóng dịch vụ</string>
+    <string name="security_deny_mode_desc">Quyết định cách dịch vụ phản hồi khi ứng dụng bên thứ ba gọi đến.</string>
+
+    <string name="deny_mode_dangerous_fail">Từ chối lệnh nguy hiểm, trả về lỗi</string>
+    <string name="deny_mode_dangerous_fail_desc">Ứng dụng có thể tìm thấy dịch vụ; các thao tác nguy hiểm bị từ chối.</string>
+    <string name="deny_mode_dangerous_success">Từ chối lệnh nguy hiểm, trả về thành công</string>
+    <string name="deny_mode_dangerous_success_desc">Ứng dụng có thể tìm thấy dịch vụ; thao tác nguy hiểm báo thành công nhưng không thực sự thực thi.</string>
+    <string name="deny_mode_all_fail">Từ chối tất cả, trả về lỗi</string>
+    <string name="deny_mode_all_fail_desc">Ứng dụng không tìm thấy dịch vụ, tương đương chưa kích hoạt.</string>
+    <string name="deny_mode_all_success">Từ chối tất cả, trả về thành công</string>
+    <string name="deny_mode_all_success_desc">Ứng dụng không tìm thấy dịch vụ nhưng nhận được phản hồi thành công.</string>
+    <string name="deny_mode_no_action">Không xử lý</string>
+    <string name="deny_mode_no_action_desc">Không từ chối cũng không cho phép; yêu cầu bị treo và ứng dụng sẽ chờ mãi.</string>
+
+    <string name="security_api_state_on">Công tắc chính API: đã bật</string>
+    <string name="security_api_state_off">Công tắc chính API: đã tắt, ứng dụng bên thứ ba không thể sử dụng</string>
+
+    <string name="security_service_section">Dịch vụ API</string>
+    <string name="security_transfer_section">Chuyển chủ sở hữu thiết bị</string>
+
+    <string name="quick_activate_pending_restore">!Trình hướng dẫn thiết lập chưa được khôi phục, vui lòng chạy khôi phục thủ công!</string>
+
 </resources>
