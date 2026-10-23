@@ -27,6 +27,14 @@ class MyDhizukuProvider : DhizukuProvider(), KoinComponent {
                 "deviceOwner=${state.isDeviceOwner} profileOwner=${state.isProfileOwner} " +
                 "serviceStopped=$stopped admin=${DhizukuState.admin.flattenToString()}"
         }
+        // 客户端 API 的 init() 只认可设备所有者 / 资料管理员。
+        // 仅设备管理员身份时能走到这里，但 init() 在此之前已经返回 false，
+        // 因此第三方会报"初始化失败"，而不是本服务的故障。
+        if (!state.isOwner) {
+            NeoLog.i(NeoLog.SERVER) {
+                "provider: 当前不是所有者身份，标准客户端的 init() 会先失败，无法走到这一步"
+            }
+        }
         return MyDhizukuService(context!!, DhizukuState.admin, client)
     }
 

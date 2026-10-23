@@ -14,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 import com.neodhizuku.more.R
+import com.neodhizuku.more.ui.activity.WipeConfirmActivity
 
 /**
  * 安全警示通知。
@@ -52,6 +53,7 @@ object AlertNotifier {
 
     /** 授权请求（弹窗未出现时的兜底入口） */
     private const val ID_PERMISSION_REQUEST = 2100
+    private const val ID_WIPE_BLOCKED = 2200
 
     fun ensureChannel(context: Context) {
         // 通知是辅助功能，任何一步失败都只记录、不外抛
@@ -154,6 +156,37 @@ object AlertNotifier {
             ID_TRANSFER_BLOCKED,
             str(context, R.string.alert_transfer_blocked_title, "已拦截转移请求"),
             str(context, R.string.alert_transfer_blocked_text, "已拦截 $appLabel 转移设备所有者", appLabel)
+        )
+    }
+
+    /**
+     * 擦除设备数据的请求被拦截。
+     *
+     * 这条通知必须能点进去 —— 用户确认后才可能放行，因此带 PendingIntent
+     * 打开确认页。用 FLAG_ACTIVITY_NEW_TASK：通知栏发起不在任何任务栈内。
+     */
+    fun wipeBlocked(context: Context, appLabel: String) {
+        val uid = WipeGuard.lastRejectedUid
+        val intent = Intent(context, WipeConfirmActivity::class.java)
+            .putExtra(WipeConfirmActivity.EXTRA_UID, uid)
+            .putExtra(WipeConfirmActivity.EXTRA_LABEL, appLabel)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val pending = runCatching {
+            PendingIntent.getActivity(context, ID_WIPE_BLOCKED, intent, flags)
+        }.getOrNull()
+
+        post(
+            context,
+            ID_WIPE_BLOCKED,
+            str(context, R.string.alert_wipe_blocked_title, "已拦截擦除请求"),
+            str(
+                context, R.string.alert_wipe_blocked_text,
+                "已拦截 $appLabel 擦除设备数据的请求", appLabel
+            ),
+            pending
         )
     }
 

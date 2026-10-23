@@ -1,12 +1,12 @@
 package com.neodhizuku.more.data.settings.model.room.impl
 
-import android.app.admin.DevicePolicyManager
 import android.content.Context
 import com.neodhizuku.more.NeoDhizuku
+import com.neodhizuku.more.data.common.util.DelegationManager
 import com.neodhizuku.more.data.settings.model.room.dao.AppDao
 import com.neodhizuku.more.data.settings.model.room.entity.AppEntity
 import com.neodhizuku.more.data.settings.repo.AppRepo
-import com.neodhizuku.more.server.DhizukuState
+import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -15,12 +15,9 @@ class AppRepoImpl(
     private val dao: AppDao
 ) : AppRepo, KoinComponent {
     private val context by inject<Context>()
+    private val settingsRepo by inject<SettingsRepo>()
 
     private val packageManager by lazy { context.packageManager }
-
-    private val devicePolicyManager by lazy {
-        context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    }
 
     override fun flowAll(): Flow<List<AppEntity>> = dao.flowAll()
 
@@ -61,17 +58,16 @@ class AppRepoImpl(
         dao.delete(entity)
     }
 
+    /**
+     * 取消授权 / 删除记录时清掉已委派的作用域。
+     *
+     * @param restore 是否先还原已生效的状态，由实验性开关决定。
+     */
     private fun clearDelegatedScopes(entity: AppEntity) {
-        if (!DhizukuState.state.isOwner) return
-        val packageNames = packageManager.getPackagesForUid(entity.uid) ?: emptyArray()
-        packageNames.forEach {
-            kotlin.runCatching {
-                devicePolicyManager.setDelegatedScopes(
-                    DhizukuState.admin,
-                    it,
-                    emptyList()
-                )
-            }
-        }
+        DelegationManager.clearForUid(
+            context = context,
+            uid = entity.uid,
+            restore = settingsRepo.isExperimentalDelegationCleanup
+        )
     }
 }

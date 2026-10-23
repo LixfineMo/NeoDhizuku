@@ -38,6 +38,7 @@ import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.AttachMoney
 import androidx.compose.material.icons.twotone.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.twotone.Cancel
 import androidx.compose.material.icons.twotone.Code
 import androidx.compose.material.icons.twotone.DoNotDisturbOn
@@ -137,7 +138,7 @@ fun HomePage(
     var setupPendingRestore by remember {
         mutableStateOf(DpDirectActivation.isPendingRestore(context))
     }
-    LaunchedEffect(dhizukuState.isOwner) {
+    LaunchedEffect(dhizukuState.isActive) {
         setupPendingRestore = DpDirectActivation.isPendingRestore(context)
     }
 
@@ -154,7 +155,7 @@ fun HomePage(
                     Text(stringResource(R.string.app_name))
                 },
                 actions = {
-                    TopBarActions()
+                    TopBarActions(navController = navController)
                 }
             )
         }) {
@@ -168,26 +169,26 @@ fun HomePage(
             item("dhizuku_state") {
                 DhizukuStateWidget(navController)
             }
-            if (dhizukuState.isOwner) item("settings") {
+            if (dhizukuState.isActive) item("settings") {
                 SettingsWidget(navController)
             }
-            if (dhizukuState.isOwner) item("app_management") {
+            if (dhizukuState.isActive) item("app_management") {
                 AppManagementWidget(navController)
             }
-            if (dhizukuState.isOwner) item("dhizuku") {
+            if (dhizukuState.isActive) item("dhizuku") {
                 DhizukuWidget(navController)
             }
-            if (!dhizukuState.isOwner) item("shizuku") {
+            if (!dhizukuState.isActive) item("shizuku") {
                 ShizukuWidget(navController)
             }
             // 未激活时始终显示；已激活但向导未恢复时也保留
-            if (!dhizukuState.isOwner || setupPendingRestore) item("quick_activate") {
+            if (!dhizukuState.isActive || setupPendingRestore) item("quick_activate") {
                 QuickActivateWidget(navController)
             }
-            if (!dhizukuState.isOwner) item("adb") {
+            if (!dhizukuState.isActive) item("adb") {
                 AdbWidget()
             }
-            if (dhizukuState.isOwner) item("home_deactivate_title") {
+            if (dhizukuState.isActive) item("home_deactivate_title") {
                 DeactivateWidget()
             }
         }
@@ -196,7 +197,7 @@ fun HomePage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBarActions() {
+private fun TopBarActions(navController: NavController) {
     val context = LocalContext.current
     val settingsRepo = koinInject<SettingsRepo>()
     val scope = rememberCoroutineScope()
@@ -208,11 +209,13 @@ private fun TopBarActions() {
     val donateButtonHidden by settingsRepo.flowDonateButtonHidden()
         .collectAsState(initial = settingsRepo.isDonateButtonHidden)
 
+    // 左上角入口改为「关于」：跳转到关于页。
+    // 长按仍可隐藏 —— 复用原来的开关与确认弹窗，不新增状态。
     if (!donateButtonHidden) {
         Box {
             TooltipBox(
                 positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
-                tooltip = { PlainTooltip { Text(stringResource(R.string.donate)) } },
+                tooltip = { PlainTooltip { Text(stringResource(R.string.about_title)) } },
                 state = rememberTooltipState()
             ) {
                 Box(
@@ -221,13 +224,14 @@ private fun TopBarActions() {
                         .clip(CircleShape)
                         .combinedClickable(
                             onClick = {
-                                context.openUrlInBrowser("https://github.com/iamr0s/Dhizuku/blob/main/docs/DONATE.md")
+                                NeoLog.d(NeoLog.NAV) { "home -> about" }
+                                navController.navigate(SettingsRoute.About.route)
                             },
                             onLongClick = { donateMenuExpanded = true }
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.TwoTone.AttachMoney, contentDescription = stringResource(R.string.donate))
+                    Icon(Icons.Outlined.Error, contentDescription = stringResource(R.string.about_title))
                 }
             }
             DropdownMenu(
@@ -250,8 +254,11 @@ private fun TopBarActions() {
     // 未激活时服务本来就不该运行，若照常显示按钮，会落到"服务未运行"分支
     // 展示重启图标；此时点击会去 startForegroundService，而守护服务在未成为
     // 所有者时的启动路径会抛异常导致崩溃。
+    //
+    // 判据用 isActive 而非 isOwner：仅设备管理员时服务同样可以运行，
+    // 需要能停能启。
     // DhizukuState.state 是 mutableStateOf，读取即自动订阅
-    if (DhizukuState.state.isOwner) {
+    if (DhizukuState.state.isActive) {
         var serviceRunning by remember { mutableStateOf(ServiceStatus.isRunning()) }
         LaunchedEffect(Unit) {
             while (true) {
@@ -365,24 +372,26 @@ private fun TopBarActions() {
 
 @Composable
 private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
-    val isOwner = DhizukuState.state.isOwner
+    // 用 isActive 而非 isOwner：仅设备管理员也算已激活，
+    // 应走新的状态卡布局，身份由 [activationLabel] 显示为「设备管理员」。
+    val isActive = DhizukuState.state.isActive
     val context = LocalContext.current
 
     // 激活态用左侧状态卡 + 右侧两张服务状态卡的布局，未激活保留原版样式。
-    if (NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard) && isOwner) {
+    if (NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard) && isActive) {
         ActivationStatusRow(navController = navController)
         return
     }
 
     @Suppress("AnimateAsStateLabel")
     val iconContainerColor by animateColorAsState(
-        if (isOwner) MaterialTheme.colorScheme.primaryContainer
+        if (isActive) MaterialTheme.colorScheme.primaryContainer
         else MaterialTheme.colorScheme.errorContainer
     )
 
     @Suppress("AnimateAsStateLabel")
     val iconColor by animateColorAsState(
-        if (isOwner) MaterialTheme.colorScheme.onPrimaryContainer
+        if (isActive) MaterialTheme.colorScheme.onPrimaryContainer
         else MaterialTheme.colorScheme.onErrorContainer
     )
     CardWidget(colors = CardDefaults.cardColors(
@@ -390,7 +399,7 @@ private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
     ), icon = {
         Icon(
             imageVector = Icons.TwoTone.run {
-                if (isOwner) SentimentVerySatisfied
+                if (isActive) SentimentVerySatisfied
                 else SentimentVeryDissatisfied
             },
             contentDescription = null
@@ -400,13 +409,18 @@ private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
         contentColor = iconColor
     ), title = {
         @Suppress("AnimatedContentLabel")
-        AnimatedContent(targetState = isOwner) {
+        AnimatedContent(targetState = isActive) {
             Text(
                 if (it) stringResource(
                     R.string.home_status_owner_granted,
+                    // 仅设备管理员时显示「设备管理员」，
+                    // 避免沿用旧的二选一逻辑把它误标成「设备所有者」
                     stringResource(
-                        if (DhizukuState.state.isProfileOwner) R.string.confirm_profile_owner
-                        else R.string.confirm_device_owner
+                        when {
+                            DhizukuState.state.isProfileOwner -> R.string.confirm_profile_owner
+                            DhizukuState.state.isDeviceOwner -> R.string.confirm_device_owner
+                            else -> R.string.capability_device_admin
+                        }
                     )
                 )
                 else stringResource(R.string.home_status_owner_denied)
@@ -478,6 +492,38 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
             )
         }
     }
+
+    // 仅设备管理员时，第三方应用的标准 Dhizuku 初始化必然失败：
+    // 客户端 API 只认可设备所有者 / 资料管理员，设备管理员不在其中。
+    if (DhizukuState.state.level ==
+        com.neodhizuku.more.server.CapabilityLevel.DEVICE_ADMIN
+    ) {
+        Text(
+            text = stringResource(R.string.home_device_admin_notice),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateItem()
+                .padding(horizontal = 4.dp)
+        )
+    }
+}
+
+/**
+ * 状态卡上显示的版本名，跟随「使用旧的兼容版本号」开关：
+ * 开启时与对外返回的兼容版本保持一致，关闭时显示本应用自身版本。
+ */
+@Composable
+private fun displayVersionName(): String {
+    val repo = koinInject<SettingsRepo>()
+    val useLegacy by repo.flowUseLegacyVersion()
+        .collectAsState(initial = repo.isUseLegacyVersion)
+    return if (useLegacy) {
+        com.rosan.dhizuku.server_api.Variables.SERVICE_VERSION_NAME
+    } else {
+        com.neodhizuku.more.BuildConfig.VERSION_NAME
+    }
 }
 
 /**
@@ -485,6 +531,7 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
  */
 @Composable
 private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val versionName = displayVersionName()
     androidx.compose.material3.Card(
         onClick = onClick,
         modifier = modifier,
@@ -511,17 +558,12 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(Modifier.height(6.dp))
-                StatusTag(
-                    label = stringResource(
-                        if (DhizukuState.state.isProfileOwner) R.string.confirm_profile_owner
-                        else R.string.confirm_device_owner
-                    )
-                )
+                StatusTag(label = activationLabel())
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = stringResource(
                         R.string.home_status_version,
-                        com.neodhizuku.more.BuildConfig.VERSION_NAME
+                        versionName
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -529,6 +571,40 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
             }
         }
     }
+}
+
+/**
+ * 激活卡片上的身份标签，五种状态选一。
+ *
+ * 放在这里而不是另起一张卡：平板上首页右侧没有多余空间，
+ * 单独加卡会导致平板与手机布局不一致。
+ */
+@Composable
+private fun activationLabel(): String {
+    // 读取 DhizukuState.state 即订阅，身份变化会自动刷新
+    val state = DhizukuState.state
+    val temporary =
+        com.neodhizuku.more.data.common.util.DpDirectActivation.isTemporaryCached()
+
+    // 免删模式取得的所有者加"临时"后缀，能力完全相同，只是区分获取途径
+    if (state.isDeviceOwner && temporary) {
+        return stringResource(
+            R.string.capability_device_owner_temp,
+            stringResource(R.string.capability_device_owner)
+        )
+    }
+
+    val res = when (state.level) {
+        com.neodhizuku.more.server.CapabilityLevel.DEVICE_OWNER ->
+            R.string.capability_device_owner
+        com.neodhizuku.more.server.CapabilityLevel.PROFILE_OWNER ->
+            R.string.confirm_profile_owner
+        com.neodhizuku.more.server.CapabilityLevel.DEVICE_ADMIN ->
+            R.string.capability_device_admin
+        com.neodhizuku.more.server.CapabilityLevel.NONE ->
+            R.string.home_status_inactive
+    }
+    return stringResource(res)
 }
 
 /** 右侧小卡：一个标签 + 一个数值 */

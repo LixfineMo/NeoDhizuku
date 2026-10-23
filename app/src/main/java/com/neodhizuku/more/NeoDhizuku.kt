@@ -187,6 +187,24 @@ object NeoDhizuku {
     const val HardenOwnerTransferGuard: Boolean = true
 
     /**
+     * 能力分级执行。
+     *
+     * 开启后，第三方通过 remote_transact 调用设备策略接口时，
+     * 会先比对当前身份等级（设备管理员 / 资料管理员 / 设备所有者）
+     * 与该方法所需的最低等级；不足时按服务策略里的「能力不足时的处理」回应。
+     */
+    const val UseCapabilityTier: Boolean = true
+
+    /**
+     * 擦除设备数据的强制确认。
+     *
+     * `wipeData` 不可逆，且设备管理员身份下同样可以执行，
+     * 因此无论当前身份等级如何，第三方发起的擦除一律先拦截，
+     * 需用户在确认页通过两级警告后才放行。
+     */
+    const val HardenWipeGuard: Boolean = true
+
+    /**
      * 调试日志总开关。
      *
      * 打开后 `NeoDhizuku.DebugLog` 为真，NeoLog 才会输出。

@@ -3,7 +3,7 @@
   "versionCode": 20,
   "apkUrl": "",
   "changelog": "",
-  "isAlpha": "true",
-  "isBeta": "false",
-  "isGrayRelease": "true"
+  "isAlpha": true,
+  "isBeta": false,
+  "isGrayRelease": true
 }

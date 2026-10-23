@@ -24,8 +24,10 @@ import com.neodhizuku.more.data.common.util.signature
 import com.neodhizuku.more.data.settings.model.room.entity.AppEntity
 import com.neodhizuku.more.data.settings.repo.AppRepo
 import com.neodhizuku.more.data.settings.repo.DenyMode
+import com.neodhizuku.more.data.settings.repo.InsufficientMode
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import com.rosan.dhizuku.server_api.DhizukuService
+import com.rosan.dhizuku.server_api.Variables
 import com.rosan.dhizuku.shared.DhizukuVariables
 
 import kotlinx.coroutines.CoroutineScope
@@ -72,9 +74,24 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     /** 审计落库用的后台作用域，不阻塞 binder 线程 */
     private val auditScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    override fun getVersionName(): String =
-        if (NeoDhizuku.on(NeoDhizuku.FixVersionName)) BuildConfig.VERSION_NAME
-        else "$versionCode"
+    /**
+     * 返回给客户端的版本名。
+     *
+     * 默认返回上游 Dhizuku 的版本（[Variables.SERVICE_VERSION_NAME]）：部分客户端会
+     * 校验版本，返回本项目的版本可能被判定为不兼容。用户可在「服务」页关闭该兼容模式，
+     * 届时返回本项目自身的版本名。
+     *
+     * `FixVersionName` 关闭时回退到上游行为（用版本码凑数），不读本开关。
+     */
+    override fun getVersionName(): String {
+        if (!NeoDhizuku.on(NeoDhizuku.FixVersionName)) return "$versionCode"
+        val legacy = runCatching { settingsRepo.isUseLegacyVersion }.getOrDefault(true)
+        val name = if (legacy) Variables.SERVICE_VERSION_NAME else BuildConfig.VERSION_NAME
+        NeoLog.i(NeoLog.SERVER) {
+            "getVersionName: legacy=$legacy -> $name (uid=${Binder.getCallingUid()})"
+        }
+        return name
+    }
 
     private var signature: String? = null
 
@@ -182,7 +199,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     override fun checkCallingPermission(func: String?, callingUid: Int, callingPid: Int): Boolean {
         val pkg = runCatching { context.packageManager.getNameForUid(callingUid) }.getOrNull()
 
-        // 一次性把关键状态打全，避免逐条猜测
+        // 把判定依赖的关键状态一次打全
         NeoLog.d(NeoLog.PERM) {
             "check: uid=$callingUid pkg=$pkg func=$func " +
                 "owner=${DhizukuState.state.isOwner} enabled=${settingsRepo.isDhizukuEnabled} " +
@@ -277,8 +294,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
 
         if (NeoDhizuku.on(NeoDhizuku.FixSignatureSetCheck)) {
-            // 原实现只取第一个签名者，v3 签名轮换 / 多签名场景下会误判。
-            // 这里改为"当前签名集合覆盖授权时记录的签名"。
+            // 只校验第一个签名者在 v3 签名轮换 / 多签名场景下会误判，
+            // 因此要求当前签名集合覆盖授权时记录的签名。
             val signatures = getSignaturesForUid(context.packageManager, callingUid)
             if (signatures.isEmpty()) {
                 NeoLog.w(NeoLog.PERM) { "check: 拒绝（取不到签名）pkg=$pkg" }
@@ -362,9 +379,18 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
      * 基类只给 remote_process 回调 onAudit，remote_transact 没有。
      * 这条路径能操作 DevicePolicyManager，是最需要留痕的，因此单独记一份。
      */
-    private fun auditRemoteTransact(uid: Int, label: String, descriptor: String?, code: Int) {
+    private fun auditRemoteTransact(
+        uid: Int,
+        label: String,
+        descriptor: String?,
+        code: Int,
+        extraDetail: String? = null,
+        human: String? = null
+    ) {
         if (!NeoDhizuku.on(NeoDhizuku.UseCallLogPage)) return
-        val detail = "以设备所有者身份调用 ${descriptor ?: "未知接口"}（事务码 $code）"
+        // 调用方已解析过就直接用（带实参），否则这里再解析一次
+        val resolved = human ?: DpmApiCatalog.describe(descriptor, code)
+        val detail = extraDetail ?: "以设备所有者身份调用：$resolved"
         AuditLogStore.record(uid, label, "remote_transact", detail)
 
         if (!NeoDhizuku.on(NeoDhizuku.UseCallLogPersist)) return
@@ -467,8 +493,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
         // remote_transact 是最危险的一条路径：第三方可用 binderWrapper 包装任意
         // binder（含 DevicePolicyManager）以本应用的设备所有者身份执行。
-        // 基类只在 remote_process 时回调 onAudit，这条路径此前完全没有记录，
-        // 因此在这里补审计。
+        // 基类只在 remote_process 时回调 onAudit，这条路径需要在这里补审计。
         val descriptor = runCatching { binder?.interfaceDescriptor }.getOrNull()
         val callerUid = Binder.getCallingUid()
         val callerLabel = runCatching {
@@ -478,7 +503,79 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             "remote_transact: uid=$callerUid ($callerLabel) " +
                 "target=${descriptor ?: "unknown"} code=$code"
         }
-        auditRemoteTransact(callerUid, callerLabel, descriptor, code)
+        // 解析方法名与一句人话描述，同时供审计、能力判定、高危拦截使用
+        val method = DpmApiCatalog.methodName(code)
+        val human = DpmApiCatalog.describe(descriptor, code, data)
+        NeoLog.d(NeoLog.SERVER) {
+            "remote_transact: 识别 method=${method ?: "未知"} 描述=$human"
+        }
+
+        if (NeoDhizuku.on(NeoDhizuku.HardenWipeGuard)
+            && DpmApiCatalog.isWipe(binder, code)
+        ) {
+            // 擦除设备数据：不可逆操作，默认一律拦截，需用户多级确认后才放行。
+            // 即便当前是设备所有者也拦截 —— 这条规则保护的是"被第三方借身份擦除"。
+            val granted = WipeGuard.isGranted(callerUid)
+            NeoLog.w(NeoLog.SERVER) {
+                "wipe guard: uid=$callerUid ($callerLabel) granted=$granted"
+            }
+            if (!granted) {
+                WipeGuard.noteRejected(callerUid, callerLabel)
+                // 意图必须留痕：这正是"想测试又不给权限"的用户最关心的信息
+                auditRemoteTransact(
+                    callerUid, callerLabel, descriptor, code,
+                    extraDetail = "【已拦截】$human"
+                )
+                runCatching { AlertNotifier.wipeBlocked(context, callerLabel) }
+                    .onFailure {
+                        NeoLog.w(NeoLog.SERVER) { "擦除拦截通知发送失败：${it.message}" }
+                    }
+                throw SecurityException(
+                    "Wiping device data requires explicit user confirmation: uid=$callerUid"
+                )
+            }
+            NeoLog.w(NeoLog.SERVER) {
+                "wipe guard: 用户已确认，放行 uid=$callerUid ($callerLabel)"
+            }
+            WipeGuard.consume(callerUid)
+        }
+
+        // 能力分级：当前身份不足以执行该方法时，按服务策略处理
+        if (NeoDhizuku.on(NeoDhizuku.UseCapabilityTier)
+            && descriptor == DpmApiCatalog.DPM_DESCRIPTOR
+        ) {
+            val level = DhizukuState.state.level
+            if (!CapabilityLevel.canExecute(level, method)) {
+                val mode = InsufficientMode.from(settingsRepo.insufficientMode)
+                val required = CapabilityLevel.requiredLevel(method)
+                NeoLog.w(NeoLog.SERVER) {
+                    "能力不足: uid=$callerUid ($callerLabel) method=$method " +
+                        "当前=${level} 需要=${required} 处理=${mode} 描述=$human"
+                }
+                // 无论放行还是拒绝，意图都完整入账
+                auditRemoteTransact(
+                    callerUid, callerLabel, descriptor, code,
+                    extraDetail = "【能力不足(${level}→${required})】$human"
+                )
+                when (mode) {
+                    InsufficientMode.RETURN_FAIL -> throw SecurityException(
+                        "Insufficient capability: ${level.name} cannot execute " +
+                            "${method ?: "unknown"} (requires ${required.name})"
+                    )
+                    InsufficientMode.RETURN_SUCCESS -> {
+                        // 假装执行成功：不真正 transact，只回一个没有异常的空结果
+                        reply?.writeNoException()
+                        return true
+                    }
+                    InsufficientMode.NO_ACTION -> {
+                        // 挂起：不回调也不返回，客户端一直等。
+                        // 不能用 sleep 阻塞 binder 线程，否则整个服务都会卡住，
+                        // 这里靠"直接返回 true 且不写 reply"让对端等待。
+                        return true
+                    }
+                }
+            }
+        }
 
         if (NeoDhizuku.on(NeoDhizuku.HardenOwnerTransferGuard)
             && OwnerTransferGuard.isOwnerTransfer(binder, code)
@@ -506,6 +603,19 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                     NeoLog.w(NeoLog.SERVER) { "放行通知发送失败：${it.message}" }
                 }
         }
+
+        // 正常放行同样要入账。
+        //
+        // 「擦除拦截」和「能力不足」之外，正常调用同样要入账：
+        // 它是最高频、也最该被看到的路径（第三方以本应用身份调用 DevicePolicyManager）。
+        //
+        // 复用上面已解析好的 human：它带实参（例如"把密码最小长度改为 6"），
+        // 重新解析会丢参数。
+        auditRemoteTransact(
+            callerUid, callerLabel, descriptor, code,
+            human = human
+        )
+
         return super.onRemoteTransact(binder, code, data, reply, flags)
     }
 

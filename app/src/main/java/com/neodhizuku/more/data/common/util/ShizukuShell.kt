@@ -37,8 +37,13 @@ object ShizukuShell {
      *
      * stdout / stderr 分两个线程并发读取，避免任一缓冲区写满后阻塞子进程 ——
      * 只读取其中一个流是常见死锁来源。
+     *
+     * @param waitTimeoutMillis 等待子进程结束的超时；**0 表示不限制**（原有行为）。
+     *   进程卡住时 `waitFor()` 本身不会返回，20 秒的 `join` 救不了它，
+     *   所以需要在单独线程里等并带超时，超时后主动 destroy。
      */
-    suspend fun exec(script: String): Result = withContext(Dispatchers.IO) {
+    suspend fun exec(script: String, waitTimeoutMillis: Long = 0L): Result =
+        withContext(Dispatchers.IO) {
         NeoLog.i(NeoLog.ACTIVATE) { "shell exec: $script" }
         val process = createProcess(script)
         if (process == null) {
@@ -74,7 +79,11 @@ object ShizukuShell {
         outThread.start()
         errThread.start()
 
-        val exitCode = runCatching { process.waitFor() }.getOrDefault(-1)
+        val exitCode = if (waitTimeoutMillis > 0L) {
+            waitForWithTimeout(process, waitTimeoutMillis)
+        } else {
+            runCatching { process.waitFor() }.getOrDefault(-1)
+        }
         runCatching {
             outThread.join(READ_TIMEOUT_MILLIS)
             errThread.join(READ_TIMEOUT_MILLIS)
@@ -86,6 +95,28 @@ object ShizukuShell {
             "shell result: exit=$exitCode out=${result.output} err=${result.error}"
         }
         result
+    }
+
+    /**
+     * 带超时地等待进程结束。
+     *
+     * `RemoteProcess.waitFor()` 内部是 `Process.waitFor()`，进程卡住时会一直阻塞。
+     * 这里把它放到单独线程里等，超时后 destroy 让对端退出，避免整条链路挂死。
+     */
+    private fun waitForWithTimeout(process: RemoteProcess, timeoutMillis: Long): Int {
+        val exit = java.util.concurrent.atomic.AtomicInteger(-1)
+        val waiter = Thread {
+            exit.set(runCatching { process.waitFor() }.getOrDefault(-1))
+        }.apply { isDaemon = true }
+        waiter.start()
+        waiter.join(timeoutMillis)
+        if (waiter.isAlive) {
+            NeoLog.w(NeoLog.ACTIVATE) { "shell exec: 等待超时 ${timeoutMillis}ms，主动结束进程" }
+            runCatching { process.destroy() }
+            // destroy 之后 waitFor 通常很快返回，再给一点时间取退出码
+            waiter.join(1_000L)
+        }
+        return exit.get()
     }
 
     /**

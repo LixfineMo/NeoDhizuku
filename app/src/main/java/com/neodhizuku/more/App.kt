@@ -29,9 +29,19 @@ class App : Application(), KoinComponent {
         // 把应用层开关同步给 server_api / client api 两个模块，
         // 这样只需要改 NeoDhizuku.UseNeoDhizuku 一个常量即可全局启停。
         syncNeoDhizukuSwitches()
+        // 「完整运行日志」开关先挂上，否则日志会一直走精简模式
+        NeoLog.bindVerboseLog()
         NeoLog.dumpSwitches()
         NeoLog.startFlushLoop()
+        // 免删模式标记先落内存，首页身份标签才能立刻显示"设备所有者（临时）"
+        com.neodhizuku.more.data.common.util.DpDirectActivation.refreshTemporary(this)
         DhizukuState.sync(this)
+        NeoLog.i(NeoLog.BOOT) {
+            "能力等级=${DhizukuState.state.level} " +
+                "isOwner=${DhizukuState.state.isOwner} " +
+                "isActive=${DhizukuState.state.isActive} " +
+                "临时所有者=${com.neodhizuku.more.data.common.util.DpDirectActivation.isTemporaryCached()}"
+        }
         Sui.init(packageName)
         DynamicColors.applyToActivitiesIfAvailable(this)
         exemptHiddenApiIfNeeded()
@@ -45,7 +55,7 @@ class App : Application(), KoinComponent {
     private fun exemptHiddenApiIfNeeded() {
         if (!NeoDhizuku.on(NeoDhizuku.FixReflectionDpm)) return
         runCatching {
-            org.lsposed.hiddenapibypass.HiddenApiBypass.addHiddenApiExemptions("")
+            com.neodhizuku.more.server.HiddenApiExempt.once()
         }.onFailure {
             Log.w("Dhizuku", "hidden api exemption failed", it)
         }

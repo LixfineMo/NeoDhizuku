@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.Check
+import androidx.compose.material.icons.twotone.Shield
 import androidx.compose.material.icons.twotone.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -67,6 +68,7 @@ import androidx.navigation.NavController
 
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.R
+import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.AppIconCache
@@ -281,7 +283,7 @@ fun ActivatePage(
         if (isRunning) return@AlertDialog
         if (!isSuccess) TextButton(onClick = {
             if (NeoDhizuku.on(NeoDhizuku.FixActivateRetryNpe)) {
-                // 列表刷新后 comp 可能为 null，原实现用 comp!! 会直接崩溃。
+                // 列表刷新后 comp 可能为 null；
                 // comp 是委托属性，无法智能转换为非空，这里先取局部快照。
                 val compSnapshot = comp
                 if (compSnapshot == null) viewModel.collectData()
@@ -377,6 +379,14 @@ private fun ItemsWidget(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        // 设备管理员入口：放在最上面，因为它门槛最低、全版本可用。
+        // 只有在还没成为所有者时才显示 —— 已经是所有者就没必要再降级。
+        if (!DhizukuState.state.isOwner) {
+            item(key = "device_admin_entry") {
+                DeviceAdminEntry()
+            }
+        }
+
         items(viewModel.state.data, key = { it.admin.component.flattenToShortString() }) {
             ItemWidget(
                 viewModel = viewModel,
@@ -479,5 +489,110 @@ private fun ActivateErrorText(error: Throwable?) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+/**
+ * 以设备管理员身份激活。
+ *
+ * 设备所有者门槛高（ADB / Shizuku / 清账号 / Android 13+），
+ * 而设备管理员只需系统设置里点一下，**全版本可用**。
+ * 代价是能力有限，但"能跑一部分"好过"完全用不了"。
+ *
+ * 这里直接发起系统授权页；若设备上找不到该页面（少见），
+ * 回退到打开设备管理器列表让用户手动勾选。
+ */
+@Composable
+private fun DeviceAdminEntry() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val isAdmin = DhizukuState.state.isDeviceAdmin
+
+    ElevatedCard(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.TwoTone.AdminPanelSettingsIconSafe(),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.activate_device_admin_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        stringResource(R.string.activate_device_admin_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            if (isAdmin) {
+                Text(
+                    stringResource(R.string.activate_device_admin_already),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    androidx.compose.material3.FilledTonalButton(
+                        onClick = { requestDeviceAdmin(context) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.activate_device_admin_action))
+                    }
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { openDeviceAdminSettings(context) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.activate_device_admin_settings))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** 图标按项目既有习惯统一取：没有先例的符号会编译不过，这里用已验证存在的 */
+private val deviceAdminIcon = androidx.compose.material.icons.Icons.TwoTone.Shield
+
+private fun Icons.TwoTone.AdminPanelSettingsIconSafe() = deviceAdminIcon
+
+private fun requestDeviceAdmin(context: android.content.Context) {
+    val admin = DhizukuState.admin
+    val intent = android.content.Intent(
+        android.app.admin.DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN
+    )
+        .putExtra(android.app.admin.DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin)
+        .putExtra(
+            android.app.admin.DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+            context.getString(R.string.activate_device_admin_explanation)
+        )
+        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching {
+        context.startActivity(intent)
+        NeoLog.i(NeoLog.ACTIVATE) { "设备管理员：已发起系统授权页" }
+    }.onFailure {
+        NeoLog.w(NeoLog.ACTIVATE) { "设备管理员：发起授权页失败，回退到设置 ${it.message}" }
+        openDeviceAdminSettings(context)
+    }
+}
+
+private fun openDeviceAdminSettings(context: android.content.Context) {
+    runCatching {
+        context.startActivity(
+            android.content.Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+        NeoLog.i(NeoLog.ACTIVATE) { "设备管理员：已打开系统安全设置" }
+    }.onFailure {
+        NeoLog.w(NeoLog.ACTIVATE) { "设备管理员：打开设置失败 ${it.message}" }
     }
 }

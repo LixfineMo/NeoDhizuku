@@ -40,7 +40,7 @@ class DaemonService : Service(), KoinComponent {
             if (NeoDhizuku.on(NeoDhizuku.FixPackageReplaceBroadcast)) {
                 // ACTION_PACKAGE_REMOVED 在"覆盖安装（更新）"时同样会发出，
                 // 此时 EXTRA_REPLACING=true / EXTRA_DATA_REMOVED=false。
-                // 原实现不做区分，导致目标 App 每次升级都可能丢掉授权记录。
+                // 不区分的话目标 App 每次升级都可能丢掉授权记录。
                 if (intent.action == Intent.ACTION_PACKAGE_REMOVED) {
                     val replacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
                     val dataRemoved = intent.getBooleanExtra(Intent.EXTRA_DATA_REMOVED, false)
@@ -78,9 +78,20 @@ class DaemonService : Service(), KoinComponent {
         super.onCreate()
         registerPackageReceiver()
 
+        // 通过 startForegroundService() 启动后，必须在超时前调用 startForeground()，
+        // 否则系统抛出 RemoteServiceException 并直接杀掉进程。
+        // 这里先无条件满足前台服务契约，之后再由策略决定是否继续保持前台。
+        //
+        // 判据用 isActive 而不是 isOwner：仅拥有设备管理员时 isOwner 为 false，
+        // 若据此不调用 startForeground()，服务会被系统判定为违规并杀进程。
+        foreground(DhizukuState.state.isActive)
+
         // DaemonService 是 START_STICKY，stopService() 后系统会立刻重建。
         // 用户主动停止时记一个标记，重建后在此再停一次，否则"关闭"永远无效。
-        if (settingsRepo.isServiceStoppedByUser) {
+        // 直接启动（LOCKED_BOOT_COMPLETED）下存储可能尚不可用，故做兜底。
+        val stoppedByUser = runCatching { settingsRepo.isServiceStoppedByUser }
+            .getOrDefault(false)
+        if (stoppedByUser) {
             NeoLog.i(NeoLog.DAEMON) { "onCreate: 用户已停止，立即再次停止" }
             ServiceStatus.markStopped()
             foreground(false)
@@ -88,7 +99,6 @@ class DaemonService : Service(), KoinComponent {
             return
         }
 
-        foreground(DhizukuState.state.isOwner)
         // 每次服务启动都重置计时基准 —— 被杀重启后运行时间归零重算
         if (NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard)) {
             ServiceStatus.markStarted()
@@ -126,14 +136,16 @@ class DaemonService : Service(), KoinComponent {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (settingsRepo.isServiceStoppedByUser) {
+        val stoppedByUser = runCatching { settingsRepo.isServiceStoppedByUser }
+            .getOrDefault(false)
+        if (stoppedByUser) {
             NeoLog.i(NeoLog.DAEMON) { "onStartCommand: 用户已停止，立即再次停止" }
             ServiceStatus.markStopped()
             foreground(false)
             stopSelf()
             return START_NOT_STICKY
         }
-        foreground(DhizukuState.state.isOwner)
+        foreground(DhizukuState.state.isActive)
         return START_STICKY
     }
 

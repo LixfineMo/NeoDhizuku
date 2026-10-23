@@ -168,7 +168,7 @@
     <string name="call_log_retention_90">90 dni</string>
     <string name="call_log_retention_forever">Bezterminowo</string>
     <string name="call_log_empty_runtime">Brak dzienników działania</string>
-    <string name="settings_security_section">Zasady usługi</string>
+    <string name="settings_security_section">Usługi</string>
     <!-- 服务启停 -->
     <string name="home_service_stopped">Usługa odrzucona</string>
     <string name="home_restart_service">Uruchom ponownie usługę</string>
@@ -205,7 +205,7 @@
     <string name="quick_activate_result_ok">Powiodło się</string>
     <string name="quick_activate_result_fail">Nie ukończono</string>
     <string name="quick_activate_success">Właściciel urządzenia aktywowany</string>
-    <string name="security_title">Zasady usługi</string>
+    <string name="security_title">Usługi</string>
     <string name="settings_security_desc">Przełącznik usługi API, biała lista, zachowanie po zamknięciu usługi, przeniesienie właściciela urządzenia</string>
     <string name="security_deny_section">Opcje odrzucania</string>
     <string name="security_deny_mode_title">Zachowanie po zamknięciu usługi</string>
@@ -230,4 +230,6 @@
 
     <string name="quick_activate_pending_restore">!Kreator konfiguracji nie został przywrócony, uruchom przywracanie ręczne!</string>
 
+    <string name="use_legacy_version">Użyj starej zgodnej nazwy wersji</string>
+    <string name="use_legacy_version_desc">Zgłaszaj klientom wersję oryginalnego Dhizuku. Niektóre aplikacje sprawdzają wersję; wyłącz, aby zgłaszać wersję tej aplikacji.</string>
 </resources>

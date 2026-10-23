@@ -133,7 +133,7 @@
     <string name="call_log_retention_90">90 giorni</string>
     <string name="call_log_retention_forever">Per sempre</string>
     <string name="call_log_empty_runtime">Nessun log di esecuzione</string>
-    <string name="settings_security_section">Criteri del servizio</string>
+    <string name="settings_security_section">Servizi</string>
     <string name="home_service_stopped">Servizio rifiutato</string>
     <string name="home_restart_service">Riavvia servizio</string>
     <string name="home_stop_service">Arresta servizio</string>
@@ -163,7 +163,7 @@
     <string name="quick_activate_result_ok">Operazione riuscita</string>
     <string name="quick_activate_result_fail">Operazione non completata</string>
     <string name="quick_activate_success">Proprietario del dispositivo attivato</string>
-    <string name="security_title">Criteri del servizio</string>
+    <string name="security_title">Servizi</string>
     <string name="settings_security_desc">Interruttore del servizio API, whitelist, comportamento dopo la chiusura del servizio, trasferimento del proprietario del dispositivo</string>
     <string name="security_deny_section">Opzioni di rifiuto</string>
     <string name="security_deny_mode_title">Comportamento dopo l\'arresto del servizio</string>
@@ -183,4 +183,6 @@
     <string name="security_service_section">Servizio API</string>
     <string name="security_transfer_section">Trasferimento del proprietario</string>
     <string name="quick_activate_pending_restore">! Procedura guidata non ripristinata, esegui il ripristino manuale !</string>
+    <string name="use_legacy_version">Usa il nome versione compatibile precedente</string>
+    <string name="use_legacy_version_desc">Segnala ai client la versione di Dhizuku originale. Alcune app controllano la versione; disattiva per segnalare la versione di questa app.</string>
 </resources>

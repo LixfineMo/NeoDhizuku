@@ -4,6 +4,7 @@ import android.util.Log
 
 import com.neodhizuku.more.data.settings.model.room.DhizukuRoom
 import com.neodhizuku.more.data.settings.model.room.entity.RuntimeLogEntity
+import com.neodhizuku.more.data.settings.repo.SettingsRepo
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,10 +85,74 @@ object NeoLog : KoinComponent {
 
     private fun enabled(): Boolean = NeoDhizuku.on(NeoDhizuku.DebugLog)
 
+    /**
+     * 是否记录全部运行日志。
+     *
+     * 由「实验性功能 → 完整运行日志」控制，默认关闭。
+     * 关闭时只保留权限调用、权限变更与激活相关的日志，
+     * 其余分类（导航、主题、界面、守护、首页、软件）一律不输出也不落库。
+     */
+    @Volatile
+    private var verboseLog = false
+
+    /** 精简模式下保留的分类 */
+    private val essentialSubs = setOf(PERM, ACTIVATE, SERVER)
+
+    /** SERVER 分类里属于权限调用或高风险操作的关键字 */
+    private val serverEssentialKeys = listOf(
+        "remote_transact", "provider", "check", "wipe", "擦除",
+        "转移", "委派", "授权", "拒绝", "允许"
+    )
+
+    /**
+     * 切换记录模式。
+     *
+     * 这条提示走系统 Log 直写，不经过下面的过滤规则，
+     * 保证开关是否生效一眼可见。
+     */
+    private fun onVerboseChanged(value: Boolean) {
+        verboseLog = value
+        Log.i(TAG, "[Log] 运行日志模式=${if (value) "完整" else "精简"}")
+    }
+
+    /**
+     * 订阅「完整运行日志」开关。
+     *
+     * 由 App.onCreate 调用一次。订阅前先同步读一次当前值，
+     * 否则启动阶段早于首次发射的日志会按精简模式丢掉。
+     */
+    @JvmStatic
+    fun bindVerboseLog() {
+        val repo = runCatching { get<SettingsRepo>() }.getOrNull()
+        if (repo == null) {
+            Log.w(TAG, "[Log] 设置库不可用，运行日志保持精简模式")
+            return
+        }
+        onVerboseChanged(runCatching { repo.isExperimentalVerboseLog }.getOrDefault(false))
+        ioScope.launch {
+            runCatching {
+                repo.flowExperimentalVerboseLog().collect { onVerboseChanged(it) }
+            }.onFailure {
+                Log.w(TAG, "[Log] 订阅完整运行日志开关失败：${it.message}")
+            }
+        }
+    }
+
+    /** 第一层过滤：按分类粗筛，避免不必要的字符串拼接 */
+    private fun keepClass(sub: String): Boolean = verboseLog || sub in essentialSubs
+
+    /** 第二层过滤：SERVER 分类按内容筛，只留权限调用与高风险操作 */
+    private fun keepContent(sub: String, text: String): Boolean {
+        if (verboseLog) return true
+        if (sub != SERVER) return true
+        return serverEssentialKeys.any { text.contains(it) }
+    }
+
     @JvmStatic
     fun v(sub: String, msg: () -> String) {
-        if (enabled()) {
+        if (enabled() && keepClass(sub)) {
             val text = msg()
+            if (!keepContent(sub, text)) return
             Log.v(TAG, "[$sub] $text")
             onLine("V", sub, text)
         }
@@ -95,8 +160,9 @@ object NeoLog : KoinComponent {
 
     @JvmStatic
     fun d(sub: String, msg: () -> String) {
-        if (enabled()) {
+        if (enabled() && keepClass(sub)) {
             val text = msg()
+            if (!keepContent(sub, text)) return
             Log.d(TAG, "[$sub] $text")
             onLine("D", sub, text)
         }
@@ -104,8 +170,9 @@ object NeoLog : KoinComponent {
 
     @JvmStatic
     fun i(sub: String, msg: () -> String) {
-        if (enabled()) {
+        if (enabled() && keepClass(sub)) {
             val text = msg()
+            if (!keepContent(sub, text)) return
             Log.i(TAG, "[$sub] $text")
             onLine("I", sub, text)
         }
@@ -113,8 +180,9 @@ object NeoLog : KoinComponent {
 
     @JvmStatic
     fun w(sub: String, msg: () -> String) {
-        if (enabled()) {
+        if (enabled() && keepClass(sub)) {
             val text = msg()
+            if (!keepContent(sub, text)) return
             Log.w(TAG, "[$sub] $text")
             onLine("W", sub, text)
         }
@@ -122,13 +190,15 @@ object NeoLog : KoinComponent {
 
     @JvmStatic
     fun e(sub: String, msg: () -> String, tr: Throwable? = null) {
-        if (!enabled()) return
+        if (!enabled() || !keepClass(sub)) return
+        val base = msg()
+        if (!keepContent(sub, base)) return
         val text = if (tr != null) {
-            Log.e(TAG, "[$sub] ${msg()}", tr)
-            "${msg()} | ${tr.javaClass.simpleName}: ${tr.message}"
+            Log.e(TAG, "[$sub] $base", tr)
+            "$base | ${tr.javaClass.simpleName}: ${tr.message}"
         } else {
-            Log.e(TAG, "[$sub] ${msg()}")
-            msg()
+            Log.e(TAG, "[$sub] $base")
+            base
         }
         onLine("E", sub, text)
     }
@@ -136,13 +206,14 @@ object NeoLog : KoinComponent {
     /**
      * 写入缓冲，并按级别决定是否落库。
      *
-     * V / D 只进内存缓冲（量太大，落库会迅速撑爆表）；
-     * I / W / E 同时进入待落库队列。
+     * 精简模式下 V / D 只进内存缓冲（量太大，落库会迅速撑爆表），
+     * 只有 I / W / E 落库；完整模式下全部级别都落库，
+     * 否则导航、主题一类以 V / D 输出的日志在「运行日志」里永远看不到。
      */
     private fun onLine(level: String, sub: String, message: String) {
         val line = Line(level, sub, message)
         val shouldPersist = NeoDhizuku.on(NeoDhizuku.UseRuntimeLogPersist) &&
-            (level == "I" || level == "W" || level == "E")
+            (verboseLog || level == "I" || level == "W" || level == "E")
         ioScope.launch {
             bufferMutex.withLock {
                 buffer.addLast(line)

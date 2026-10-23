@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.neodhizuku.more.BuildConfig
 import com.neodhizuku.more.NeoDhizuku
+import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.data.common.util.has
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import kotlinx.coroutines.CoroutineScope
@@ -27,8 +28,27 @@ import java.util.concurrent.atomic.AtomicBoolean
 data object DhizukuState : KoinComponent {
 
     private val settingsRepo: SettingsRepo by inject()
-    data class State(val isDeviceOwner: Boolean = false, val isProfileOwner: Boolean = false) {
+    /**
+     * 当前身份状态。
+     *
+     * [isOwner] 的语义保持原样（拥有所有者权限），大量既有逻辑依赖它：
+     * 服务启停、授权校验、所有者转移拦截都以它为"完全激活"的判据，
+     * 把设备管理员算进去会连带影响这三条链路，因此另设 [isActive]。
+     */
+    data class State(
+        val isDeviceOwner: Boolean = false,
+        val isProfileOwner: Boolean = false,
+        val isDeviceAdmin: Boolean = false
+    ) {
+        /** 是否拥有所有者权限（设备所有者或资料管理员），语义不变 */
         val isOwner = isDeviceOwner || isProfileOwner
+
+        /** 是否至少具备某种身份、可以开启服务 */
+        val isActive = isOwner || isDeviceAdmin
+
+        /** 能力等级 */
+        val level: CapabilityLevel
+            get() = CapabilityLevel.resolve(isDeviceOwner, isProfileOwner, isDeviceAdmin)
     }
 
     var state by mutableStateOf(State())
@@ -48,11 +68,32 @@ data object DhizukuState : KoinComponent {
     fun sync(context: Context) {
         val dpm =
             context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val isDeviceOwner = runCatching { dpm.isDeviceOwnerApp(admin.packageName) }
+            .getOrDefault(false)
+        val isProfileOwner = runCatching { dpm.isProfileOwnerApp(admin.packageName) }
+            .getOrDefault(false)
+        val isDeviceAdmin = runCatching { dpm.isAdminActive(admin) }
+            .getOrDefault(false)
+
         val next = State(
-            isDeviceOwner = dpm.isDeviceOwnerApp(admin.packageName),
-            isProfileOwner = dpm.isProfileOwnerApp(admin.packageName)
+            isDeviceOwner = isDeviceOwner,
+            isProfileOwner = isProfileOwner,
+            isDeviceAdmin = isDeviceAdmin
         )
+        val previous = state
         state = next
+
+        NeoLog.i(NeoLog.DAEMON) {
+            "状态: deviceOwner=$isDeviceOwner profileOwner=$isProfileOwner " +
+                "deviceAdmin=$isDeviceAdmin level=${next.level} " +
+                "enabled=${runCatching { settingsRepo.isDhizukuEnabled }.getOrDefault(true)} " +
+                "whitelist=${runCatching { settingsRepo.isWhitelistMode }.getOrDefault(false)}"
+        }
+        if (previous.level != next.level) {
+            NeoLog.i(NeoLog.DAEMON) {
+                "能力等级变化: ${previous.level} -> ${next.level}"
+            }
+        }
 
         if (NeoDhizuku.on(NeoDhizuku.FixSyncOffMainThread)) {
             // 只把"计算状态"留在调用线程，副作用全部异步串行执行
@@ -140,6 +181,16 @@ data object DhizukuState : KoinComponent {
         null
     }
 
+    /**
+     * 同步拉起守护服务，供 BroadcastReceiver 在 onReceive 内调用。
+     *
+     * [sync] 的副作用跑在 IO 协程上，开机这种冷启动场景下协程可能来不及执行，
+     * 进程就已经被回收。接收器必须有一个同步入口把服务启动请求发出去。
+     */
+    fun startDaemonNow(context: Context) {
+        autoDaemonService(context.applicationContext, state)
+    }
+
     private fun autoDaemonService(context: Context, current: State = state) {
         val intent = Intent(context, DaemonService::class.java)
 
@@ -155,14 +206,16 @@ data object DhizukuState : KoinComponent {
 
         if (NeoDhizuku.on(NeoDhizuku.FixDuplicateStartService)) {
             // 只启动一次，否则 onCreate 里的清理协程会并发跑两遍
-            if (current.isOwner) {
+            // 设备管理员也算"已激活"：服务开启后第三方可以拿到 binder，
+            // 能执行哪些方法由能力等级在服务侧判定（见 CapabilityLevel）
+            if (current.isActive) {
                 runCatching { context.startForegroundService(intent) }
                     .onFailure { Log.w("Dhizuku", "startForegroundService failed", it) }
             } else {
                 runCatching { context.stopService(intent) }
             }
         } else {
-            if (current.isOwner) {
+            if (current.isActive) {
                 context.startService(intent)
                 context.startForegroundService(intent)
             } else context.stopService(intent)

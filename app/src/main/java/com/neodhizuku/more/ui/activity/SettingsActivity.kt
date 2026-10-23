@@ -56,11 +56,20 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
     /** 电池优化弹窗只在首次（用户未曾处理过）时引导一次，不再每次冷启动都弹 */
     private val batteryPromptShownKey = "battery_optimization_prompted"
 
+    // 语言必须在界面建立之前套上，否则切换后要等下次冷启动才生效。
+    // 放在这里而不是 onCreate 里创建 Context，是因为 attachBaseContext
+    // 是唯一早于资源加载的时机。
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(
+            com.neodhizuku.more.data.common.util.LocaleHelper.wrap(newBase)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
 
         // ActivityResultLauncher 必须在 Activity 进入 CREATED 之前注册，
-        // 原实现放在 setContent 之后，部分 androidx 版本会直接抛 IllegalStateException。
+        // 放在 setContent 之后的话，部分 androidx 版本会直接抛 IllegalStateException。
         if (NeoDhizuku.on(NeoDhizuku.FixLauncherRegisterOrder)) {
             stringLauncher = registerForActivityResult(RequestPermission()) { _: Boolean -> }
         }

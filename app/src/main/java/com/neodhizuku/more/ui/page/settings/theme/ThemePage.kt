@@ -118,8 +118,7 @@ fun ThemePage(
 
                         AnimatedVisibility(visible = modeExpanded) {
                             Column(modifier = Modifier.fillMaxWidth()) {
-                                // 列出全部模式：此前用 filter 排除了当前项，
-                                // 导致"选中哪个哪个就从列表里消失"——
+                                // 必须列出全部模式：若用 filter 排除当前项，
                                 // 用户点选后该项变成当前值，下次展开就找不到了。
                                 ThemeMode.entries
                                     .forEach { mode ->

@@ -168,7 +168,7 @@
     <string name="call_log_retention_90">90 يومًا</string>
     <string name="call_log_retention_forever">دائمًا</string>
     <string name="call_log_empty_runtime">لا توجد سجلات تشغيل</string>
-    <string name="settings_security_section">سياسة الخدمة</string>
+    <string name="settings_security_section">الخدمة</string>
     <!-- 服务启停 -->
     <string name="home_service_stopped">تم رفض الخدمة</string>
     <string name="home_restart_service">إعادة تشغيل الخدمة</string>
@@ -205,7 +205,7 @@
     <string name="quick_activate_result_ok">نجح</string>
     <string name="quick_activate_result_fail">لم يكتمل</string>
     <string name="quick_activate_success">تم تنشيط مالك الجهاز</string>
-    <string name="security_title">سياسة الخدمة</string>
+    <string name="security_title">الخدمة</string>
     <string name="settings_security_desc">مفتاح خدمة API، القائمة البيضاء، السلوك بعد إغلاق الخدمة، نقل مالك الجهاز</string>
     <string name="security_deny_section">خيارات الرفض</string>
     <string name="security_deny_mode_title">السلوك بعد إغلاق الخدمة</string>
@@ -230,4 +230,6 @@
 
     <string name="quick_activate_pending_restore">!لم يتم استعادة معالج الإعداد، يُرجى تنفيذ الاستعادة اليدوية!</string>
 
+    <string name="use_legacy_version">استخدام اسم الإصدار المتوافق القديم</string>
+    <string name="use_legacy_version_desc">إبلاغ العملاء بإصدار Dhizuku الأصلي. بعض التطبيقات تتحقق من الإصدار؛ عطّل هذا لإبلاغ إصدار هذا التطبيق.</string>
 </resources>

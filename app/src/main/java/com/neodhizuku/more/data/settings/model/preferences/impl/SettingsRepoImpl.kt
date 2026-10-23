@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.data.common.util.asFlow
 import com.neodhizuku.more.data.settings.repo.DenyMode
+import com.neodhizuku.more.data.settings.repo.InsufficientMode
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
@@ -112,14 +113,66 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
             putBoolean("service_stopped_by_user", value)
         }
 
+    override var insufficientMode: String
+        get() = prefs.getString("insufficient_mode", InsufficientMode.DEFAULT.name)
+            ?: InsufficientMode.DEFAULT.name
+        set(value) = prefs.edit(true) {
+            putString("insufficient_mode", value)
+        }
+
     override fun flowDenyMode(): Flow<String> =
         prefs.asFlow("deny_mode", DenyMode.DEFAULT.name)
+
+    override fun flowUseLegacyVersion(): Flow<Boolean> =
+        prefs.asFlow("use_legacy_version", true)
+
+    override var isUseLegacyVersion: Boolean
+        get() = prefs.getBoolean("use_legacy_version", true)
+        set(value) = prefs.edit(true) {
+            putBoolean("use_legacy_version", value)
+        }
 
     override var denyMode: String
         get() = prefs.getString("deny_mode", DenyMode.DEFAULT.name)
             ?: DenyMode.DEFAULT.name
         set(value) = prefs.edit(true) {
             putString("deny_mode", value)
+        }
+
+    override fun flowExperimentalQuickActivateFix(): Flow<Boolean> =
+        prefs.asFlow("exp_quick_activate_fix", false)
+
+    override fun flowExperimentalDelegationCleanup(): Flow<Boolean> =
+        prefs.asFlow("exp_delegation_cleanup", false)
+
+    override fun flowExperimentalVerboseLog(): Flow<Boolean> =
+        prefs.asFlow("exp_verbose_log", false)
+
+    override fun flowUpdateAllowPreRelease(): Flow<Boolean> =
+        prefs.asFlow("update_allow_pre_release", false)
+
+    override var isUpdateAllowPreRelease: Boolean
+        get() = prefs.getBoolean("update_allow_pre_release", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("update_allow_pre_release", value)
+        }
+
+    override var isExperimentalQuickActivateFix: Boolean
+        get() = prefs.getBoolean("exp_quick_activate_fix", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("exp_quick_activate_fix", value)
+        }
+
+    override var isExperimentalDelegationCleanup: Boolean
+        get() = prefs.getBoolean("exp_delegation_cleanup", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("exp_delegation_cleanup", value)
+        }
+
+    override var isExperimentalVerboseLog: Boolean
+        get() = prefs.getBoolean("exp_verbose_log", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("exp_verbose_log", value)
         }
 
     private companion object {

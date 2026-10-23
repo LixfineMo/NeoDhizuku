@@ -25,9 +25,12 @@ import com.neodhizuku.more.ui.component.NavDestination
 import com.neodhizuku.more.ui.page.settings.activate.ActivatePage
 import com.neodhizuku.more.ui.page.settings.security.SecurityPage
 import com.neodhizuku.more.ui.page.settings.quickactivate.QuickActivatePage
+import com.neodhizuku.more.ui.page.settings.about.AboutPage
 import com.neodhizuku.more.ui.page.settings.app_management.AppManagementPage
 import com.neodhizuku.more.ui.page.settings.blocklist.BlocklistPage
 import com.neodhizuku.more.ui.page.settings.calllog.CallLogPage
+import com.neodhizuku.more.ui.page.settings.delegation.DelegationPage
+import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalPage
 import com.neodhizuku.more.ui.page.settings.home.HomePage
 import com.neodhizuku.more.ui.page.settings.theme.ThemePage
 // 容器页本身也叫 SettingsPage，与子页同名；用别名避免解析歧义
@@ -39,7 +42,8 @@ fun SettingsPage(windowInsets: WindowInsets) {
     val navController = rememberNavController()
 
     val useNavBar = NeoDhizuku.on(NeoDhizuku.UseFloatingNavBar)
-    val isOwner = DhizukuState.state.isOwner
+    // 设备管理员也算已激活，底栏与管理入口同样可用
+    val isOwner = DhizukuState.state.isActive
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -137,6 +141,18 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     navController = navController
                 )
             }
+            composable(route = SettingsRoute.Experimental.route) {
+                ExperimentalPage(
+                    windowInsets = windowInsets,
+                    navController = navController
+                )
+            }
+            composable(route = SettingsRoute.Delegation.route) {
+                DelegationPage(
+                    windowInsets = windowInsets,
+                    navController = navController
+                )
+            }
             composable(route = SettingsRoute.Settings.route) {
                 SettingsScreen(
                     windowInsets = windowInsets,
@@ -146,6 +162,12 @@ fun SettingsPage(windowInsets: WindowInsets) {
             composable(route = SettingsRoute.Theme.route) {
                 ThemePage(
                     context = LocalContext.current.applicationContext,
+                    navController = navController
+                )
+            }
+            composable(route = SettingsRoute.About.route) {
+                AboutPage(
+                    windowInsets = windowInsets,
                     navController = navController
                 )
             }

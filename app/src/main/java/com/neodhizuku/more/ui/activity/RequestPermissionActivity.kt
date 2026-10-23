@@ -234,8 +234,8 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
     override fun finish() {
         if (neoPermissionWrite) {
             // 同步落库 + 结果只回调一次。
-            // 原实现在 finish() 之后异步写库，进程随时可能被回收 → 用户点了"同意"下次仍弹窗；
-            // 且 finish() 有 5 处调用点，listener 会被回调多次（先 GRANTED 后 DENIED）。
+            // 异步写库在进程被回收时会丢失，用户点了"同意"下次仍弹窗；
+            // 且 finish() 有多处调用点，listener 会被回调多次（先 GRANTED 后 DENIED）。
             if (!resultSent.compareAndSet(false, true)) {
                 super.finish()
                 return

@@ -119,6 +119,7 @@
     <!-- NeoDhizuku: UI-06 首页服务状态 -->
     <string name="home_stat_authorized_apps">Authorized apps</string>
     <string name="home_stat_uptime">Uptime</string>
+    <string name="home_device_admin_notice">Device admin only: third-party apps cannot finish Dhizuku initialization, because the client API accepts a device owner or profile owner only. Activate as device owner to share the permission.</string>
     <string name="home_status_version">Version: %1$s</string>
     <!-- NeoDhizuku: UI-07 设置页管理分区 -->
     <string name="settings_manage_section">Management</string>
@@ -168,7 +169,7 @@
     <string name="call_log_retention_90">90 days</string>
     <string name="call_log_retention_forever">Forever</string>
     <string name="call_log_empty_runtime">No runtime logs</string>
-    <string name="settings_security_section">Service policy</string>
+    <string name="settings_security_section">Service</string>
     <!-- 服务启停 -->
     <string name="home_service_stopped">Service refused</string>
     <string name="home_restart_service">Restart service</string>
@@ -205,7 +206,7 @@
     <string name="quick_activate_result_ok">Succeeded</string>
     <string name="quick_activate_result_fail">Not completed</string>
     <string name="quick_activate_success">Device owner activated</string>
-    <string name="security_title">Service policy</string>
+    <string name="security_title">Service</string>
     <string name="settings_security_desc">API service switch, whitelist, behavior after the service is closed, device owner transfer</string>
     <string name="security_deny_section">Refusal options</string>
     <string name="security_deny_mode_title">Behavior after the service is closed</string>
@@ -230,4 +231,145 @@
 
     <string name="quick_activate_pending_restore">!Setup wizard not restored, please run manual restore!</string>
 
+
+    <!-- 关于页 -->
+    <string name="about_title">About</string>
+    <string name="about_card_version_title">Version</string>
+    <string name="about_card_detail_title">Details</string>
+    <string name="about_version_name">Version name</string>
+    <string name="about_version_code">Version code</string>
+    <string name="about_build_type">Build type</string>
+    <string name="about_build_type_debug">Debug</string>
+    <string name="about_build_type_release">Release</string>
+    <string name="about_package_name">Package name</string>
+    <string name="about_android_version">Android version</string>
+    <string name="about_api_level">API level</string>
+    <string name="about_device">Device</string>
+    <string name="about_activation">Activation</string>
+    <string name="about_not_activated">Not activated</string>
+    <string name="about_service_state">Service</string>
+    <string name="about_service_running">Running</string>
+    <string name="about_service_stopped">Stopped</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_qq_group">QQ group</string>
+
+    <!-- 设置 → 软件 -->
+    <string name="settings_software_section">Software</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_desc">Choose the interface language</string>
+    <string name="settings_language_system">Follow system</string>
+    <string name="settings_language_partial">partial</string>
+    <string name="settings_about_desc">Version, device and feedback links</string>
+
+
+    <!-- 能力等级 -->
+    <string name="capability_device_owner">Device owner</string>
+    <string name="capability_device_owner_temp">%1$s (temporary)</string>
+    <string name="capability_device_admin">Device admin</string>
+    <string name="home_status_inactive">Not activated</string>
+
+    <!-- 服务策略：能力不足 -->
+    <string name="security_insufficient_section">When capability is insufficient</string>
+    <string name="security_insufficient_mode">Admin mode</string>
+    <string name="security_insufficient_note">Applies only when the current identity cannot perform a requested action \(for example, requesting an owner-only operation while only device admin\). The attempt is always logged, regardless of the chosen response.</string>
+    <string name="insufficient_mode_fail">Return failure</string>
+    <string name="insufficient_mode_fail_desc">The caller receives an error. Recommended — avoids silent no-ops.</string>
+    <string name="insufficient_mode_success">Return success without executing</string>
+    <string name="insufficient_mode_success_desc">The caller believes it succeeded, but nothing happens. For apps that crash on errors.</string>
+    <string name="insufficient_mode_no_action">Do nothing \(hang\)</string>
+    <string name="insufficient_mode_no_action_desc">No response is sent; the caller waits indefinitely.</string>
+
+    <!-- 擦除拦截 -->
+    <string name="alert_wipe_blocked_title">Wipe request blocked</string>
+    <string name="alert_wipe_blocked_text">Blocked a request from \"%1$s\" to wipe device data</string>
+    <string name="wipe_warn1_title">Irreversible operation</string>
+    <string name="wipe_warn1_text">\"%1$s\" is requesting to wipe all device data. This erases accounts, apps, photos and files, and cannot be undone.</string>
+    <string name="wipe_warn2_title">Please confirm again</string>
+    <string name="wipe_warn2_text">Are you sure you want to let \"%1$s\" wipe this device? This is your second and final warning.</string>
+    <string name="wipe_warn_continue">Continue</string>
+    <string name="wipe_warn_cancel">Cancel</string>
+    <string name="wipe_warn_i_confirm">I confirm</string>
+    <string name="wipe_confirm_title">Confirm device wipe</string>
+    <string name="wipe_confirm_requester">Requester: %1$s</string>
+    <string name="wipe_confirm_detail">This will erase all data on the device. There is no way to recover afterwards.</string>
+    <string name="wipe_confirm_checkbox">I understand the consequences and accept them</string>
+    <string name="wipe_confirm_reject">Reject</string>
+    <string name="wipe_confirm_allow">Allow once</string>
+    <string name="wipe_confirm_hint">Once allowed, the caller may retry within 5 minutes. The grant is single-use and then expires.</string>
+
+
+    <!-- 设备管理员激活 -->
+    <string name="activate_device_admin_title">Activate as device admin</string>
+    <string name="activate_device_admin_desc">Granted in system settings, works on all Android versions. Limited capabilities \(see service policy\).</string>
+    <string name="activate_device_admin_already">Device admin is active. Some actions still require device owner.</string>
+    <string name="activate_device_admin_action">Open wizard</string>
+    <string name="activate_device_admin_settings">System settings</string>
+    <string name="activate_device_admin_explanation">Grant device admin so this app can share a limited set of device policy capabilities.</string>
+
+    <string name="use_legacy_version">Use the legacy compatible version name</string>
+    <string name="use_legacy_version_desc">Report the upstream Dhizuku version to clients. Some apps check the version; disable this to report the version of this app.</string>
+    <!-- 设置 → 灰度功能 → 实验性功能 -->
+    <string name="settings_gray_section">Gray features</string>
+    <string name="experimental_title">Experimental features</string>
+    <string name="settings_experimental_desc">Unverified fixes and high-risk behaviour</string>
+    <string name="experimental_note_title">Not verified yet</string>
+    <string name="experimental_note_dsp">These options are off by default. Turning one on switches that code path to the fixed implementation; leaving it off keeps the original behaviour. Use them only if you can tolerate the risk.</string>
+    <string name="experimental_quick_activate_fix">Fix activation without removing accounts</string>
+    <string name="experimental_quick_activate_fix_desc">Adds the missing pre-check, runtime signature matching and state recovery to that flow</string>
+    <string name="experimental_delegation_cleanup">Clean up leftovers from permission delegation</string>
+    <string name="experimental_delegation_cleanup_desc">When revoking an app, also undo the hidden, suspended and permission-lock states it already applied</string>
+    <string name="experimental_verbose_log">Full runtime log</string>
+    <string name="experimental_verbose_log_desc">When off, the runtime log only keeps permission calls, permission changes and activation. Turn on to record every category</string>
+    <string name="experimental_enable_warning">These features may be unsafe or cause bugs, and could lead to serious consequences. Confirm whether you want to enable it!</string>
+    <string name="experimental_enable_confirm">Enable</string>
+    <string name="delegation_title">Delegation management</string>
+    <string name="delegation_entry_dsp">View which apps hold delegated device-owner capabilities, and grant them to other apps</string>
+    <string name="delegation_note_title">Use with care</string>
+    <string name="delegation_note_dsp">Delegation lets an ordinary app call a limited set of device-owner operations. It is independent of the authorization switch here, so revoking access in this app does not withdraw capabilities that were already delegated. Apps normally request delegation by themselves; you can also grant it to them here.</string>
+    <string name="delegation_owner_required">Device owner is required to read or change delegation.</string>
+    <string name="delegation_section_granted">Delegated</string>
+    <string name="delegation_section_others">Other apps</string>
+    <string name="delegation_granted_empty">No app currently holds delegated scopes.</string>
+    <string name="delegation_others_empty">No other app available for delegation.</string>
+    <string name="delegation_not_delegated">Holds no delegated scope</string>
+    <string name="delegation_grant_hint">Select the scopes to delegate to this app.</string>
+    <string name="delegation_empty">No app currently holds delegated scopes.</string>
+    <string name="delegation_loading">Scanning installed apps...</string>
+    <string name="delegation_clear_all">Clear all delegation</string>
+    <string name="delegation_clear">Clear</string>
+    <string name="delegation_save">Save</string>
+    <string name="delegation_saved">Delegation saved</string>
+    <string name="delegation_cleared">Delegation cleared</string>
+    <string name="delegation_failed">Operation failed, see the log for details</string>
+    <string name="delegation_scope_unknown">Other scope</string>
+    <string name="delegation_scope_unknown_desc">Not yet covered by this list</string>
+    <string name="delegation_scope_app_restrictions">App restrictions</string>
+    <string name="delegation_scope_app_restrictions_desc">Set managed configuration for other apps</string>
+    <string name="delegation_scope_block_uninstall">Block uninstall</string>
+    <string name="delegation_scope_block_uninstall_desc">Prevent an app from being uninstalled</string>
+    <string name="delegation_scope_permission_granting">Permission granting</string>
+    <string name="delegation_scope_permission_granting_desc">Lock runtime permissions; these show as greyed out in Settings</string>
+    <string name="delegation_scope_package_access">Package access (freeze)</string>
+    <string name="delegation_scope_package_access_desc">Hide or suspend apps; affected apps vanish from Settings</string>
+    <string name="delegation_scope_enable_system_apps">Enable system apps</string>
+    <string name="delegation_scope_enable_system_apps_desc">Re-enable disabled system apps</string>
+    <string name="delegation_scope_cert_install">Certificate install</string>
+    <string name="delegation_scope_network_logging">Network logging</string>
+    <string name="delegation_scope_security_logging">Security logging</string>
+    <string name="delegation_scope_cert_selection">Certificate selection</string>
+    <string name="delegation_scope_install_existing_package">Install existing package</string>
+    <string name="update_title">Check for updates</string>
+    <string name="update_current">Current version</string>
+    <string name="update_check">Check</string>
+    <string name="update_checking">Checking...</string>
+    <string name="update_no_update">Already up to date</string>
+    <string name="update_failed">Check failed, see the log for details</string>
+    <string name="update_gray_switch">Get grey and pre-release updates</string>
+    <string name="update_gray_switch_desc">Alpha, beta and grey builds are only offered when this is on</string>
+    <string name="update_found_title">New version available</string>
+    <string name="update_prerelease_title">Pre-release version available</string>
+    <string name="update_prerelease_dsp">This build is marked as alpha, beta or grey release. Turn on the switch above to receive it, or open the repository to download it manually.</string>
+    <string name="update_download">Download</string>
+    <string name="update_open_repo">Open repository</string>
+    <string name="delegation_search_hint">Search by app name or package name</string>
 </resources>

@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.settings.repo.DenyMode
+import com.neodhizuku.more.data.settings.repo.InsufficientMode
 import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
@@ -106,6 +107,13 @@ fun SecurityPage(
                             checked = viewModel.state.whitelistMode,
                             onCheckedChange = viewModel::setWhitelistMode
                         )
+                        androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        SwitchEntry(
+                            title = stringResource(R.string.use_legacy_version),
+                            desc = stringResource(R.string.use_legacy_version_desc),
+                            checked = viewModel.state.useLegacyVersion,
+                            onCheckedChange = viewModel::setUseLegacyVersion
+                        )
                     }
                 }
             }
@@ -148,6 +156,7 @@ fun SecurityPage(
                                 }
                             }
                         }
+
                     }
                 }
             }
@@ -307,5 +316,70 @@ private fun denyModeDesc(mode: DenyMode): String = stringResource(
         DenyMode.DENY_ALL_FAIL -> R.string.deny_mode_all_fail_desc
         DenyMode.DENY_ALL_SUCCESS -> R.string.deny_mode_all_success_desc
         DenyMode.NO_ACTION -> R.string.deny_mode_no_action_desc
+    }
+)
+
+/** 能力不足处理的选择器头部，样式与 [DenyModeSelector] 一致。暂不在界面展示。 */
+@Suppress("unused")
+@Composable
+private fun InsufficientSelector(
+    current: InsufficientMode,
+    expanded: Boolean,
+    onToggle: () -> Unit
+) {
+    Surface(
+        onClick = onToggle,
+        color = Color.Transparent,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.security_insufficient_mode),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    stringResource(R.string.security_insufficient_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    insufficientLabel(current),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Icon(
+                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp
+                else Icons.Filled.KeyboardArrowDown,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Suppress("unused")
+@Composable
+private fun insufficientLabel(mode: InsufficientMode): String = stringResource(
+    when (mode) {
+        InsufficientMode.RETURN_FAIL -> R.string.insufficient_mode_fail
+        InsufficientMode.RETURN_SUCCESS -> R.string.insufficient_mode_success
+        InsufficientMode.NO_ACTION -> R.string.insufficient_mode_no_action
+    }
+)
+
+@Suppress("unused")
+@Composable
+private fun insufficientDesc(mode: InsufficientMode): String = stringResource(
+    when (mode) {
+        InsufficientMode.RETURN_FAIL -> R.string.insufficient_mode_fail_desc
+        InsufficientMode.RETURN_SUCCESS -> R.string.insufficient_mode_success_desc
+        InsufficientMode.NO_ACTION -> R.string.insufficient_mode_no_action_desc
     }
 )

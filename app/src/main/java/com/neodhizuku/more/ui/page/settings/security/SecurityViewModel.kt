@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import com.neodhizuku.more.data.settings.repo.DenyMode
+import com.neodhizuku.more.data.settings.repo.InsufficientMode
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,11 @@ class SecurityViewModel : ViewModel(), KoinComponent {
                 state = state.copy(whitelistMode = enabled)
             }
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowUseLegacyVersion().collect { legacy ->
+                state = state.copy(useLegacyVersion = legacy)
+            }
+        }
     }
 
     fun setAllowOwnerTransfer(enabled: Boolean) {
@@ -62,9 +68,33 @@ class SecurityViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * 能力不足时的处理方式。
+     *
+     * 注意：本模式只在**非设备所有者**身份下才有意义 ——
+     * 设备所有者可以执行全部方法，不存在能力不足。
+     */
+    fun setInsufficientMode(mode: InsufficientMode) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.insufficientMode = mode.name
+        }
+    }
+
     fun setWhitelistMode(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isWhitelistMode = enabled
+        }
+    }
+
+    /**
+     * 向客户端返回的版本号来源。
+     *
+     * 开启时返回上游 Dhizuku 的版本，关闭时返回本项目自身的版本。
+     * 默认开启：部分客户端会校验版本，返回本项目的版本可能被判定为不兼容。
+     */
+    fun setUseLegacyVersion(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.isUseLegacyVersion = enabled
         }
     }
 }
@@ -76,5 +106,9 @@ data class SecurityViewState(
     /** API 服务总开关：关闭时第三方一律无法使用 */
     val dhizukuEnabled: Boolean = true,
     /** 仅允许白名单应用使用 */
-    val whitelistMode: Boolean = false
+    val whitelistMode: Boolean = false,
+    /** 能力不足时的处理 */
+    val insufficientMode: InsufficientMode = InsufficientMode.DEFAULT,
+    /** 返回上游 Dhizuku 的版本号，默认开启 */
+    val useLegacyVersion: Boolean = true
 )

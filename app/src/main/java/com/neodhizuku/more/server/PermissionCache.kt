@@ -9,7 +9,7 @@ import org.koin.core.component.inject
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * A-16 修复：把授权表在内存里缓存一份，避免每次 API 调用都在 Binder 线程上
+ * 把授权表在内存里缓存一份，避免每次 API 调用都在 Binder 线程上
  * runBlocking 地查一次 Room（首次还涉及开库 / 迁移）。
  *
  * 由 DaemonService 在启动时全量载入，并在包安装 / 卸载 / 变更广播时增量更新。

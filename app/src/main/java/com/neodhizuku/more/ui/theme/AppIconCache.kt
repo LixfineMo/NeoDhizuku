@@ -35,9 +35,8 @@ object AppIconCache : KoinComponent {
     private val lruCache by lazy {
         val maxMemory = Runtime.getRuntime().maxMemory() / 1024
         if (NeoDhizuku.on(NeoDhizuku.FixAppIconCache)) {
-            // 原实现 maxSize 单位是 KB，而 sizeOf 返回值既不是 byte 也不是 KB
-            // （byteCount / 4），对 256×256 图标得到 ≈65536，与 maxSize 相当
-            // → 缓存只能放下 1 个图标，等于完全没有缓存。
+            // maxSize 单位是 KB，sizeOf 也必须以 KB 计，两者单位要一致，
+            // 否则缓存只能放下 1 个图标，等于完全没有缓存。
             // 这里统一成 KB，并留出 1/8 堆给图标。
             val availableCacheSize = (maxMemory / 8).toInt()
             object : LruCache<String, Bitmap>(availableCacheSize) {

@@ -7,7 +7,10 @@ sealed class SettingsRoute(val route: String) {
     data object CallLog : SettingsRoute("call_log")
     data object Settings : SettingsRoute("settings")
     data object Security : SettingsRoute("security")
+    data object Experimental : SettingsRoute("experimental")
+    data object Delegation : SettingsRoute("delegation")
     data object Theme : SettingsRoute("theme")
+    data object About : SettingsRoute("about")
     data object QuickActivate : SettingsRoute("quick_activate")
     data object Activate : SettingsRoute("activate/{mode}") {
         enum class Mode {

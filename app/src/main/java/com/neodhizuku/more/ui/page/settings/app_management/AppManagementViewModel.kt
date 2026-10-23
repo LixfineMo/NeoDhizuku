@@ -57,7 +57,7 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
                 val flags = PackageManager.GET_META_DATA or PackageManager.GET_PERMISSIONS
 
                 if (NeoDhizuku.on(NeoDhizuku.FixAppManagementPerf)) {
-                    // 原实现对每个已安装包执行一次 `it.find { it.uid == uid }`（线性查找），
+                    // 对每个已安装包执行一次 `it.find { it.uid == uid }` 是线性查找，
                     // 复杂度 O(n·m)。这里先把授权表转成 Map。
                     val entityMap = it.associateBy { entity -> entity.uid }
                     val data = buildList<AppManagementViewData> {

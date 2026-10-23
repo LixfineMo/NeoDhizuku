@@ -168,7 +168,7 @@
     <string name="call_log_retention_90">90 ngày</string>
     <string name="call_log_retention_forever">Vĩnh viễn</string>
     <string name="call_log_empty_runtime">Không có nhật ký hoạt động</string>
-    <string name="settings_security_section">Chính sách dịch vụ</string>
+    <string name="settings_security_section">Dịch vụ</string>
     <!-- 服务启停 -->
     <string name="home_service_stopped">Dịch vụ bị từ chối</string>
     <string name="home_restart_service">Khởi động lại dịch vụ</string>
@@ -205,7 +205,7 @@
     <string name="quick_activate_result_ok">Thành công</string>
     <string name="quick_activate_result_fail">Chưa hoàn tất</string>
     <string name="quick_activate_success">Đã kích hoạt chủ sở hữu thiết bị</string>
-    <string name="security_title">Chính sách dịch vụ</string>
+    <string name="security_title">Dịch vụ</string>
     <string name="settings_security_desc">Công tắc dịch vụ API, danh sách trắng, hành vi sau khi đóng dịch vụ, chuyển chủ sở hữu thiết bị</string>
     <string name="security_deny_section">Tùy chọn từ chối</string>
     <string name="security_deny_mode_title">Hành vi sau khi đóng dịch vụ</string>
@@ -230,4 +230,6 @@
 
     <string name="quick_activate_pending_restore">!Trình hướng dẫn thiết lập chưa được khôi phục, vui lòng chạy khôi phục thủ công!</string>
 
+    <string name="use_legacy_version">Dùng tên phiên bản tương thích cũ</string>
+    <string name="use_legacy_version_desc">Báo cho client phiên bản Dhizuku gốc. Một số ứng dụng kiểm tra phiên bản; tắt để báo phiên bản của ứng dụng này.</string>
 </resources>

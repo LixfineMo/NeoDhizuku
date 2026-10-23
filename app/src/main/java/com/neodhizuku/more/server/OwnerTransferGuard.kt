@@ -5,7 +5,6 @@ import android.util.Log
 
 import com.neodhizuku.more.NeoLog
 
-import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 /**
  * 设备所有者转移拦截。
@@ -73,7 +72,7 @@ object OwnerTransferGuard {
         cachedCodes?.let { return it }
         val result = LinkedHashSet<Int>()
         runCatching {
-            HiddenApiBypass.addHiddenApiExemptions("")
+            HiddenApiExempt.once()
             val clazz = Class.forName(STUB_CLASS)
             TRANSFER_FIELDS.forEach { name ->
                 val field = runCatching { clazz.getDeclaredField(name) }.getOrNull()

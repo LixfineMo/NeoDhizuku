@@ -29,7 +29,7 @@ val PackageInfo.signature: String?
 /**
  * 取某个 UID 下的**全部**签名指纹。
  *
- * 原实现只取 `firstOrNull()`：
+ * 只取首个签名者是不够的：
  * - v3 签名轮换后首签名者可能变化 → 已授权 App 静默失效；
  * - 多签名（hasMultipleSigners）时只校验一个 → 其余签名被替换也无法察觉。
  *

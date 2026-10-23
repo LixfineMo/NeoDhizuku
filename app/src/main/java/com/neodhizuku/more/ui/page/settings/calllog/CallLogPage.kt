@@ -380,6 +380,39 @@ private fun runtimeLine(entity: RuntimeLogEntity): String =
 private fun runtimeText(list: List<RuntimeLogEntity>): String =
     list.joinToString("\n") { runtimeLine(it) }
 
+/**
+ * 去重后的一行运行日志。
+ *
+ * 同一秒内完全相同的日志（同级别、同分类、同内容）只保留一条，
+ * 用 [count] 记录重复次数 —— 例如心跳类日志一秒能刷出十几条完全一样的，
+ * 全部展开既没法看也把真正有用的信息淹没了。
+ */
+private data class RuntimeLineItem(
+    val entity: RuntimeLogEntity,
+    val count: Int
+)
+
+/**
+ * 按「级别 + 分类 + 内容」折叠重复项。
+ *
+ * 保留首次出现那条的时间戳，重复次数累加到 [RuntimeLineItem.count]。
+ */
+private fun dedupe(list: List<RuntimeLogEntity>): List<RuntimeLineItem> {
+    val order = ArrayList<RuntimeLineItem>()
+    val index = HashMap<String, Int>()
+    list.forEach { entity ->
+        val key = "${entity.level}|${entity.sub}|${entity.message}"
+        val at = index[key]
+        if (at == null) {
+            index[key] = order.size
+            order.add(RuntimeLineItem(entity, 1))
+        } else {
+            order[at] = order[at].copy(count = order[at].count + 1)
+        }
+    }
+    return order
+}
+
 @Composable
 private fun RuntimeList(entries: List<RuntimeLogEntity>) {
     if (entries.isEmpty()) {
@@ -416,8 +449,8 @@ private fun RuntimeList(entries: List<RuntimeLogEntity>) {
                                 copyText = runtimeText(list)
                             ) {
                                 Column {
-                                    list.forEach { entity ->
-                                        RuntimeRow(entity)
+                                    dedupe(list).forEach { item ->
+                                        RuntimeRow(item.entity, item.count)
                                     }
                                 }
                             }
@@ -430,7 +463,7 @@ private fun RuntimeList(entries: List<RuntimeLogEntity>) {
 }
 
 @Composable
-private fun RuntimeRow(entity: RuntimeLogEntity) {
+private fun RuntimeRow(entity: RuntimeLogEntity, count: Int = 1) {
     val color = when (entity.level) {
         "E" -> MaterialTheme.colorScheme.error
         "W" -> MaterialTheme.colorScheme.tertiary
@@ -458,6 +491,16 @@ private fun RuntimeRow(entity: RuntimeLogEntity) {
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
+        // 同一秒内重复出现的相同日志，折叠成 ×N
+        if (count > 1) {
+            Text(
+                text = "×$count",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = FontFamily.Monospace
+                ),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

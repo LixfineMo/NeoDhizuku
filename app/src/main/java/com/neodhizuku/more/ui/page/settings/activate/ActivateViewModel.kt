@@ -211,8 +211,8 @@ class ActivateViewModel : ViewModel(), KoinComponent {
                     it.setDeviceOwner(who, null, userId)
                 }
             }
-            // 必须同步状态：Shizuku 路径此前没有调用 sync，
-            // 导致激活确实成功、弹窗提示成功，但首页仍显示未激活。
+            // 必须同步状态，否则激活确实成功、弹窗也提示成功，
+            // 但首页仍显示未激活。
             DhizukuState.sync(context)
         }
 

@@ -37,8 +37,8 @@ interface AppDao {
     suspend fun insert(entity: AppEntity)
 
     /**
-     * uid 列有唯一索引，而原实现用 @Insert（默认 OnConflictStrategy.ABORT），
-     * 并发写入时会抛 SQLiteConstraintException。这里改为 REPLACE / upsert。
+     * uid 列有唯一索引，@Insert 默认 OnConflictStrategy.ABORT，
+     * 并发写入时会抛 SQLiteConstraintException，因此这里用 REPLACE。
      */
     @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: AppEntity)

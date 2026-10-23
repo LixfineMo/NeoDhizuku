@@ -41,7 +41,7 @@ enum class NavDestination(
     val labelRes: Int,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    /** 仅在已激活（isOwner）时显示 */
+    /** 仅在已激活时显示（设备管理员也算已激活） */
     val requiresOwner: Boolean = false
 ) {
     Home(

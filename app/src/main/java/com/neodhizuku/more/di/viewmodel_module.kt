@@ -1,9 +1,12 @@
 package com.neodhizuku.more.di
 
+import com.neodhizuku.more.ui.page.settings.about.AboutViewModel
 import com.neodhizuku.more.ui.page.settings.activate.ActivateViewModel
 import com.neodhizuku.more.ui.page.settings.app_management.AppManagementViewModel
 import com.neodhizuku.more.ui.page.settings.blocklist.BlocklistViewModel
 import com.neodhizuku.more.ui.page.settings.calllog.CallLogViewModel
+import com.neodhizuku.more.ui.page.settings.delegation.DelegationViewModel
+import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalViewModel
 import com.neodhizuku.more.ui.page.settings.security.SecurityViewModel
 import com.neodhizuku.more.ui.page.settings.settings.SettingsViewModel
 
@@ -28,5 +31,14 @@ val viewModelModule = module {
     }
     viewModel {
         SecurityViewModel()
+    }
+    viewModel {
+        ExperimentalViewModel()
+    }
+    viewModel {
+        DelegationViewModel()
+    }
+    viewModel {
+        AboutViewModel()
     }
 }

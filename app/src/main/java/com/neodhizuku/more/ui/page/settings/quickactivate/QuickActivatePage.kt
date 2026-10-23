@@ -106,6 +106,9 @@ fun QuickActivatePage(
     // 三个步骤的执行骨架完全相同，抽出来避免重复三遍。
     // 显式声明为函数类型变量，避免作为参数传递时类型推断失败。
     val runStep: (String, suspend () -> DpDirectActivation.StepResult) -> Unit = { tag, action ->
+        // F9：竞态。`scope.launch` 是异步的，连点两次会在第一次置位前就启动第二次。
+        // 开启实验性修复时立即置位；未开启保持原行为，便于对照。
+        if (DpDirectActivation.isFixEnabled()) running = true
         scope.launch {
             running = true
             val res: DpDirectActivation.StepResult = runCatching {
