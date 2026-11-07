@@ -69,11 +69,12 @@ import androidx.navigation.NavController
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.R
 import com.neodhizuku.more.NeoLog
+import com.neodhizuku.more.data.common.util.checkShizukuWorked
 import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.AppIconCache
 import com.neodhizuku.more.ui.theme.exclude
-import com.neodhizuku.more.ui.theme.plus
+import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
@@ -245,26 +246,47 @@ fun ActivatePage(
                     )
                 }
             }
-        }) {
+        }) { contentPadding ->
         val pullToRefreshState = rememberPullToRefreshState()
-        Box(
+        // 只在 Shizuku 模式下检测一次，避免无关路径上白调 Sui.init
+        var shizukuAvailable by remember(mode) {
+            mutableStateOf(
+                if (mode == SettingsRoute.Activate.Mode.Shizuku) checkShizukuWorked() else true
+            )
+        }
+        // Scaffold 的 content 约束不会自动避开 topBar，需要自行应用 padding，
+        // 否则首个子元素会画到标题栏下方被遮挡。只取 top：Bottom 由外层
+        // NavHost 的 Scaffold 处理过，这里再加会让列表底部多出空白。
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .pullToRefresh(state = pullToRefreshState,
-                    isRefreshing = viewModel.state.loading,
-                    onRefresh = {
-                        viewModel.collectData()
-                    }
-                )
+                .padding(top = contentPadding.calculateTopPadding())
         ) {
-            ItemsWidget(viewModel = viewModel, contentPadding = it, state = compState)
-            PullToRefreshDefaults.Indicator(
+            if (mode == SettingsRoute.Activate.Mode.Shizuku && !shizukuAvailable) {
+                ShizukuUnavailableCard(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                    onRecheck = { shizukuAvailable = checkShizukuWorked() }
+                )
+            }
+            Box(
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(it),
-                state = pullToRefreshState,
-                isRefreshing = viewModel.state.loading
-            )
+                    .fillMaxSize()
+                    .pullToRefresh(state = pullToRefreshState,
+                        isRefreshing = viewModel.state.loading,
+                        onRefresh = {
+                            viewModel.collectData()
+                        }
+                    )
+            ) {
+                ItemsWidget(viewModel = viewModel, contentPadding = contentPadding, state = compState)
+                PullToRefreshDefaults.Indicator(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(contentPadding),
+                    state = pullToRefreshState,
+                    isRefreshing = viewModel.state.loading
+                )
+            }
         }
     }
 
@@ -375,7 +397,7 @@ private fun ItemsWidget(
     state: MutableState<ComponentName?>
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp) + contentPadding,
+        contentPadding = PaddingValues(16.dp).combine(contentPadding),
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -585,14 +607,114 @@ private fun requestDeviceAdmin(context: android.content.Context) {
     }
 }
 
-private fun openDeviceAdminSettings(context: android.content.Context) {
-    runCatching {
-        context.startActivity(
-            android.content.Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)
-                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
-        NeoLog.i(NeoLog.ACTIVATE) { "设备管理员：已打开系统安全设置" }
-    }.onFailure {
-        NeoLog.w(NeoLog.ACTIVATE) { "设备管理员：打开设置失败 ${it.message}" }
+/**
+ * Shizuku 模式但检测不到服务时的提示卡。
+ *
+ * 检测不到服务不再直接甩到下载页：用户多半只是没启动 Shizuku / Sui，
+ * 或者装了但服务没跑起来。留在页面里给出说明和「重新检测」更直接。
+ */
+@Composable
+private fun ShizukuUnavailableCard(
+    modifier: Modifier = Modifier,
+    onRecheck: () -> Unit
+) {
+    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.TwoTone.Warning,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.activate_err_shizuku_down),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = stringResource(R.string.activate_shizuku_unavailable),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            TextButton(onClick = onRecheck) {
+                Text(stringResource(R.string.retry))
+            }
+        }
     }
+}
+
+/**
+ * 打开系统的设备管理员列表页。
+ *
+ * 各 ROM 把这一页放在不同位置（AOSP 在「安全」下，部分国产 ROM 在
+ * 「隐私与安全 → 特殊应用权限 → 设备管理者」），且没有统一的公开 Action，
+ * 因此按候选逐个尝试：先试能解析到的 Action，再试常见 Component，
+ * 最后退回安全设置页和设置首页。每个候选都先确认可启动再发起，
+ * 避免直接 startActivity 落到错误页面。
+ */
+private fun openDeviceAdminSettings(context: android.content.Context) {
+    val pm = context.packageManager
+    val candidates = buildList {
+        // 1) AOSP 的隐式 Action
+        add(android.content.Intent("android.settings.DEVICE_ADMIN_SETTINGS"))
+        // 2) 常见显式 Component：AOSP 新版本用 Settings$DeviceAdminSettingsActivity，
+        //    老版本及部分 ROM 直接挂在 DeviceAdminSettings
+        add(
+            android.content.Intent().setComponent(
+                android.content.ComponentName(
+                    "com.android.settings",
+                    "com.android.settings.Settings\$DeviceAdminSettingsActivity"
+                )
+            )
+        )
+        add(
+            android.content.Intent().setComponent(
+                android.content.ComponentName(
+                    "com.android.settings",
+                    "com.android.settings.DeviceAdminSettings"
+                )
+            )
+        )
+        // 3) 兜底
+        add(android.content.Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS))
+        add(android.content.Intent(android.provider.Settings.ACTION_SETTINGS))
+    }
+
+    for (intent in candidates) {
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        val target = intent.component?.className ?: intent.action ?: "?"
+        // 显式 Component 用 getActivityInfo 确认存在；隐式 Action 用 resolveActivity，
+        // 两者都不成立就换下一个候选，不直接 startActivity 试错
+        val launchable = runCatching {
+            val cn = intent.component
+            if (cn != null) {
+                pm.getActivityInfo(cn, 0)
+                true
+            } else {
+                intent.resolveActivity(pm) != null
+            }
+        }.getOrDefault(false)
+        if (!launchable) {
+            NeoLog.d(NeoLog.ACTIVATE) { "设备管理员：候选不可用 $target" }
+            continue
+        }
+        val started = runCatching {
+            context.startActivity(intent)
+            true
+        }.onFailure {
+            NeoLog.w(NeoLog.ACTIVATE) { "设备管理员：候选 $target 启动失败 ${it.message}" }
+        }.getOrDefault(false)
+        if (started) {
+            NeoLog.i(NeoLog.ACTIVATE) { "设备管理员：已打开 $target" }
+            return
+        }
+    }
+    NeoLog.w(NeoLog.ACTIVATE) { "设备管理员：所有候选都不可用" }
 }

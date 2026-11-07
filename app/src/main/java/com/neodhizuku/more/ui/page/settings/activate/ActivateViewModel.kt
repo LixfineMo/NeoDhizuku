@@ -525,7 +525,7 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         java.lang.Long.TYPE -> 0L
         java.lang.Float.TYPE -> 0f
         java.lang.Double.TYPE -> 0.0
-        java.lang.String::class.java -> null
+        String::class.java -> null
         else -> NO_DEFAULT
     }
 

@@ -14,6 +14,22 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class SettingsRepoImpl : SettingsRepo, KoinComponent {
+
+    companion object {
+        /** 默认走自建服务器 */
+        const val DEFAULT_UPDATE_SOURCE: String = "official"
+
+        /** 官方服务器默认地址；由主域名拼出，不是编译期常量 */
+        val DEFAULT_DEBUG_OFFICIAL_BASE: String =
+            com.neodhizuku.more.data.common.util.UpdateLinks.OFFICIAL_BASE_DEFAULT
+
+        const val DEFAULT_DEBUG_TIMEOUT_MS: Int = 8_000
+
+        /** 设置文件名；DE 迁移用的标记也放在同一份 prefs 里 */
+        const val PREFS_NAME = "dhizuku_settings"
+        const val KEY_MIGRATED = "neo_migrated_from_ce"
+    }
+
     private val context by inject<Context>()
 
     /**
@@ -151,10 +167,80 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
     override fun flowUpdateAllowPreRelease(): Flow<Boolean> =
         prefs.asFlow("update_allow_pre_release", false)
 
+    override fun flowStartupUpdateCheck(): Flow<Boolean> =
+        prefs.asFlow("startup_update_check", true)
+
+    override fun flowStrictServiceCheck(): Flow<Boolean> =
+        prefs.asFlow("strict_service_check", false)
+
+    override fun flowExperimentalStrictWhitelist(): Flow<Boolean> =
+        prefs.asFlow("exp_strict_whitelist", false)
+
     override var isUpdateAllowPreRelease: Boolean
         get() = prefs.getBoolean("update_allow_pre_release", false)
         set(value) = prefs.edit(true) {
             putBoolean("update_allow_pre_release", value)
+        }
+
+    override var isStartupUpdateCheck: Boolean
+        get() = prefs.getBoolean("startup_update_check", true)
+        set(value) = prefs.edit(true) {
+            putBoolean("startup_update_check", value)
+        }
+
+    override fun flowUpdateSource(): Flow<String> =
+        prefs.asFlow("update_source", DEFAULT_UPDATE_SOURCE)
+
+    override fun flowUpdateAllowInsecure(): Flow<Boolean> =
+        prefs.asFlow("update_allow_insecure", false)
+
+    override fun flowUpdateCustomUrl(): Flow<String> =
+        prefs.asFlow("update_custom_url", "")
+
+    override fun flowDebugOfficialBase(): Flow<String> =
+        prefs.asFlow("debug_official_base", DEFAULT_DEBUG_OFFICIAL_BASE)
+
+    override fun flowDebugBuildIndex(): Flow<String> =
+        prefs.asFlow("debug_build_index", "")
+
+    override fun flowDebugTimeoutMs(): Flow<Int> =
+        prefs.asFlow("debug_timeout_ms", DEFAULT_DEBUG_TIMEOUT_MS)
+
+    override var updateSource: String
+        get() = prefs.getString("update_source", DEFAULT_UPDATE_SOURCE) ?: DEFAULT_UPDATE_SOURCE
+        set(value) = prefs.edit(true) {
+            putString("update_source", value)
+        }
+
+    override var isUpdateAllowInsecure: Boolean
+        get() = prefs.getBoolean("update_allow_insecure", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("update_allow_insecure", value)
+        }
+
+    override var updateCustomUrl: String
+        get() = prefs.getString("update_custom_url", "").orEmpty()
+        set(value) = prefs.edit(true) {
+            putString("update_custom_url", value.trim())
+        }
+
+    override var debugOfficialBase: String
+        get() = prefs.getString("debug_official_base", DEFAULT_DEBUG_OFFICIAL_BASE)
+            ?: DEFAULT_DEBUG_OFFICIAL_BASE
+        set(value) = prefs.edit(true) {
+            putString("debug_official_base", value.trim())
+        }
+
+    override var debugBuildIndex: String
+        get() = prefs.getString("debug_build_index", "").orEmpty()
+        set(value) = prefs.edit(true) {
+            putString("debug_build_index", value.trim())
+        }
+
+    override var debugTimeoutMs: Int
+        get() = prefs.getInt("debug_timeout_ms", DEFAULT_DEBUG_TIMEOUT_MS)
+        set(value) = prefs.edit(true) {
+            putInt("debug_timeout_ms", value.coerceIn(1_000, 120_000))
         }
 
     override var isExperimentalQuickActivateFix: Boolean
@@ -175,8 +261,16 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
             putBoolean("exp_verbose_log", value)
         }
 
-    private companion object {
-        const val PREFS_NAME = "dhizuku_settings"
-        const val KEY_MIGRATED = "neo_migrated_from_ce"
-    }
+    override var isExperimentalStrictWhitelist: Boolean
+        get() = prefs.getBoolean("exp_strict_whitelist", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("exp_strict_whitelist", value)
+        }
+
+    override var isStrictServiceCheck: Boolean
+        get() = prefs.getBoolean("strict_service_check", false)
+        set(value) = prefs.edit(true) {
+            putBoolean("strict_service_check", value)
+        }
+
 }

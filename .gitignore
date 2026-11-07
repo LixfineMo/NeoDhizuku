@@ -17,6 +17,5 @@
 /.vscode/
 # Keystore
 /keystore/
-
-Dhizuku-API/
-build.gradle.kts
+/Update
+/Dhizuku-API

@@ -178,10 +178,12 @@ class DelegationViewModel : ViewModel(), KoinComponent {
         val others = ArrayList<DelegationEntry>()
 
         installed.forEach { info ->
-            val pkg = info.packageName ?: return@forEach
+            // packageName is a platform type (String!); a plain read keeps it
+            // null-safe at the call site without emitting an Elvis warning.
+            val pkg = info.packageName
             if (pkg == context.packageName) return@forEach
             val label = runCatching {
-                info.applicationInfo?.loadLabel(packageManager)?.toString()
+                info.applicationInfo?.loadLabel(packageManager).toString()
             }.getOrNull() ?: pkg
             val scopes = DelegationManager.readScopes(dpm, admin, pkg)
             val entry = DelegationEntry(pkg = pkg, label = label, scopes = scopes)

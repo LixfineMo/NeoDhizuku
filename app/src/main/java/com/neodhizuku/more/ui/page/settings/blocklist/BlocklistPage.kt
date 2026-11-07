@@ -42,7 +42,7 @@ import androidx.navigation.NavController
 import com.neodhizuku.more.R
 import com.neodhizuku.more.ui.page.settings.app_management.AppManagementViewData
 import com.neodhizuku.more.ui.theme.AppIconCache
-import com.neodhizuku.more.ui.theme.plus
+import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
@@ -80,13 +80,13 @@ fun BlocklistPage(
                 Text(
                     stringResource(R.string.app_empty_blocked),
                     modifier = Modifier
-                        .padding(contentPadding + PaddingValues(16.dp))
+                        .padding(contentPadding.combine(PaddingValues(16.dp)))
                         .align(Alignment.Center)
                 )
             }
         } else {
             LazyColumn(
-                contentPadding = PaddingValues(16.dp) + contentPadding,
+                contentPadding = PaddingValues(16.dp).combine(contentPadding),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),

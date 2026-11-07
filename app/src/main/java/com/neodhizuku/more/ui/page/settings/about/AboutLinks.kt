@@ -12,4 +12,7 @@ object AboutLinks {
 
     /** QQ 反馈群：用群邀请链接，形如 https://qm.qq.com/q/XXXXXXXX */
     const val QQ_GROUP: String = "https://qm.qq.com/q/EjfDspFA9W"
+
+    /** Telegram 反馈群 */
+    const val TELEGRAM: String = "https://t.me/NeoDhizuku"
 }

@@ -54,6 +54,11 @@ data object DhizukuState : KoinComponent {
     var state by mutableStateOf(State())
         private set
 
+    /** 调试用：直接覆盖内存中的身份状态；下一次 sync 会按系统真实值重算。 */
+    fun setDebugState(deviceOwner: Boolean, profileOwner: Boolean, deviceAdmin: Boolean) {
+        state = State(deviceOwner, profileOwner, deviceAdmin)
+    }
+
     // 只读，避免被任意改写；admin 名称保持不变以兼容旧写法
     val admin = ComponentName(BuildConfig.APPLICATION_ID, DhizukuDAReceiver::class.java.name)
 
@@ -114,6 +119,51 @@ data object DhizukuState : KoinComponent {
             onReceive(context, dpm, admin, next)
         }
     }
+
+    /**
+     * 无条件尝试清除本应用残留的设备身份，逐项返回成败。
+     *
+     * 背景：通过 `transferOwnership` 把设备所有者转给别的应用后，部分机型
+     * 不会顺带卸掉本应用的设备管理员身份，于是出现"设置里显示未激活、
+     * 卸载却报设备管理器阻止"的错位状态（DELETE_FAILED_DEVICE_POLICY_MANAGER）。
+     *
+     * 这里**不依赖状态检测**：转移之后 [State.isDeviceAdmin] 往往已经回到
+     * false（`isAdminActive` 读不到），但系统卸载检查读的是另一份记录，
+     * 按状态判断会得出"没有可清理的东西"而什么都不做。因此直接调用三个
+     * 清理接口，让用户在卡死状态下有自救手段。
+     *
+     * 不做自动清理：激活流程是 `setActiveAdmin` 之后才 `setDeviceOwner`，
+     * 中间存在"仅管理员、还不是所有者"的窗口，此时自动卸掉管理员会把
+     * 正在进行的激活打断。所以只由用户手动触发。
+     */
+    @Suppress("DEPRECATION")
+    fun forceCleanup(context: Context): Map<String, Boolean> {
+        val dpm =
+            context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val out = LinkedHashMap<String, Boolean>()
+        out["clearDeviceOwnerApp"] = runCatching {
+            dpm.clearDeviceOwnerApp(admin.packageName)
+            true
+        }.getOrDefault(false)
+        out["clearProfileOwner"] = runCatching {
+            dpm.clearProfileOwner(admin)
+            true
+        }.getOrDefault(false)
+        out["removeActiveAdmin"] = runCatching {
+            dpm.removeActiveAdmin(admin)
+            true
+        }.getOrDefault(false)
+        NeoLog.i(NeoLog.DAEMON) { "强制解除残留: $out" }
+        return out
+    }
+
+    /** 供界面展示的三项原始状态，用于判断身份是否残留 */
+    fun snapshot(context: Context): State {
+        syncQuiet(context)
+        return state
+    }
+
+    private fun syncQuiet(context: Context) = runCatching { sync(context) }
 
     private fun onReceive(
         context: Context,

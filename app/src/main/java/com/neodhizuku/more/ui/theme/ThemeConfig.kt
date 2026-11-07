@@ -50,14 +50,42 @@ enum class ThemeMode(val value: Int) {
 data class ThemeSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** 动态取色（Android 12+） */
-    val useMonet: Boolean = true
+    val useMonet: Boolean = true,
+    /** 液态玻璃底部选择栏 */
+    val useLiquidGlass: Boolean = true,
+    /** 管理器页面不出现在多任务（最近任务）列表 */
+    val hideFromRecents: Boolean = false,
+    /** 关闭动态取色时使用的种子色（ARGB） */
+    val customColor: Int = DEFAULT_CUSTOM_COLOR,
+    /** 是否已设置自定义背景图 */
+    val backgroundImageSet: Boolean = false,
+    /** 背景图模糊半径（dp） */
+    val backgroundBlur: Float = DEFAULT_BACKGROUND_BLUR,
+    /** 背景图暗化程度（0~1） */
+    val backgroundDim: Float = DEFAULT_BACKGROUND_DIM
 )
 
+/** 默认种子色沿用品牌紫，关闭动态取色后不会突然换风格。 */
+const val DEFAULT_CUSTOM_COLOR = 0xFF6650A4.toInt()
+
+/** 背景图默认模糊半径与暗化程度。 */
+const val DEFAULT_BACKGROUND_BLUR = 24f
+const val DEFAULT_BACKGROUND_DIM = 0.35f
+
 object ThemeConfig {
+
+    /** 背景图模糊半径上限（dp） */
+    const val MAX_BACKGROUND_BLUR = 60f
 
     private const val PREFS_NAME = "theme_settings"
     private const val KEY_THEME_MODE = "theme_mode"
     private const val KEY_USE_MONET = "use_monet"
+    private const val KEY_USE_LIQUID_GLASS = "use_liquid_glass"
+    private const val KEY_HIDE_FROM_RECENTS = "hide_from_recents"
+    private const val KEY_CUSTOM_COLOR = "custom_color"
+    private const val KEY_BACKGROUND_IMAGE_SET = "background_image_set"
+    private const val KEY_BACKGROUND_BLUR = "background_blur"
+    private const val KEY_BACKGROUND_DIM = "background_dim"
 
     /** 动态取色的最低系统版本（Android 12） */
     fun isMonetSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -70,6 +98,24 @@ object ThemeConfig {
 
     fun getUseMonet(context: Context): Boolean =
         prefs(context).getBoolean(KEY_USE_MONET, true)
+
+    fun getUseLiquidGlass(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_USE_LIQUID_GLASS, true)
+
+    fun getHideFromRecents(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_HIDE_FROM_RECENTS, false)
+
+    fun getCustomColor(context: Context): Int =
+        prefs(context).getInt(KEY_CUSTOM_COLOR, DEFAULT_CUSTOM_COLOR)
+
+    fun getBackgroundImageSet(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_BACKGROUND_IMAGE_SET, false)
+
+    fun getBackgroundBlur(context: Context): Float =
+        prefs(context).getFloat(KEY_BACKGROUND_BLUR, DEFAULT_BACKGROUND_BLUR)
+
+    fun getBackgroundDim(context: Context): Float =
+        prefs(context).getFloat(KEY_BACKGROUND_DIM, DEFAULT_BACKGROUND_DIM)
 
     fun setThemeMode(context: Context, mode: ThemeMode) {
         NeoLog.d(NeoLog.THEME) { "setThemeMode -> $mode (value=${mode.value})" }
@@ -85,15 +131,64 @@ object ThemeConfig {
         prefs(context).edit().putBoolean(KEY_USE_MONET, enabled).apply()
     }
 
+    fun setUseLiquidGlass(context: Context, enabled: Boolean) {
+        NeoLog.d(NeoLog.THEME) { "setUseLiquidGlass -> $enabled" }
+        prefs(context).edit().putBoolean(KEY_USE_LIQUID_GLASS, enabled).apply()
+    }
+
+    fun setHideFromRecents(context: Context, enabled: Boolean) {
+        NeoLog.d(NeoLog.THEME) { "setHideFromRecents -> $enabled" }
+        prefs(context).edit().putBoolean(KEY_HIDE_FROM_RECENTS, enabled).apply()
+    }
+
+    fun setCustomColor(context: Context, color: Int) {
+        NeoLog.d(NeoLog.THEME) { "setCustomColor -> #${Integer.toHexString(color)}" }
+        prefs(context).edit().putInt(KEY_CUSTOM_COLOR, color).apply()
+    }
+
+    /** 导入或清除背景图后调用，用来把「是否有背景图」变成一个可观察的状态。 */
+    fun setBackgroundImageSet(context: Context, exists: Boolean) {
+        NeoLog.d(NeoLog.THEME) { "backgroundImageSet -> $exists" }
+        prefs(context).edit().putBoolean(KEY_BACKGROUND_IMAGE_SET, exists).apply()
+    }
+
+    fun setBackgroundBlur(context: Context, radius: Float) {
+        val value = radius.coerceIn(0f, MAX_BACKGROUND_BLUR)
+        prefs(context).edit().putFloat(KEY_BACKGROUND_BLUR, value).apply()
+    }
+
+    fun setBackgroundDim(context: Context, amount: Float) {
+        val value = amount.coerceIn(0f, 1f)
+        prefs(context).edit().putFloat(KEY_BACKGROUND_DIM, value).apply()
+    }
+
     /** 组合成单个 Flow；主题开关关闭时直接发射系统默认 */
     fun getThemeFlow(context: Context): Flow<ThemeSettings> {
         val p = prefs(context)
         val modeFlow = p.asFlow(KEY_THEME_MODE, ThemeMode.SYSTEM.value)
         val monetFlow = p.asFlow(KEY_USE_MONET, true)
-        return combine(modeFlow, monetFlow) { modeValue, monet ->
-            val settings = ThemeSettings(
+        val glassFlow = p.asFlow(KEY_USE_LIQUID_GLASS, true)
+        val colorFlow = p.asFlow(KEY_CUSTOM_COLOR, DEFAULT_CUSTOM_COLOR)
+        val base = combine(modeFlow, monetFlow, glassFlow, colorFlow) { modeValue, monet, glass, color ->
+            ThemeSettings(
                 themeMode = ThemeMode.fromValue(modeValue),
-                useMonet = monet
+                useMonet = monet,
+                useLiquidGlass = glass,
+                customColor = color
+            )
+        }
+
+        val bgSetFlow = p.asFlow(KEY_BACKGROUND_IMAGE_SET, false)
+        val blurFlow = p.asFlow(KEY_BACKGROUND_BLUR, DEFAULT_BACKGROUND_BLUR)
+        val dimFlow = p.asFlow(KEY_BACKGROUND_DIM, DEFAULT_BACKGROUND_DIM)
+        val hideFlow = p.asFlow(KEY_HIDE_FROM_RECENTS, false)
+
+        return combine(base, bgSetFlow, blurFlow, dimFlow, hideFlow) { s, imageSet, blur, dim, hide ->
+            val settings = s.copy(
+                backgroundImageSet = imageSet,
+                backgroundBlur = blur,
+                backgroundDim = dim,
+                hideFromRecents = hide
             )
             NeoLog.v(NeoLog.THEME) { "themeFlow emit -> $settings" }
             settings

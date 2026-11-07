@@ -46,6 +46,26 @@ object OwnerTransferGuard {
         "TRANSACTION_setProfileOwner3"
     )
 
+    /**
+     * 与 [TRANSFER_FIELDS] 对应的**方法名**集合。
+     *
+     * 只按事务码判定有一个致命弱点：一旦厂商改名或新增了重载（例如
+     * `setDeviceOwner4`），[TRANSFER_FIELDS] 就全部取不到字段，
+     * [resolveCodes] 返回空集，守卫**静默失效** —— 这是纯粹的 fail-open。
+     *
+     * 因此这里保留一份方法名副本：只要反射能把事务码还原成名字，
+     * 按名比对就依然成立，不依赖厂商是否保留了特定的常量名。
+     */
+    private val TRANSFER_METHODS: Set<String> = setOf(
+        "transferOwnership",
+        "setDeviceOwner",
+        "setDeviceOwner2",
+        "setDeviceOwner3",
+        "setProfileOwner",
+        "setProfileOwner2",
+        "setProfileOwner3"
+    )
+
     /** 反射结果缓存：事务码 -> 是否属于转移类 */
     @Volatile
     private var cachedCodes: Set<Int>? = null
@@ -53,14 +73,36 @@ object OwnerTransferGuard {
     /**
      * 判定本次 remote_transact 是否属于设备所有者转移。
      *
+     * 判定顺序（越往后越保守）：
+     * 1. 反射解析到的事务码命中 → 拦截
+     * 2. 事务码能还原出方法名、名字属于转移类 → 拦截
+     * 3. 事务码**无法还原成任何方法名** → 说明反射不可用，
+     *    此时无法证明"这次调用不是转移"，按 fail-closed 拦截
+     *
+     * 第 3 步会让守卫在反射失效期间拦下所有设备策略调用。这是刻意的取舍：
+     * 所有者一旦被转移出去就不可逆，宁可临时不可用，也不能静默放行。
+     * 用户可在设置里关闭「拦截所有者转移」恢复。
+     *
      * @param binder 客户端要操作的目标 binder
      * @param code   要调用的目标方法事务码
      */
     fun isOwnerTransfer(binder: IBinder?, code: Int): Boolean {
         val descriptor = runCatching { binder?.interfaceDescriptor }.getOrNull()
         if (descriptor != DPM_DESCRIPTOR) return false
-        return code in resolveCodes()
+
+        if (code in resolveCodes()) return true
+
+        val name = DpmApiCatalog.methodName(code)
+        if (name != null) return name in TRANSFER_METHODS
+
+        // 反射不可用：无法判定，保守拦截
+        NeoLog.w(NeoLog.SERVER) {
+            "[OwnerTransfer] 无法解析事务码 $code，按 fail-closed 拦截"
+        }
+        return true
     }
+
+
 
     /**
      * 反射读取系统 Stub 类中的事务码常量。

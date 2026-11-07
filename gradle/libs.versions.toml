@@ -13,9 +13,22 @@
 [versions]
 agp = "9.4.1"
 kotlin = "2.4.20"
-compose = "1.11.4"
+compose = "1.12.1"
 room = "2.8.5"
+
+# miuix-blur：液态玻璃底栏的真实背景采样（rememberLayerBackdrop / layerBackdrop）
+# 与折射宿主（drawBackdrop / BackdropEffectScope）。
+#
+# 版本 0.9.3 取自 NPatch 的 manager 模块（top.yukonga.miuix.kmp:miuix-blur:0.9.3）——
+# 它是实证可用的组合：NPatch 用 Kotlin 2.4.20 + compose-bom 2025.12.01（≈1.12.x），
+# 与本仓 Kotlin 2.4.20 / compose 1.12.1 完全一致。
+# Maven Central 上另有 0.9.4（2026-09-20），但其 release notes 明列 backdrop API
+# 有 breaking change，故此处保持与 NPatch 对齐的 0.9.3。
+miuixBlur = "0.9.3"
+
 accompanist = "0.36.0"
+# 经典 Xposed 模块 API（LSPosed / LSPatch 均兼容）
+xposed = "82"
 rikka-shizuku = "13.1.5"
 koin = "4.2.2"
 
@@ -35,11 +48,15 @@ androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-k
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version = "1.13.0" }
 
 compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version = "2.10.2" }
 compose-materialIcons = { group = "androidx.compose.material", name = "material-icons-extended", version = "1.7.8" }
 material = { group = "com.google.android.material", name = "material", version = "1.14.0" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.4.0" }
+
+# miuix-blur 可独立引入（不依赖 miuix-ui，因此不需要换掉 MaterialTheme）。
+miuix-blur = { group = "top.yukonga.miuix.kmp", name = "miuix-blur", version.ref = "miuixBlur" }
 
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
@@ -58,6 +75,7 @@ accompanist-navigationAnimation = { group = "com.google.accompanist", name = "ac
 accompanist-flowlayout = { group = "com.google.accompanist", name = "accompanist-flowlayout", version.ref = "accompanist" }
 accompanist-drawablepainter = { group = "com.google.accompanist", name = "accompanist-drawablepainter", version = "0.37.3" }
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
+xposed-api = { group = "de.robv.android.xposed", name = "api", version.ref = "xposed" }
 
 # AndroidHiddenApiBypass
 # https://github.com/LSPosed/AndroidHiddenApiBypass

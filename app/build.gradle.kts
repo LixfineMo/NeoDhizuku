@@ -9,13 +9,43 @@ plugins {
 
 val keystoreDir: String = "$rootDir/keystore"
 
-val keystoreProps: Properties = Properties()
-for (name in arrayOf("r0s.properties", "debug.properties")) {
-    val f: File = file("$keystoreDir/$name")
-    if (!f.exists()) continue
-    keystoreProps.load(f.inputStream())
-    break
+fun loadKeystoreProps(vararg names: String): Properties? {
+    val props = Properties()
+    for (name in names) {
+        val f: File = file("$keystoreDir/$name")
+        if (!f.exists()) continue
+        props.load(f.inputStream())
+        return props
+    }
+    return null
 }
+
+/** 调试用签名：只在 debug 构建上使用 */
+val debugKeystoreProps: Properties? = loadKeystoreProps("r0s.properties", "debug.properties")
+
+/**
+ * 发布签名：自己的密钥，不是 test / debug 那一份。
+ *
+ * 在 keystore/release.properties 里写：
+ *   storeFile=release.jks
+ *   storePassword=...
+ *   keyAlias=...
+ *   keyPassword=...
+ *
+ * 没有配置时退回调试签名并打一条警告 —— 这样仓库里不带密钥也能编出包，
+ * 但正式发布前必须配好，否则用户升级时会因签名不一致而安装失败。
+ */
+val releaseKeystoreProps: Properties? = loadKeystoreProps("release.properties", "r0s.properties")
+
+/**
+ * TEST ONLY 标签总开关（默认关闭）。
+ * 打开：gradle.properties 里设 neoTestOnly=true 后重新编译。
+ * 一处同时驱动 AndroidManifest 的 android:testOnly 与首页的 TEST ONLY 药丸
+ * （药丸还能在 调试 → 实时参数修改 → UiFlags.testOnlyLabel 单独关）。
+ * 注意：android:testOnly=true 的 APK 只能用 adb install -t 或 Android Studio 安装，
+ * 直接点 APK 会提示"应用未安装"，正式发布前务必改回 false。
+ */
+val testOnlyFlag: Boolean = (project.findProperty("neoTestOnly") as? String)?.toBoolean() ?: false
 
 android {
     namespace = "com.neodhizuku.more"
@@ -64,6 +94,10 @@ android {
             .joinToString(",")
         buildConfigField("String", "SIGNATURE_SHA256_ALLOWLIST", "\"$signatureAllowlist\"")
 
+        // TEST ONLY：manifest 属性与首页药丸共用这一个构建期开关
+        manifestPlaceholders["testOnly"] = testOnlyFlag.toString()
+        buildConfigField("boolean", "TEST_ONLY", testOnlyFlag.toString())
+
         proguardFiles(
             getDefaultProguardFile("proguard-android-optimize.txt"),
             "proguard-rules.pro"
@@ -71,27 +105,49 @@ android {
     }
 
     signingConfigs {
-        val storeFile: File = file("$keystoreDir/${keystoreProps.getProperty("storeFile")}")
-        val storePassword: String = keystoreProps.getProperty("storePassword")
-        val keyAlias: String = keystoreProps.getProperty("keyAlias")
-        val keyPassword: String = keystoreProps.getProperty("keyPassword")
-        getByName("debug") {
-            this.storeFile = storeFile
-            this.storePassword = storePassword
-            this.keyAlias = keyAlias
-            this.keyPassword = keyPassword
+        debugKeystoreProps?.let { props ->
+            getByName("debug") {
+                storeFile = file("$keystoreDir/${props.getProperty("storeFile")}")
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
+        }
+
+        create("release") {
+            val props = releaseKeystoreProps
+            if (props == null) {
+                logger.warn(
+                    "未找到 keystore/release.properties，release 将退回调试签名。" +
+                        "正式发布前请配置自己的密钥，否则用户无法覆盖安装。"
+                )
+                debugKeystoreProps?.let { debug ->
+                    storeFile = file("$keystoreDir/${debug.getProperty("storeFile")}")
+                    storePassword = debug.getProperty("storePassword")
+                    keyAlias = debug.getProperty("keyAlias")
+                    keyPassword = debug.getProperty("keyPassword")
+                }
+            } else {
+                storeFile = file("$keystoreDir/${props.getProperty("storeFile")}")
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
         }
     }
 
     buildTypes {
         configureEach {
-            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
         }
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
         }
@@ -140,15 +196,26 @@ ksp {
 dependencies {
     compileOnly(project(":hidden-api"))
 
+    val xposedStub = file("libs/xposed-api-82-stub.jar")
+    if (xposedStub.exists()) {
+        compileOnly(files(xposedStub))
+    } else {
+        compileOnly("de.robv.android.xposed:api:82")
+    }
+
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.androidx.activity.compose)
 
     implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
     implementation(libs.compose.navigation)
     implementation(libs.compose.materialIcons)
     implementation(libs.material)
     implementation(libs.compose.material3)
+
+    // 液态玻璃底栏：真实背景采样 + 折射
+    implementation(libs.miuix.blur)
 
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)

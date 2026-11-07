@@ -1,217 +1,140 @@
 # NeoDhizuku
 
-A fork of [Dhizuku](https://github.com/iamr0s/Dhizuku) that shares Device Owner (DeviceOwner) permissions with other applications in a controlled manner.
+A fork of [Dhizuku](https://github.com/iamr0s/Dhizuku) that shares Device Owner privileges with other apps in a controlled way.
+
+[简体中文](../README.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [繁體中文](README.zh-rTW.md) | [Deutsch](README.de.md)
 
 ---
 
-## ⚠️ Work in Progress
+## ⚠️ Work in progress
 
-**This version is under active development — do not use it on your daily device or in production.**
-Some features have just landed and some have not been fully validated on real devices. The package name has been changed to `com.neodhizuku.more`, which **cannot coexist** with the official version (they would become different device owners). Please validate on a test device first. It is not data-compatible with the official version — back up your data before migrating.
+**This build is under development — do not use it on a daily device or in production.**
 
----
-
-## 1. Modifications and New Features
-
-All changes are gated behind the `NeoDhizuku.UseNeoDhizuku` master switch (`app/src/main/java/com/neodhizuku/more/NeoDhizuku.kt`).
-
-> When set to `false`, every sub-feature is disabled and the behavior **falls back completely to the original upstream implementation**. Individual sub-features can also be turned off separately, which is useful for A/B debugging.
-
-### Basic Identity
-
-| Item | Upstream | This project |
-|---|---|---|
-| Package name | `com.rosan.dhizuku` | `com.neodhizuku.more` |
-| App name | Dhizuku | NeoDhizuku |
-| Android support | Android 8.0+ (compiled against API 37) | Same |
-
-> The API permission name and AIDL package name in the manifest are **kept unchanged** so that existing third-party clients can recognize this app without modification.
-
-### Security Hardening
-
-- **The authorization entry no longer trusts the UID reported by the client**: the server obtains the real identity via `Binder.getCallingUid()` and issues a one-time token (valid for 10 minutes). The UID is only accepted after the Activity validates the token. Older clients take a compatibility path and will not overwrite existing grants.
-- Provider authentication, `remoteProcess` command auditing, and self-signature verification at startup.
-- The signature allowlist is injected at **build time** and silently skipped when not configured, so you can build and debug freely.
-
-### UI Rework
-
-Following the layout ideas of the KernelSU manager, implemented with Material3 (**miuix / coui are not used**):
-
-- **Floating bottom navigation bar**: shared by four pages, icon + text, **no emoji**. When not activated, only "Home / Settings" are shown; sub-pages hide the bar.
-- **Home status card**: once activated, it becomes "one status card on the left + two small cards on the right" — checkmark icon + activated + owner type + version number (tap to open the activation page), the number of authorized apps at the top-right, and service uptime at the bottom-right (`HH:MM:SS`, reset when the service restarts). **When not activated, the original upstream style is preserved.**
-- **App management**: no tabs — every app related to Dhizuku appears in a single list, with the switch showing the grant state directly. Apps that do not declare the permission in their manifest but have issued calls (such as some installers) are registered automatically and can be granted directly.
-- **Dedicated blocklist page**: split out of app management; individual entries can be unblocked.
-- **Authorization dialog**: no progress bar; "Allow" light green, "Deny" red and prominent, "Add to blocklist" black — all plain text with no background box; the countdown hint sits below the button row.
-- **Call log**: records which capabilities each app invoked, all described in short Chinese sentences. **Persisted, retained for 30 days by default**; each entry carries the server-side runtime log fragment from that moment. A separate "Runtime log" tab shows the server's own log and is **available even when not activated**.
-- **Service start/stop**: the top-right button shows a cross while running and turns into a restart icon after stopping; the uptime card turns solid red and reads "Service refused" when stopped. The ability to view grants and the call log is retained after stopping; all other operations are refused.
-- **Device owner transfer interception**: once granted, a third-party app can use `binderWrapper` to call any DPM method as the device owner; if it provides no way to grant back, the owner cannot be recovered after a transfer. The setting "Allow third-party apps to transfer the device owner" is **off by default**; when off, the transfer is refused directly and a notification is posted.
-- **Service policy page**: a second-level menu inside Settings that centrally manages the API service master switch, allowlist mode, the handling mode applied after the service is stopped, and the device owner transfer switch.
-- **Temporary activation without removing accounts**: removes the upstream requirement to delete all accounts first. See the dedicated section below.
-- **Theme page**: four dark mode options (follow system / light / dark / AMOLED pure black) plus a dynamic color switch; dark mode uses a collapsible selector.
-- **Settings page**: a new "Management" section entry, **hidden entirely when not activated**.
-- **Activation error hints**: raw English errors are mapped to a Chinese cause + suggested fix + copyable diagnostics.
-
-### Debug Logging
-
-Unified tag `NeoDhizuku` with categorized sub-tags (`Nav` / `Theme` / `Perm` / `Home` / `Apps` / `Daemon` / `Server` / `Activate` / `UI` / `Boot`). Controlled by `NeoDhizuku.DebugLog`; when off it is completely silent with no string concatenation cost.
-
-```bash
-adb logcat -s NeoDhizuku:V              # everything
-adb logcat -s NeoDhizuku:V | grep Nav   # navigation only
-```
+The package name is now `com.neodhizuku.more`. It **cannot coexist** with the official app, and because it registers the official ContentProvider authority, you **must uninstall official Dhizuku first**. Data is not compatible — back up before migrating.
 
 ---
 
-## 2. Notes and Usage
+## Features
 
 ### Activation
 
-Same as upstream: Shizuku, ADB, and the no-account-removal mode can all make the app the device owner.
-**Note the upstream advice: it is recommended to set up the device without any accounts.** If accounts already exist, you may need to remove them first.
+- **Activate without removing accounts**: no longer requires upstream's "remove all accounts first" (needs Shizuku / root + Android 13+)
+- **Device Admin mode**: grantable from system settings with the lowest barrier, but third-party clients cannot initialize (see Known limitations)
+- **Activation error hints**: raw English errors mapped to plain-language cause + suggestion + one-tap copy of diagnostics
 
-Once the app is the device owner, third-party applications can request Device Owner capabilities through the Dhizuku API.
+### Security
 
-### Temporary Activation Without Removing Accounts
+- **The authorization entry no longer trusts client-reported UIDs**: the server reads the real identity via `Binder.getCallingUid()` and issues a one-time token (valid 10 minutes)
+- **Device Owner transfer blocking**: off by default; notifies when refused
+- **Wipe forced confirmation**: `wipeData` is always intercepted and requires two warning dialogs plus a liability checkbox; the grant is one-time and valid for 5 minutes
+- Provider authentication, `remoteProcess` command auditing, self signature check at startup
 
-Upstream recommends configuring the device **without any accounts**, otherwise they must be removed first. This approach bypasses that restriction.
+### Interface
 
-**How it works**: in `DevicePolicyManagerService`, the account check `hasIncompatibleAccountsOrNonAdb` is only read inside the `isAdb` branch. The original app goes through ADB (`dpm set-device-owner`), i.e. `isAdb=true`, so all three gates are evaluated. This approach calls directly with **the app's own uid**, so `isAdb=false` and only `hasUserSetupCompleted` is checked — **accounts are never read**.
+Modeled on the KernelSU Manager layout, built with Material3 (**no miuix / coui**):
 
-**Seven steps**:
+- **Floating bottom bar**: shared across four pages, icon + text, no emoji; pages can be swiped left/right or picked from the bar; hidden on sub-pages
+- **Home status card**: when active, "status card on the left + two small cards on the right" — active + identity type + version, authorized app count top-right, service uptime bottom-right
+- **App management**: all related apps in one list, switches show authorization state directly; apps that called without declaring the permission are registered automatically
+- **Dedicated blacklist page**: unblock entries individually
+- **Authorization dialog**: no progress bar; Allow in light green, Deny highlighted in red, Blacklist in black; countdown caption below the button row
+- **Call log**: records which capabilities each app used, **described in plain language with arguments**; persisted for 30 days, each entry carries a server log snippet; includes a "Run log" tab
+- **Service start/stop**: when stopped the uptime card turns solid red showing "Service refused"; viewing authorizations and call log still works
+- **Theme page**: four dark mode options (follow system / light / dark / AMOLED black) + dynamic color; when dynamic color is off, a built-in palette is offered, plus a liquid glass bottom bar switch
+- **About page**: animated icon, version and device info, GitHub / QQ links, update check (with a pre-release channel toggle)
 
-| Step | Executor | Action |
-|---|---|---|
-| ① | shell | `cmd role set-bypassing-role-qualification true` |
-| ② | shell | `cmd role add-role-holder --user 0 android.app.role.DEVICE_POLICY_MANAGEMENT <pkg>` |
-| ③ | shell | `settings put secure user_setup_complete 0` |
-| ④ | app itself | reflect `forceUpdateUserSetupComplete(0)` to move the value from ③ into DPM's in-memory state |
-| ⑤ | app itself | reflect `setActiveAdmin` |
-| ⑥ | app itself | reflect `setDeviceOwner` |
-| ⑦ | shell | `settings put secure user_setup_complete 1` |
+### Service (Settings → Service)
 
-③ and ④ **must be paired**: doing only ③ has no effect — the in-memory state does not change and the gate stays closed. ④'s parameter is a userId, not a status value; it copies the real value from Settings into memory bidirectionally, so ③ cannot be skipped.
+| Section | Contents |
+|---|---|
+| API service | Master switch, whitelist mode, use legacy compatible version (on by default) |
+| Behavior when service is off | Five-option drawer, takes effect only after the service is stopped |
+| Device Owner transfer | The switch for the transfer blocking above |
 
-**Three prerequisites**:
+"Use legacy compatible version" decides the version name returned to clients: on (default) returns upstream `2.12.0` — some clients validate the version; off returns this project's own version name.
 
-- Shizuku or root (to run the shell commands in ①③⑦; a normal app cannot obtain `WRITE_SECURE_SETTINGS`)
-- Android 13 (API 33) or above (the `DEVICE_POLICY_MANAGEMENT` role was introduced in that version)
-- Not already the device owner
-
-**Side effect**: while the flag is 0, the Home and Recents keys of three-button navigation stop working (Back still works; gesture navigation is unaffected). The code always restores it in a `finally` block, so the device is never left in an "incomplete setup" state.
-
-**Troubleshooting**: if the role command returns `RC=0` but the permission is still DENIED, it is most likely because the manifest does not declare `MANAGE_DEVICE_ADMINS` / `MANAGE_PROFILE_AND_DEVICE_OWNERS` — these are signature-level permissions and must be declared before the system will grant them along with the role. The page will show this hint directly.
-
-If the setup wizard has not been restored, the page shows a red hint and disables the first two steps, leaving only "Manual restore".
-
-### Grant Management
-
-- The first call from a third-party app pops up an authorization request; you can allow, deny, or add it to the blocklist.
-- **Once blocklisted, that app's authorization requests are no longer handled.**
-- In "App management" you can toggle any app's grant at any time; the "Blocklist" page lets you unblock entries.
-- With **allowlist mode** on, only apps on the allowlist may call high-risk interfaces.
-
-### Using the Switches
-
-Edit `NeoDhizuku.kt`:
-
-```kotlin
-const val UseNeoDhizuku: Boolean = true   // master switch; false = fall back to upstream behavior entirely
-const val UseThemePage: Boolean = true    // sub-feature: theme page
-const val DebugLog: Boolean = true        // sub-feature: debug logging
-```
-
-Troubleshooting tip: build a baseline with `UseNeoDhizuku = false`, then switch it to `true` and compare; if a specific sub-feature misbehaves, turn just that one off to isolate it.
-
-### Service Policy
-
-Settings → "Service policy", three sections:
-
-**① API service**: master switch (allow other apps to use the API service) and allowlist mode (only allow allowlisted apps to use the API service).
-
-**② Handling after the service is stopped** (collapsible selector; only takes effect once the service has been stopped):
+Behavior when the service is off:
 
 | Option | Behavior |
 |---|---|
-| Refuse dangerous services and return failure | The service is still discoverable; non-read-only operations are refused |
-| Refuse dangerous services and return success | Allowed through but not actually executed; only success is returned |
-| Refuse the service entirely and return failure | Returns null; other apps cannot discover the service |
-| Refuse the service entirely and return success | Returns an empty result |
-| Do nothing | The authorization request hangs; the client waits indefinitely |
+| Refuse dangerous service, return failure | Service is discoverable; non-read-only operations refused |
+| Refuse dangerous service, return success | Passed through but not executed, returns success |
+| Refuse service entirely, return failure | Returns null; other apps cannot find the service |
+| Refuse service entirely, return success | Returns an empty result |
+| Do nothing | Suspends the request; the client waits indefinitely |
 
-"Do nothing" is implemented by **not invoking the callback** rather than blocking a thread, so it does not affect the service's handling of other calls.
-
-**③ Device owner transfer**: the switch described above in "Device owner transfer interception".
-
-### Known Limitations
-
-- The floating bottom bar has not been converted into a swipeable Pager; pages can only be switched by tapping.
-- Theming uses Material3's native `dynamicColorScheme` (system support on Android 12+); no third-party palette library is used.
-- **When coexisting with the official Dhizuku**: clients that hardcode the official package authority (such as amarok and 爱玩机工具箱) connect to the official app instead of this one, producing the "official dialog pops up while this app does not respond" symptom. A ContentProvider authority is globally unique and cannot be hijacked; the way out is to uninstall the official app and switch to the `neoCompat` or `official` flavor.
-- **Activation without removing accounts requires Android 13+**; on lower versions the page shows "not supported" and hides the steps.
-- Shizuku API 14 will remove `newProcess`; at that point the shell execution used by this activation path must be migrated to a User Service.
+"Do nothing" is implemented by **not calling back** rather than blocking a thread, so it does not affect other calls.
 
 ---
 
-## 3. Building
+## Usage
 
-### Requirements
+### Activation
 
-Android Studio **Quail 4 (2026.1.4)** or newer (the minimum required by AGP 9.4.1), JDK 21.
-Install SDK Platform 37, Build Tools 37.0.0, and NDK 29.0.14206865 from the SDK Manager.
+Shizuku, ADB, and the no-account-removal mode are supported. Once you become Device Owner, third-party apps can request Device Owner capabilities through the Dhizuku API.
 
-### Build
+### Activate without removing accounts
 
-The project has three flavors. The `namespace` and source package name are fixed to `com.neodhizuku.more`;
-only the `applicationId` and the provider authorities vary per flavor:
+Upstream recommends configuring when **the device has no accounts**; this fork bypasses that restriction by calling with the app's own uid instead of going through the ADB branch, so the system only checks `hasUserSetupCompleted` and never reads accounts.
 
-| Flavor | applicationId | Registers official authority | Can coexist with official Dhizuku | Works with clients hardcoding the official package |
-|---|---|---|---|---|
-| `neo` | `com.neodhizuku.more` | No | **Yes** | No |
-| `neoCompat` | `com.neodhizuku.more` | Yes | No | **Yes** |
-| `official` | `com.rosan.dhizuku` | — it *is* the official one | No (same package) | **Yes** |
+**Requirements**: Shizuku or root, Android 13 (API 33) or above, not already Device Owner.
 
-`neo` and `neoCompat` share the same applicationId, so only one can be installed at a time — but you can build both for comparison testing.
+**Side effect**: while set to 0, the Home and Recents keys of three-button navigation stop working (Back still works; gesture navigation is unaffected). The code always restores it in `finally`.
 
-```
-./gradlew assembleNeoDebug        Coexistence build (recommended for daily use)
-./gradlew assembleNeoCompatDebug  Takeover build (uninstall official Dhizuku first)
-./gradlew assembleOfficialDebug   Official-package build (uninstall official Dhizuku first)
+### Authorization management
 
-./gradlew assembleBothDebug       Builds neo + neoCompat in one go
-./gradlew assembleAllDebug        Builds all three in one go
-```
-
-For release builds, replace `Debug` with `Release` (there is also `assembleAllRelease` for all three).
-
-> **Important**: the device owner can only belong to one package at a time. Both `neoCompat` and `official`
-> require **uninstalling the official Dhizuku first**, otherwise the provider authority conflicts and
-> installation fails (`INSTALL_FAILED_CONFLICTING_PROVIDER`). You will need to activate again afterwards.
-
-The repository ships with a debug signing config (`keystore/`); replace it with your own before distributing.
+- Third-party apps get an authorization prompt on first call: allow, deny, or blacklist
+- **Once blacklisted, that app's authorization requests are no longer processed**
+- Toggle any app's authorization anytime in App management; unblock in the Blacklist page
+- With **whitelist mode** on, only whitelisted apps may call high-risk interfaces
 
 ---
 
-## 4. Roadmap (a Release version will be published once complete and tested)
+## Known limitations
 
-- [-] **Authorization entry rework**: make every third-party app able to reliably initiate an authorization request. Today some clients (mostly those depending on the old API) neither show a dialog nor issue a request; the tried server-side takeover approach proved ineffective in testing, so the real failure point must be located first (whether the client calls `requestPermission`, whether the listener receives the callback, whether the notification is actually posted) before redesigning.
-- [√] ~~Device owner activation without removing accounts~~ — implemented (see "Temporary Activation Without Removing Accounts")
-- [-] Verify the real-world exploitability of the "self-reported UID" authorization entry with a demo (the attack surface exists statically; actual impact unconfirmed).
-- [-] Display the permission scope in the authorization dialog.
-- [-] Delegated scopes configuration entry — supported by the API but with no UI entry.
+- The liquid glass bar is a translucent overlay, not real backdrop blur (Compose has no native backdrop blur API)
+- **Third-party apps cannot initialize in Device Admin mode**: the client's `Dhizuku.init()` only accepts Device Owner / Profile Owner and fails outright for Device Admin. That code runs in the third-party process and cannot be influenced from here
+- Activating without removing accounts requires Android 13+
+- With USB debugging enabled, system settings pages may become inaccessible; turning off adb restores them
+- Shizuku API 14 will remove `newProcess`; the no-account-removal activation must then migrate to User Service
+
+---
+
+## Building
+
+Android Studio **Quail 4 (2026.1.4)** or newer (minimum for AGP 9.4.1), JDK 21. Install SDK Platform 37, Build Tools 37.0.0, NDK 29.0.14206865.
+
+```
+./gradlew assembleDebug      debug build
+./gradlew assembleRelease    release build
+```
+
+Output is in `app/build/outputs/apk/debug/`.
+
+The package name is fixed to `com.neodhizuku.more`, and the official authority `com.rosan.dhizuku.server.provider` is also registered so clients that hardcode the official package name (amarok, 爱玩机工具箱, etc.) can connect to this app.
+
+The repository ships a debug keystore (`keystore/`); replace it with your own signing config before distributing.
+
+---
+
+## Roadmap
+
+- Rework the authorization entry so all third-party apps can reliably request authorization
+- Show the permission scope in the authorization dialog
+- Tablet layout adaptation
+- Dedicated notification channel for wipe operations
 
 ---
 
 ## License
 
-This project is a derivative of Dhizuku (GPL-3.0) and is distributed under GPL-3.0 as a whole; the full license is in the repository root as `LICENSE`.
+This project is a derivative of Dhizuku (GPL-3.0) and is distributed under GPL-3.0; see `LICENSE` in the repository root.
 
-This project is modified from [Dhizuku](https://github.com/iamr0s/Dhizuku); it changes the package name, the authorization and activation flows, the security hardening, and the UI implementation. The full change history is in the repository commits.
-
-| Upstream project | License | Notes |
+| Upstream | License | Note |
 |---|---|---|
-| Dhizuku | GPL-3.0 | Direct upstream; this project carries over its license |
-| Dhizuku-API | MIT | Included as a local submodule; copyright and license notices retained in `Dhizuku-API/LICENSE` |
-| KernelSU | GPL-3.0-or-later (`kernel/` is GPL-2.0-only) | UI and interaction inspiration only; no code reused |
+| Dhizuku | GPL-3.0 | Direct upstream; this project follows its license |
+| Dhizuku-API | MIT | Included as a local submodule |
+| KernelSU | GPL-3.0-or-later | Interface and interaction inspiration only; no code reused |
 | Shizuku API | Apache-2.0 | Maven dependency |
 
-**Acknowledgements**: Dhizuku (iamr0s), Dhizuku-API (R0S), KernelSU, Shizuku (RikkaApps), and everyone who contributed code and translations upstream.
+**Credits**: Dhizuku (iamr0s), Dhizuku-API (R0S), KernelSU, Shizuku (RikkaApps), and everyone who contributed code or translations upstream.

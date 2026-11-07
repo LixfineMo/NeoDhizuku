@@ -8,9 +8,13 @@ import androidx.lifecycle.viewModelScope
 
 import com.neodhizuku.more.BuildConfig
 import com.neodhizuku.more.NeoLog
+import com.neodhizuku.more.data.common.util.FeedbackClient
 import com.neodhizuku.more.data.common.util.UpdateChecker
+import com.neodhizuku.more.data.common.util.UpdateConfig
 import com.neodhizuku.more.data.common.util.UpdateInfo
 import com.neodhizuku.more.data.common.util.UpdateResult
+import com.neodhizuku.more.data.common.util.UpdateSource
+import com.neodhizuku.more.data.common.util.UrlUtil
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +37,10 @@ class AboutViewModel : ViewModel(), KoinComponent {
     var allowPreRelease by mutableStateOf(false)
         private set
 
+    /** 当前生效的更新配置 */
+    var config by mutableStateOf(UpdateConfig())
+        private set
+
     var updateState by mutableStateOf<UpdateState>(UpdateState.Idle)
         private set
 
@@ -40,6 +48,31 @@ class AboutViewModel : ViewModel(), KoinComponent {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.flowUpdateAllowPreRelease().collect {
                 allowPreRelease = it
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowUpdateSource().collect {
+                config = config.copy(source = UpdateSource.of(it))
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowUpdateAllowInsecure().collect {
+                config = config.copy(allowInsecure = it)
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowUpdateCustomUrl().collect {
+                config = config.copy(customUrl = it)
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowDebugOfficialBase().collect {
+                config = config.copy(officialBase = it)
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowDebugTimeoutMs().collect {
+                config = config.copy(timeoutMs = it)
             }
         }
     }
@@ -57,10 +90,14 @@ class AboutViewModel : ViewModel(), KoinComponent {
         viewModelScope.launch {
             updateState = UpdateState.Checking
             val result = withContext(Dispatchers.IO) {
+                val manifest = UpdateChecker.fetch(config) { host ->
+                    settingsRepo.debugOfficialBase = UrlUtil.baseOf(host)
+                }
                 UpdateChecker.compare(
-                    info = UpdateChecker.fetch(),
+                    manifest = manifest,
                     currentCode = BuildConfig.VERSION_CODE,
-                    allowPreRelease = allowPreRelease
+                    allowPreRelease = allowPreRelease,
+                    config = config
                 )
             }
             NeoLog.i(NeoLog.UI) { "更新：检测结果 ${result.javaClass.simpleName}" }
@@ -81,6 +118,50 @@ class AboutViewModel : ViewModel(), KoinComponent {
     fun dismissUpdate() {
         updateState = UpdateState.Idle
     }
+
+    // ------------------------------------------------------------------
+    // 反馈
+    // ------------------------------------------------------------------
+
+    /** 反馈提交状态 */
+    var feedbackState by mutableStateOf<FeedbackState>(FeedbackState.Idle)
+        private set
+
+    /**
+     * 提交反馈。
+     *
+     * 走的是更新配置里那一台服务器，所以地址不用用户再填一次。
+     */
+    fun submitFeedback(title: String, content: String, contact: String) {
+        if (feedbackState is FeedbackState.Sending) return
+        viewModelScope.launch {
+            feedbackState = FeedbackState.Sending
+            val result = withContext(Dispatchers.IO) {
+                FeedbackClient.send(config, title, content, contact)
+            }
+            NeoLog.i(NeoLog.UI) { "反馈：结果 ${result.javaClass.simpleName}" }
+            feedbackState = when (result) {
+                is FeedbackClient.Result.Success -> FeedbackState.Success
+                is FeedbackClient.Result.Empty -> FeedbackState.Empty
+                is FeedbackClient.Result.Failed ->
+                    FeedbackState.Failed(result.message)
+            }
+        }
+    }
+
+    /** 反馈结束后回到初始态，弹窗据此关闭。 */
+    fun resetFeedback() {
+        feedbackState = FeedbackState.Idle
+    }
+}
+
+/** 反馈提交的界面状态。 */
+sealed interface FeedbackState {
+    data object Idle : FeedbackState
+    data object Sending : FeedbackState
+    data object Success : FeedbackState
+    data object Empty : FeedbackState
+    data class Failed(val message: String?) : FeedbackState
 }
 
 /** 更新检测的界面状态。 */

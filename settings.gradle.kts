@@ -13,6 +13,8 @@ dependencyResolutionManagement {
         mavenLocal()
         google()
         mavenCentral()
+        // 经典 Xposed API 82 只在这里发布（模块侧 compileOnly）
+        maven { url = uri("https://api.xposed.info") }
     }
 }
 

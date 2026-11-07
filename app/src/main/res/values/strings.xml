@@ -2,9 +2,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name" translatable="false">NeoDhizuku</string>
     <string name="agreement_title">Policy</string>
-    <string name="agreement_text">Here is our user policy, Please read and agree to it. &lt;a href=\"https://iamr0s.github.io/Dhizuku/TERMS.html\"&gt;Terms of Use&lt;/a&gt;, &lt;a href=\"https://iamr0s.github.io/Dhizuku/PRIVACY.html\"&gt;Privacy Policy&lt;/a&gt; This message won\'t show up again after you agree.</string>
+    <string name="agreement_text">Here is our user policy, Please read and agree to it. &lt;a href=&quot;https://iamr0s.github.io/Dhizuku/TERMS.html&quot;&gt;Terms of Use&lt;/a&gt;, &lt;a href=&quot;https://iamr0s.github.io/Dhizuku/PRIVACY.html&quot;&gt;Privacy Policy&lt;/a&gt; This message won\'t show up again after you agree.</string>
     <string name="agree_text">Agree</string>
-    <string name="permission_description">Use Dhizuku\'s API</string>
+    <string name="permission_description">Use NeoDhizuku\'s API</string>
     <!-- Commonly  used characters -->
     <string name="copy">Copy</string>
     <string name="cancel">Cancel</string>
@@ -13,18 +13,22 @@
     <string name="home_status_owner_granted">You are %1$s!!!</string>
     <string name="home_status_owner_transferred">%1$s has been transferred!!!</string>
     <string name="home_status_owner_denied">Waiting for activation</string>
+    <!-- Home - Startup update check -->
+    <string name="home_update_available_title">New version %1$s is available</string>
+    <string name="home_update_available_dsp">Tap to download from the official site.</string>
+    <string name="home_update_detail">Details</string>
     <!-- Home - Application Management -->
     <string name="home_app_management_title">Application Management</string>
-    <string name="home_app_management_dsp">Apps that has requested or declared Dhizuku will show here.</string>
+    <string name="home_app_management_dsp">Apps that has requested or declared NeoDhizuku will show here.</string>
     <!-- Home - Dhizuku -->
     <string name="home_dhizuku_title">Activation by Dhizuku</string>
-    <string name="home_dhizuku_dsp">If you have other Dhizuku implementations installed, you can switch between them at will. Please &lt;a href=\"%1$s\"&gt;read the help&lt;/a&gt;.</string>
+    <string name="home_dhizuku_dsp">If you have other Dhizuku implementations installed, you can switch between them at will. Please &lt;a href=&quot;%1$s&quot;&gt;read the help&lt;/a&gt;.</string>
     <!-- Home - Shizuku -->
     <string name="home_shizuku_title">Activation by Shizuku</string>
-    <string name="home_shizuku_dsp">With Shizuku, you have the ability to run ADB commands without the need for a computer. Please &lt;a href=\"%1$s\"&gt;read the help&lt;/a&gt;.</string>
+    <string name="home_shizuku_dsp">With Shizuku, you have the ability to run ADB commands without the need for a computer. Please &lt;a href=&quot;%1$s&quot;&gt;read the help&lt;/a&gt;.</string>
     <!-- Home - Adb -->
     <string name="home_adb_title">Activation by ADB</string>
-    <string name="home_adb_dsp">Through the ADB (Android Debug Bridge) connection, you can execute some privileged commands. Please &lt;a href=\"%1$s\"&gt;read the help&lt;/a&gt;.</string>
+    <string name="home_adb_dsp">Through the ADB (Android Debug Bridge) connection, you can execute some privileged commands. Please &lt;a href=&quot;%1$s&quot;&gt;read the help&lt;/a&gt;.</string>
     <string name="home_adb_btn_view_command">View command</string>
     <!-- Home - PvsD -->
     <!-- Home - Shutdown -->
@@ -33,40 +37,45 @@
     <!-- Home - Deactivate-->
     <string name="home_deactivate_title">Deactivate</string>
     <string name="home_deactivate_dsp">Are you sure you want to deactivate?</string>
+    <string name="home_deactivate_admin_dsp">Device admin only: this will remove NeoDhizuku as a device admin. Confirm?</string>
+    <string name="home_deactivate_admin_failed">Failed to remove the device admin. Remove it manually in system settings.</string>
     <string name="confirm">OK</string>
     <string name="confirm_device_owner">Device Owner</string>
     <string name="confirm_profile_owner">Profile Owner</string>
     <string name="profile_owner_warning_title">Warning</string>
-    <string name="profile_owner_warning_dsp">This is a change that should only be made by users who understand its implications. The developers of Dhizuku cannot guarantee anything about unexpected behavior caused by this mode change.</string>
+    <string name="profile_owner_warning_dsp">This is a change that should only be made by users who understand its implications. The developers of NeoDhizuku cannot guarantee anything about unexpected behavior caused by this mode change.</string>
     <string name="finish">Finish</string>
     <string name="donate">Donate</string>
     <string name="donate_hide_action">Hide</string>
     <string name="donate_hide_confirm_title">Hide Donate Button</string>
     <string name="donate_hide_confirm_dsp">This cannot be undone from within the app. Are you sure you want to permanently hide the donate button?</string>
-    <string name="request_permission_text">Allow <b>%1$s</b> to access Dhizuku?</string>
+    <string name="request_permission_text">Allow <b>%1$s</b> to access NeoDhizuku?</string>
     <string name="agree">Grant</string>
     <string name="refuse">Deny</string>
     <string name="service_channel_name">Background service</string>
-    <string name="service_running">Dhizuku is running</string>
+    <string name="service_running">NeoDhizuku is running</string>
     <string name="settings">Settings</string>
-    <string name="settings_desc">Configure Dhizuku behavior</string>
+    <string name="settings_desc">Configure NeoDhizuku behavior</string>
     <string name="enable_dhizuku">Allow other apps to use the API service</string>
     <string name="enable_dhizuku_desc">When off, third-party apps cannot use the service at all</string>
     <string name="whitelist_mode">Whitelist mode</string>
     <string name="whitelist_mode_desc">Only allow pre-approved apps to use the API service</string>
     <string name="block_app">Block App</string>
     <string name="auto_deny_in">Auto-deny in</string>
-    <string name="block_app_desc">Completely deny access to Dhizuku</string>
-    <string name="app_blocked_notice">This app is blocked and cannot access Dhizuku</string>
-    <string name="allow_dhizuku_access">Allow Dhizuku Access</string>
+    <string name="block_app_desc">Completely deny access to NeoDhizuku</string>
+    <string name="app_blocked_notice">This app is blocked and cannot access NeoDhizuku</string>
+    <string name="allow_dhizuku_access">Allow NeoDhizuku Access</string>
     <string name="unblock_app">Unblock App</string>
     <string name="auto_deny_in_seconds">Auto-deny in %d seconds</string>
     <string name="denying_access">Denying access…</string>
+    <string name="auto_block_in_seconds">Will be blocked in %d seconds</string>
+    <string name="adding_to_blocklist">Adding to blocklist…</string>
 
-    <string name="daemon_service_notification_title">Dhizuku Daemon</string>
-    <string name="daemon_service_notification_text">This is a Dhizuku notification to ensure service availability at any time. You can long press to hide this notification.</string>
+    <string name="daemon_service_notification_title">NeoDhizuku Daemon</string>
+    <string name="daemon_service_notification_text">This is a NeoDhizuku notification to ensure service availability at any time. You can long press to hide this notification.</string>
     <!-- NeoDhizuku: A-11 -->
-    <string name="home_shizuku_not_installed">Shizuku / Sui is not running. Opening the download page…</string>
+    <string name="home_shizuku_not_installed">Shizuku / Sui is not running</string>
+    <string name="activate_shizuku_unavailable">Shizuku / Sui service is not running. Start Shizuku or Sui first, then tap Retry — activation cannot proceed without it.</string>
 
     <!-- NeoDhizuku: A-10 激活错误诊断 -->
     <string name="activate_err_account_exists">Accounts exist on this device</string>
@@ -74,7 +83,7 @@
     <string name="activate_err_owner_exists">A device owner or profile owner is already set</string>
     <string name="activate_err_owner_exists_advice">Only one owner can exist at a time. Remove the existing owner first, or transfer ownership from Dhizuku.</string>
     <string name="activate_err_shizuku_down">Shizuku / Sui is unavailable</string>
-    <string name="activate_err_shizuku_down_advice">Please start Shizuku (or install Sui) and grant permission to Dhizuku, then try again.</string>
+    <string name="activate_err_shizuku_down_advice">Please start Shizuku (or install Sui) and grant permission to NeoDhizuku, then try again.</string>
     <string name="activate_err_hidden_api">This system blocks the required private API</string>
     <string name="activate_err_hidden_api_advice">Please activate via ADB or QR provisioning instead. See the home page for instructions.</string>
     <string name="activate_err_not_admin">The target component is not a valid device admin</string>
@@ -125,7 +134,7 @@
     <string name="settings_manage_section">Management</string>
     <string name="settings_manage_apps_desc">%1$d authorized apps</string>
     <string name="settings_manage_blocklist_desc">Blocked apps will not receive prompts</string>
-    <string name="settings_manage_calllog_desc">Review what apps did through Dhizuku</string>
+    <string name="settings_manage_calllog_desc">Review what apps did through NeoDhizuku</string>
     <!-- NeoDhizuku: UI-09 主题页 -->
     <string name="theme_title">Theme</string>
     <string name="settings_appearance_section">Appearance</string>
@@ -147,9 +156,9 @@
     <string name="notifier_channel_security">Security alerts</string>
     <string name="notifier_channel_security_desc">Alerts for high-risk events such as device owner transfer</string>
     <string name="alert_transfer_blocked_title">Device owner transfer blocked</string>
-    <string name="alert_transfer_blocked_text">\"%1$s\" tried to transfer the device owner and was blocked. Enable \"Allow third-party apps to transfer device owner\" in settings and try again.</string>
+    <string name="alert_transfer_blocked_text">&quot;%1$s&quot; tried to transfer the device owner and was blocked. Enable &quot;Allow third-party apps to transfer device owner&quot; in settings and try again.</string>
     <string name="alert_transfer_allowed_title">Device owner may have been transferred</string>
-    <string name="alert_transfer_allowed_text">\"%1$s\" performed a device owner transfer. If that app provides no authorization entry, ownership may not be recoverable.</string>
+    <string name="alert_transfer_allowed_text">&quot;%1$s&quot; performed a device owner transfer. If that app provides no authorization entry, ownership may not be recoverable.</string>
 
     <!-- 设置：转移开关 -->
     <string name="settings_allow_owner_transfer">Allow third-party apps to transfer device owner</string>
@@ -177,8 +186,8 @@
     <string name="home_restart_dsp">Restart the daemon service and restore API support for third-party apps.</string>
     <string name="call_log_copy_done">Copied to clipboard</string>
     <string name="call_log_long_press_hint">Long-press a card to copy all content</string>
-    <string name="alert_permission_request_title">An app is requesting Dhizuku authorization</string>
-    <string name="alert_permission_request_text">\"%1$s\" is requesting access to Dhizuku. Tap to handle it (use this if the dialog did not appear on its own).</string>
+    <string name="alert_permission_request_title">An app is requesting NeoDhizuku authorization</string>
+    <string name="alert_permission_request_text">&quot;%1$s&quot; is requesting access to NeoDhizuku. Tap to handle it (use this if the dialog did not appear on its own).</string>
     <string name="quick_activate_title">Temporary activation without removing accounts</string>
     <string name="quick_activate_entry_title">Activate temporarily without removing accounts</string>
     <string name="quick_activate_entry_dsp">Activate as device owner without removing accounts. Requires Android 13 or newer and Shizuku.</string>
@@ -188,7 +197,7 @@
     <string name="quick_activate_limit_dsp">Limits: Android 13 (API 33) or newer only; requires Shizuku or root to run shell commands; some vendor ROMs may block the required interfaces.</string>
 
     <string name="quick_activate_unsupported_title">Not supported on this device</string>
-    <string name="quick_activate_unsupported_dsp">This mode relies on the device policy management role introduced in Android 13. The current system version is %1$d. Please activate via Shizuku or ADB instead.</string>
+    <string name="quick_activate_unsupported_dsp">This mode relies on the device policy management role introduced in Android 13. The current system version is %1$s. Please activate via Shizuku or ADB instead.</string>
 
     <string name="quick_activate_step_open_title">Open the wizard</string>
     <string name="quick_activate_step_open_dsp">Grants the device policy management role and sets user_setup_complete to 0, opening the gate required for activation.</string>
@@ -206,7 +215,7 @@
     <string name="quick_activate_result_ok">Succeeded</string>
     <string name="quick_activate_result_fail">Not completed</string>
     <string name="quick_activate_success">Device owner activated</string>
-    <string name="security_title">Service</string>
+    <string name="security_title">Shared service</string>
     <string name="settings_security_desc">API service switch, whitelist, behavior after the service is closed, device owner transfer</string>
     <string name="security_deny_section">Refusal options</string>
     <string name="security_deny_mode_title">Behavior after the service is closed</string>
@@ -216,10 +225,10 @@
     <string name="deny_mode_dangerous_fail_desc">The app can find the service; dangerous operations are refused.</string>
     <string name="deny_mode_dangerous_success">Refuse dangerous calls, return success</string>
     <string name="deny_mode_dangerous_success_desc">The app can find the service; dangerous operations report success but are not carried out.</string>
-    <string name="deny_mode_all_fail">Refuse everything, return failure</string>
-    <string name="deny_mode_all_fail_desc">The app cannot find the service, the same as being inactive.</string>
-    <string name="deny_mode_all_success">Refuse everything, return success</string>
-    <string name="deny_mode_all_success_desc">The app cannot find the service, but receives a success response.</string>
+    <string name="deny_mode_all_fail">Silently refuse and return failure</string>
+    <string name="deny_mode_all_fail_desc">The app can find and bind the service, but every call fails. No dialog is shown.</string>
+    <string name="deny_mode_all_success">Silently refuse and return success</string>
+    <string name="deny_mode_all_success_desc">The app can find and bind the service; every call reports success but nothing is carried out. No dialog is shown.</string>
     <string name="deny_mode_no_action">Do nothing</string>
     <string name="deny_mode_no_action_desc">Neither refuses nor allows; the request is left hanging and the app waits forever.</string>
 
@@ -251,7 +260,8 @@
     <string name="about_service_running">Running</string>
     <string name="about_service_stopped">Stopped</string>
     <string name="about_github">GitHub</string>
-    <string name="about_qq_group">QQ group</string>
+    <string name="about_qq_group">QQ</string>
+    <string name="about_telegram">TG</string>
 
     <!-- 设置 → 软件 -->
     <string name="settings_software_section">Software</string>
@@ -271,21 +281,23 @@
     <!-- 服务策略：能力不足 -->
     <string name="security_insufficient_section">When capability is insufficient</string>
     <string name="security_insufficient_mode">Admin mode</string>
-    <string name="security_insufficient_note">Applies only when the current identity cannot perform a requested action \(for example, requesting an owner-only operation while only device admin\). The attempt is always logged, regardless of the chosen response.</string>
+    <string name="security_insufficient_note">Applies only when the current identity cannot perform a requested action (for example, requesting an owner-only operation while only device admin). The attempt is always logged, regardless of the chosen response.</string>
     <string name="insufficient_mode_fail">Return failure</string>
     <string name="insufficient_mode_fail_desc">The caller receives an error. Recommended — avoids silent no-ops.</string>
     <string name="insufficient_mode_success">Return success without executing</string>
     <string name="insufficient_mode_success_desc">The caller believes it succeeded, but nothing happens. For apps that crash on errors.</string>
-    <string name="insufficient_mode_no_action">Do nothing \(hang\)</string>
+    <string name="insufficient_mode_no_action">Do nothing (hang)</string>
     <string name="insufficient_mode_no_action_desc">No response is sent; the caller waits indefinitely.</string>
 
     <!-- 擦除拦截 -->
     <string name="alert_wipe_blocked_title">Wipe request blocked</string>
-    <string name="alert_wipe_blocked_text">Blocked a request from \"%1$s\" to wipe device data</string>
+    <string name="alert_wipe_blocked_text">Blocked a request from &quot;%1$s&quot; to wipe device data</string>
+    <string name="alert_guard_degraded_title">Security guard degraded</string>
+    <string name="alert_guard_degraded_text">The DevicePolicyManager method table could not be loaded, so all device policy calls are now being blocked as a precaution. You can turn off the wipe / owner transfer guards in settings to restore normal use.</string>
     <string name="wipe_warn1_title">Irreversible operation</string>
-    <string name="wipe_warn1_text">\"%1$s\" is requesting to wipe all device data. This erases accounts, apps, photos and files, and cannot be undone.</string>
+    <string name="wipe_warn1_text">&quot;%1$s&quot; is requesting to wipe all device data. This erases accounts, apps, photos and files, and cannot be undone.</string>
     <string name="wipe_warn2_title">Please confirm again</string>
-    <string name="wipe_warn2_text">Are you sure you want to let \"%1$s\" wipe this device? This is your second and final warning.</string>
+    <string name="wipe_warn2_text">Are you sure you want to let &quot;%1$s&quot; wipe this device? This is your second and final warning.</string>
     <string name="wipe_warn_continue">Continue</string>
     <string name="wipe_warn_cancel">Cancel</string>
     <string name="wipe_warn_i_confirm">I confirm</string>
@@ -300,7 +312,7 @@
 
     <!-- 设备管理员激活 -->
     <string name="activate_device_admin_title">Activate as device admin</string>
-    <string name="activate_device_admin_desc">Granted in system settings, works on all Android versions. Limited capabilities \(see service policy\).</string>
+    <string name="activate_device_admin_desc">Granted in system settings, works on all Android versions. Limited capabilities (see service policy).</string>
     <string name="activate_device_admin_already">Device admin is active. Some actions still require device owner.</string>
     <string name="activate_device_admin_action">Open wizard</string>
     <string name="activate_device_admin_settings">System settings</string>
@@ -320,6 +332,8 @@
     <string name="experimental_delegation_cleanup_desc">When revoking an app, also undo the hidden, suspended and permission-lock states it already applied</string>
     <string name="experimental_verbose_log">Full runtime log</string>
     <string name="experimental_verbose_log_desc">When off, the runtime log only keeps permission calls, permission changes and activation. Turn on to record every category</string>
+    <string name="experimental_glass_nav_bar">Complete liquid-glass bottom selector</string>
+    <string name="experimental_glass_nav_bar_desc">Replaces the bottom bar with a damped-gesture glass selector. The glass is drawn, not sampled from the background, so content behind it is not actually blurred</string>
     <string name="experimental_enable_warning">These features may be unsafe or cause bugs, and could lead to serious consequences. Confirm whether you want to enable it!</string>
     <string name="experimental_enable_confirm">Enable</string>
     <string name="delegation_title">Delegation management</string>
@@ -372,4 +386,394 @@
     <string name="update_download">Download</string>
     <string name="update_open_repo">Open repository</string>
     <string name="delegation_search_hint">Search by app name or package name</string>
+    <!-- NeoDhizuku: 液态玻璃底栏与内置取色板 -->
+    <string name="theme_navbar_section">Bottom bar</string>
+    <string name="theme_liquid_glass">Liquid glass bottom bar</string>
+    <string name="theme_liquid_glass_desc">Replace the bottom bar with the glass one: it samples what is behind it and refracts it. Turn off to fall back to the plain bar</string>
+    <string name="theme_recents_section">Recents</string>
+    <string name="theme_hide_from_recents">Hide manager from recents</string>
+    <string name="theme_hide_from_recents_desc">Do not show the manager page in the recent tasks list. It also avoids killing the background service by swiping the card away by mistake</string>
+    <string name="theme_background_section">Background</string>
+    <string name="theme_background_image">Custom background image</string>
+    <string name="theme_background_image_desc">Pick a picture to sit behind every page. It is copied into the app so it keeps working later</string>
+    <string name="theme_background_pick">Pick image</string>
+    <string name="theme_background_clear">Remove</string>
+    <string name="theme_background_unset">No background image set</string>
+    <string name="theme_background_blur">Blur</string>
+    <string name="theme_background_dim">Dim</string>
+    <string name="theme_background_import_failed">Could not read that image</string>
+    <string name="theme_custom_color_section">Built-in theme colors</string>
+    <string name="theme_color_brand_purple">Brand purple</string>
+    <string name="theme_color_cherry_blossom">Cherry blossom</string>
+    <string name="theme_color_default_blue">Default blue</string>
+    <string name="theme_color_fresh_green">Fresh green</string>
+    <string name="theme_color_elegant_purple">Elegant purple</string>
+    <string name="theme_color_vibrant_orange">Vibrant orange</string>
+    <string name="theme_color_cyan">Cyan</string>
+    <string name="theme_color_mint_green">Mint green</string>
+    <string name="theme_color_pink">Pink</string>
+    <string name="theme_color_deep_pink">Deep pink</string>
+    <string name="theme_color_ice_blue">Ice blue</string>
+    <string name="theme_color_rose">Rose</string>
+    <string name="strict_service_check">Stricter service checks</string>
+<string name="strict_service_check_desc">When off, apps are allowed by package name only, so clients that hard-code the upstream permission name keep working. When on, callers must also hold the permission declared by this app.</string>
+<string name="whitelist_manage_section">Whitelist</string>
+<string name="whitelist_manage_title">Whitelist</string>
+<string name="whitelist_manage_entry_desc">Choose which apps may use the service</string>
+<string name="whitelist_manage_desc">Tick an app to add it to the whitelist. The list is stored in this app\'s private storage and takes effect when whitelist mode is on.</string>
+<string name="whitelist_section_whitelisted">Whitelisted apps</string>
+<string name="whitelist_section_others">Other apps</string>
+<string name="whitelist_empty_whitelisted">No apps on the whitelist yet</string>
+<string name="whitelist_empty_others">No other apps found</string>
+<string name="whitelist_loading">Loading apps...</string>
+<string name="experimental_strict_whitelist">Use stricter whitelist checks</string>
+<string name="experimental_strict_whitelist_desc">When off, whitelist matching compares the package name only. When on, the signature recorded when the app was added is compared too, so a repackaged app with the same package name no longer matches.</string>
+
+    <!-- 更新设置 -->
+    <string name="update_settings_title">Update settings</string>
+    <string name="update_settings_entry_dsp">Update source and link options</string>
+    <string name="update_settings_source">Update source</string>
+    <string name="update_settings_source_official">Official (insecure)</string>
+    <string name="update_settings_source_official_desc">Self-hosted server over plain HTTP</string>
+    <string name="update_settings_source_github">GitHub</string>
+    <string name="update_settings_source_github_desc">Raw file in the repository</string>
+    <string name="update_settings_source_custom">Custom</string>
+    <string name="update_settings_source_custom_desc">Address you fill in below</string>
+    <string name="update_settings_insecure">Allow insecure links</string>
+    <string name="update_settings_insecure_desc">Permit plain HTTP addresses. HTTPS is required when this is off</string>
+    <string name="update_settings_custom_url">Manifest address</string>
+    <string name="update_settings_custom_url_hint">https://example.com/update.json</string>
+    <string name="update_settings_custom_url_desc">Used only when the source is Custom</string>
+    <string name="update_settings_official_base">Official server</string>
+
+    <!-- 调试页 -->
+    <string name="debug_title">Debug</string>
+    <string name="debug_official_base">Official server address</string>
+    <string name="debug_timeout">Timeout (ms)</string>
+    <string name="debug_save">Save</string>
+    <string name="debug_reset">Revert</string>
+    <string name="debug_build_title">Latest build</string>
+    <string name="debug_build_desc">Read from the same manifest as the update check. Compared by build date (for example 20261010). The official server must be reachable over public IPv6</string>
+    <string name="debug_build_fetch">Fetch latest build from official server</string>
+    <string name="debug_build_idle">Not fetched yet</string>
+    <string name="debug_build_found">Latest: %1$d (%2$s), %3$d builds in total</string>
+    <string name="debug_build_failed">Fetch failed: %1$s</string>
+    <string name="debug_current_title">Effective configuration</string>
+    <string name="debug_current_version_json">Manifest and build (shared)</string>
+
+    <string name="perm_info_version">Version</string>
+    <string name="perm_info_target_sdk">Target SDK</string>
+    <string name="perm_info_installed">Installed</string>
+    <string name="perm_info_updated">Updated</string>
+    <string name="perm_info_signature">Signature</string>
+    <string name="about_feedback_title">Feedback</string>
+    <string name="about_feedback_desc">Send a problem or an idea straight to the server. Two messages per day.</string>
+    <string name="feedback_dialog_title">Send feedback</string>
+    <string name="feedback_field_title">Title</string>
+    <string name="feedback_field_content">Feedback</string>
+    <string name="feedback_field_contact">Contact (optional)</string>
+    <string name="feedback_send">Send</string>
+    <string name="feedback_sending">Sending</string>
+    <string name="feedback_success_toast">Thanks for your feedback</string>
+    <string name="feedback_failed">Could not send, try again later</string>
+    <string name="feedback_empty">Please write something first</string>
+    <string name="about_credits_title">Credits</string>
+    <string name="about_credits_entry_desc">Tap to see every project and the credits</string>
+    <string name="about_credits_dialog_title">Acknowledgements</string>
+    <string name="about_credit_ai_translation">Translations provided by AI</string>
+    <string name="about_credit_ai_translation_desc">Some interface translations were generated with AI help. Tell us if anything reads oddly.</string>
+    <string name="about_credit_dhizuku">The original project this one builds on</string>
+    <string name="about_credit_dhizuku_api">API for sharing DeviceOwner permissions</string>
+    <string name="about_credit_shizuku_api">Running privileged commands through Shizuku</string>
+    <string name="about_credit_kernelsu">UI reference; its Manager is also built on miuix</string>
+    <string name="about_credit_hidden_api">Calling restricted hidden system interfaces</string>
+    <string name="about_credit_npatch">UI reference, especially the liquid-glass navigation bar</string>
+    <string name="about_credit_miuix">Backdrop sampling and refraction for the glass bar</string>
+    <string name="about_credit_koin">Dependency injection</string>
+    <string name="about_admin_residue_title">Device identity status</string>
+    <string name="about_admin_residue_dsp">After transferring device owner to another app, some devices keep a stale admin record that blocks uninstalling this app. Clear it here if uninstall fails.</string>
+    <string name="about_admin_residue_state">deviceOwner=%1$s profileOwner=%2$s deviceAdmin=%3$s</string>
+    <string name="about_admin_residue_clean">Clear stale identity</string>
+    <string name="about_admin_residue_failed">Clear failed</string>
+    <string name="api_policy_entry_title">System API permissions</string>
+    <string name="api_policy_entry_desc">Choose which system functions each app may call</string>
+    <string name="api_policy_title">System API permissions</string>
+    <string name="api_policy_desc">Allow or block individual system functions (camera, screen lock, hiding apps, wiping data...) per app. High-risk ones are off by default. These settings are ignored while the service is stopped on the home page.</string>
+    <string name="api_policy_global_section">Global</string>
+    <string name="api_policy_app_section">Per app</string>
+    <string name="api_policy_empty">No app has used this service yet</string>
+    <string name="api_policy_configured_count">%1$d functions configured individually</string>
+    <string name="api_policy_follow_global">Following global settings</string>
+    <string name="api_policy_explicit">Configured individually</string>
+    <string name="api_policy_expand">Expand</string>
+    <string name="api_policy_collapse">Collapse</string>
+    <string name="api_policy_close">Close</string>
+    <string name="api_policy_clear_all">Reset all</string>
+    <string name="alert_api_denied_title">Interface call blocked</string>
+    <string name="alert_api_denied_text">Blocked %1$s from calling %2$s</string>
+    <string name="dpm_lockNow">Lock the screen</string>
+    <string name="dpm_lockNow_d">Lock the screen immediately.</string>
+    <string name="dpm_lockNowWithOptions">Lock the screen with options</string>
+    <string name="dpm_lockNowWithOptions_d">Lock the screen with extra options.</string>
+    <string name="dpm_resetPassword">Change the lock screen password</string>
+    <string name="dpm_resetPassword_d">Change the device lock screen password.</string>
+    <string name="dpm_setPasswordQuality">Set password quality</string>
+    <string name="dpm_setPasswordQuality_d">Set the required password quality.</string>
+    <string name="dpm_getPasswordQuality">Read password quality</string>
+    <string name="dpm_getPasswordQuality_d">Read the required password quality.</string>
+    <string name="dpm_setPasswordMinimumLength">Set minimum password length</string>
+    <string name="dpm_setPasswordMinimumLength_d">Set the minimum password length.</string>
+    <string name="dpm_getPasswordMinimumLength">Read minimum password length</string>
+    <string name="dpm_getPasswordMinimumLength_d">Read the minimum password length.</string>
+    <string name="dpm_setPasswordMinimumUpperCase">Set minimum upper-case letters</string>
+    <string name="dpm_setPasswordMinimumUpperCase_d">Set the minimum number of upper-case letters.</string>
+    <string name="dpm_setPasswordMinimumLowerCase">Set minimum lower-case letters</string>
+    <string name="dpm_setPasswordMinimumLowerCase_d">Set the minimum number of lower-case letters.</string>
+    <string name="dpm_setPasswordMinimumNumeric">Set minimum digits</string>
+    <string name="dpm_setPasswordMinimumNumeric_d">Set the minimum number of numeric characters.</string>
+    <string name="dpm_setPasswordMinimumSymbols">Set minimum symbols</string>
+    <string name="dpm_setPasswordMinimumSymbols_d">Set the minimum number of symbols.</string>
+    <string name="dpm_setPasswordMinimumNonLetter">Set minimum non-letter characters</string>
+    <string name="dpm_setPasswordMinimumNonLetter_d">Set the minimum number of non-letter characters.</string>
+    <string name="dpm_setPasswordExpirationTimeout">Set password validity</string>
+    <string name="dpm_setPasswordExpirationTimeout_d">Set how long a password stays valid.</string>
+    <string name="dpm_setMaximumTimeToLock">Set auto-lock delay</string>
+    <string name="dpm_setMaximumTimeToLock_d">Set the idle time before the screen locks.</string>
+    <string name="dpm_getMaximumTimeToLock">Read auto-lock delay</string>
+    <string name="dpm_getMaximumTimeToLock_d">Read the idle time before the screen locks.</string>
+    <string name="dpm_setMaximumFailedPasswordsForWipe">Set wipe threshold</string>
+    <string name="dpm_setMaximumFailedPasswordsForWipe_d">Set how many wrong passwords wipe the device.</string>
+    <string name="dpm_getMaximumFailedPasswordsForWipe">Read wipe threshold</string>
+    <string name="dpm_getMaximumFailedPasswordsForWipe_d">Read the failed-password wipe threshold.</string>
+    <string name="dpm_setKeyguardDisabledFeatures">Set keyguard restrictions</string>
+    <string name="dpm_setKeyguardDisabledFeatures_d">Choose which keyguard features are disabled.</string>
+    <string name="dpm_getKeyguardDisabledFeatures">Read keyguard restrictions</string>
+    <string name="dpm_getKeyguardDisabledFeatures_d">Read which keyguard features are disabled.</string>
+    <string name="dpm_setRequiredStrongAuthTimeout">Set strong auth timeout</string>
+    <string name="dpm_setRequiredStrongAuthTimeout_d">Set the timeout for strong authentication.</string>
+    <string name="dpm_requestKeyguardDismiss">Ask to unlock the screen</string>
+    <string name="dpm_requestKeyguardDismiss_d">Ask the user to dismiss the keyguard.</string>
+    <string name="dpm_setApplicationHidden">Hide or unhide an app</string>
+    <string name="dpm_setApplicationHidden_d">Hide or unhide an app.</string>
+    <string name="dpm_isApplicationHidden">Check whether an app is hidden</string>
+    <string name="dpm_isApplicationHidden_d">Check whether an app is hidden.</string>
+    <string name="dpm_setApplicationRestrictions">Set app restrictions</string>
+    <string name="dpm_setApplicationRestrictions_d">Set restrictions for an app.</string>
+    <string name="dpm_getApplicationRestrictions">Read app restrictions</string>
+    <string name="dpm_getApplicationRestrictions_d">Read restrictions for an app.</string>
+    <string name="dpm_setApplicationSuspended">Suspend or unsuspend an app</string>
+    <string name="dpm_setApplicationSuspended_d">Suspend or unsuspend an app.</string>
+    <string name="dpm_isApplicationSuspended">Check whether an app is suspended</string>
+    <string name="dpm_isApplicationSuspended_d">Check whether an app is suspended.</string>
+    <string name="dpm_setUninstallBlocked">Block uninstalling an app</string>
+    <string name="dpm_setUninstallBlocked_d">Block or allow uninstalling an app.</string>
+    <string name="dpm_isUninstallBlocked">Check uninstall block</string>
+    <string name="dpm_isUninstallBlocked_d">Check whether uninstalling an app is blocked.</string>
+    <string name="dpm_enableSystemApp">Re-enable a system app</string>
+    <string name="dpm_enableSystemApp_d">Re-enable a disabled system app.</string>
+    <string name="dpm_installSystemUpdate">Install a system update</string>
+    <string name="dpm_installSystemUpdate_d">Install a system update.</string>
+    <string name="dpm_clearApplicationUserData">Erase an app data</string>
+    <string name="dpm_clearApplicationUserData_d">Erase an app\'s data.</string>
+    <string name="dpm_installExistingPackage">Install package for another user</string>
+    <string name="dpm_installExistingPackage_d">Install an existing package for another user.</string>
+    <string name="dpm_setKeepUninstalledPackages">Keep data of uninstalled apps</string>
+    <string name="dpm_setKeepUninstalledPackages_d">Keep data of uninstalled packages.</string>
+    <string name="dpm_getKeepUninstalledPackages">Read kept-uninstalled list</string>
+    <string name="dpm_getKeepUninstalledPackages_d">Read the kept-uninstalled package list.</string>
+    <string name="dpm_setPermissionGrantState">Change a permission grant state</string>
+    <string name="dpm_setPermissionGrantState_d">Grant, deny or keep a runtime permission for an app.</string>
+    <string name="dpm_getPermissionGrantState">Read permission grant state</string>
+    <string name="dpm_getPermissionGrantState_d">Read the grant state of a permission.</string>
+    <string name="dpm_setPermissionPolicy">Set permission policy</string>
+    <string name="dpm_setPermissionPolicy_d">Set the default policy for permission requests.</string>
+    <string name="dpm_getPermissionPolicy">Read permission policy</string>
+    <string name="dpm_getPermissionPolicy_d">Read the default permission policy.</string>
+    <string name="dpm_setPermittedInputMethods">Restrict input methods</string>
+    <string name="dpm_setPermittedInputMethods_d">Restrict which input methods may be used.</string>
+    <string name="dpm_getPermittedInputMethods">Read allowed input methods</string>
+    <string name="dpm_getPermittedInputMethods_d">Read the permitted input methods.</string>
+    <string name="dpm_setAccountManagementDisabled">Block account sync</string>
+    <string name="dpm_setAccountManagementDisabled_d">Enable or disable account management for a type.</string>
+    <string name="dpm_getAccountTypesWithManagementDisabled">Read blocked account types</string>
+    <string name="dpm_getAccountTypesWithManagementDisabled_d">Read account types with management disabled.</string>
+    <string name="dpm_setCameraDisabled">Disable the camera</string>
+    <string name="dpm_setCameraDisabled_d">Disable or enable the camera.</string>
+    <string name="dpm_getCameraDisabled">Read camera state</string>
+    <string name="dpm_getCameraDisabled_d">Check whether the camera is disabled.</string>
+    <string name="dpm_setScreenCaptureDisabled">Disable screen capture</string>
+    <string name="dpm_setScreenCaptureDisabled_d">Disable or enable screen capture.</string>
+    <string name="dpm_getScreenCaptureDisabled">Read screen capture state</string>
+    <string name="dpm_getScreenCaptureDisabled_d">Check whether screen capture is disabled.</string>
+    <string name="dpm_setStatusBarDisabled">Disable the status bar</string>
+    <string name="dpm_setStatusBarDisabled_d">Disable or enable the status bar.</string>
+    <string name="dpm_setAutoTimeRequired">Force automatic date and time</string>
+    <string name="dpm_setAutoTimeRequired_d">Require automatic date and time.</string>
+    <string name="dpm_addUserRestriction">Add a user restriction</string>
+    <string name="dpm_addUserRestriction_d">Add a user restriction.</string>
+    <string name="dpm_clearUserRestriction">Remove a user restriction</string>
+    <string name="dpm_clearUserRestriction_d">Remove a user restriction.</string>
+    <string name="dpm_setUserRestriction">Set a user restriction</string>
+    <string name="dpm_setUserRestriction_d">Set a user restriction on or off.</string>
+    <string name="dpm_getUserRestrictions">Read user restrictions</string>
+    <string name="dpm_getUserRestrictions_d">Read all active user restrictions.</string>
+    <string name="dpm_setNetworkLoggingEnabled">Toggle network logging</string>
+    <string name="dpm_setNetworkLoggingEnabled_d">Enable or disable network activity logging.</string>
+    <string name="dpm_retrieveNetworkLogs">Retrieve network logs</string>
+    <string name="dpm_retrieveNetworkLogs_d">Retrieve recorded network logs.</string>
+    <string name="dpm_setStorageEncryption">Require storage encryption</string>
+    <string name="dpm_setStorageEncryption_d">Require storage encryption.</string>
+    <string name="dpm_getStorageEncryption">Read encryption requirement</string>
+    <string name="dpm_getStorageEncryption_d">Check whether storage encryption is required.</string>
+    <string name="dpm_getStorageEncryptionStatus">Read encryption status</string>
+    <string name="dpm_getStorageEncryptionStatus_d">Read the current encryption status.</string>
+    <string name="dpm_installCaCert">Install a certificate</string>
+    <string name="dpm_installCaCert_d">Install a certificate into the trusted store.</string>
+    <string name="dpm_uninstallCaCert">Remove a certificate</string>
+    <string name="dpm_uninstallCaCert_d">Remove a certificate from the trusted store.</string>
+    <string name="dpm_getInstalledCaCerts">List installed certificates</string>
+    <string name="dpm_getInstalledCaCerts_d">List installed certificates.</string>
+    <string name="dpm_createAndManageUser">Create and manage a user</string>
+    <string name="dpm_createAndManageUser_d">Create and manage a new user.</string>
+    <string name="dpm_removeUser">Remove a user</string>
+    <string name="dpm_removeUser_d">Remove a user.</string>
+    <string name="dpm_switchUser">Switch user</string>
+    <string name="dpm_switchUser_d">Switch to another user.</string>
+    <string name="dpm_setProfileName">Rename the work profile</string>
+    <string name="dpm_setProfileName_d">Rename the managed profile.</string>
+    <string name="dpm_setProfileEnabled">Enable or disable the work profile</string>
+    <string name="dpm_setProfileEnabled_d">Enable or disable the managed profile.</string>
+    <string name="dpm_setProfileOwner">Set profile owner</string>
+    <string name="dpm_setProfileOwner_d">Set the profile owner.</string>
+    <string name="dpm_setDeviceOwner">Set device owner</string>
+    <string name="dpm_setDeviceOwner_d">Set the device owner.</string>
+    <string name="dpm_transferOwnership">Transfer device ownership</string>
+    <string name="dpm_transferOwnership_d">Transfer device ownership to another app.</string>
+    <string name="dpm_clearDeviceOwnerApp">Clear device owner</string>
+    <string name="dpm_clearDeviceOwnerApp_d">Clear the current device owner.</string>
+    <string name="dpm_setActiveAdmin">Activate a device administrator</string>
+    <string name="dpm_setActiveAdmin_d">Activate a device administrator.</string>
+    <string name="dpm_removeActiveAdmin">Remove a device administrator</string>
+    <string name="dpm_removeActiveAdmin_d">Remove a device administrator.</string>
+    <string name="dpm_reboot">Reboot the device</string>
+    <string name="dpm_reboot_d">Reboot the device.</string>
+    <string name="dpm_wipeData">Erase all device data</string>
+    <string name="dpm_wipeData_d">Erase all device data (factory reset).</string>
+    <string name="dpm_wipeDataWithReason">Erase all device data with a reason</string>
+    <string name="dpm_wipeDataWithReason_d">Erase all device data with a reason.</string>
+    <string name="dpm_setGlobalSetting">Change a global setting</string>
+    <string name="dpm_setGlobalSetting_d">Change a global system setting.</string>
+    <string name="dpm_setSecureSetting">Change a secure setting</string>
+    <string name="dpm_setSecureSetting_d">Change a secure system setting.</string>
+    <string name="dpm_setSystemUpdatePolicy">Set update policy</string>
+    <string name="dpm_setSystemUpdatePolicy_d">Set the system update policy.</string>
+    <string name="dpm_getSystemUpdatePolicy">Read update policy</string>
+    <string name="dpm_getSystemUpdatePolicy_d">Read the system update policy.</string>
+    <string name="dpm_setOrganizationName">Set the organization name</string>
+    <string name="dpm_setOrganizationName_d">Set the organization name.</string>
+    <string name="dpm_getDeviceOwnerComponent">Read device owner</string>
+    <string name="dpm_getDeviceOwnerComponent_d">Read the current device owner.</string>
+    <string name="dpm_isDeviceOwnerApp">Check device owner</string>
+    <string name="dpm_isDeviceOwnerApp_d">Check whether an app is the device owner.</string>
+    <string name="dpm_isProfileOwnerApp">Check profile owner</string>
+    <string name="dpm_isProfileOwnerApp_d">Check whether an app is the profile owner.</string>
+    <string name="dpm_isAdminActive">Check device administrator</string>
+    <string name="dpm_isAdminActive_d">Check whether an admin is active.</string>
+    <string name="dpm_getActiveAdmins">List device administrators</string>
+    <string name="dpm_getActiveAdmins_d">List active device administrators.</string>
+    <string name="dpm_setDeviceOwnerLockScreenInfo">Set lock screen owner info</string>
+    <string name="dpm_setDeviceOwnerLockScreenInfo_d">Set the owner info shown on the lock screen.</string>
+    <string name="dpm_group_lock">Screen lock and password</string>
+    <string name="dpm_group_app">App management</string>
+    <string name="dpm_group_perm">Permissions and accounts</string>
+    <string name="dpm_group_restrict">Device restrictions</string>
+    <string name="dpm_group_storage">Storage and encryption</string>
+    <string name="dpm_group_user">Users and profiles</string>
+    <string name="dpm_group_system">System operations</string>
+
+    <!-- 调试分区 / debug sections -->
+    <string name="debug_menu_notice">Debug tools act on the running process immediately. Misuse may break activation or authorization.</string>
+    <string name="debug_menu_update_config">Update config</string>
+    <string name="debug_menu_update_config_desc">Official / custom manifest URLs, timeout, insecure links, latest build</string>
+    <string name="debug_menu_runtime_params">Runtime parameters</string>
+    <string name="debug_menu_runtime_params_desc">Edit every writable variable in memory. No safety filter.</string>
+    <string name="debug_menu_runtime_info">Runtime info</string>
+    <string name="debug_menu_runtime_info_desc">Tokens, interface states, identity, memory, process and config snapshots</string>
+    <string name="debug_menu_service_files">Service config files</string>
+    <string name="debug_menu_service_files_desc">Read and write every file in the app private storage</string>
+    <string name="debug_menu_reset">Reset NeoDhizuku</string>
+    <string name="debug_menu_reset_desc">Wipe all app data and configuration, then exit</string>
+    <string name="debug_reset_step1_title">Reset NeoDhizuku?</string>
+    <string name="debug_reset_step1_text">This clears all preferences, authorization records, private files and the database. Device owner / admin identity is kept.</string>
+    <string name="debug_reset_step2_title">This cannot be undone</string>
+    <string name="debug_reset_step2_text">The manager will exit immediately after wiping. Reopen it to rebuild defaults.</string>
+    <string name="debug_reset_continue">Continue</string>
+    <string name="debug_reset_final">Wipe and exit</string>
+    <string name="debug_update_config_title">Update config</string>
+    <string name="debug_params_title">Runtime parameters</string>
+    <string name="debug_params_notice">Variable names are shown as-is. Changes take effect immediately; some are restored on restart.</string>
+    <string name="debug_info_title">Runtime info</string>
+    <string name="debug_info_notice">Tap any row to copy its value. Refresh to take a new snapshot.</string>
+    <string name="debug_info_refresh">Refresh</string>
+    <string name="debug_info_copied">Copied: %1$s</string>
+    <string name="debug_service_files_title">Service config files</string>
+    <string name="debug_service_files_notice">CE and DE storage are both listed. Binary files are read-only; edits to api_policy.json / whitelist.json reload immediately.</string>
+    <string name="debug_service_files_empty">No files found.</string>
+    <string name="debug_service_file_save">Save</string>
+    <string name="update_settings_startup_check">Check for updates on startup</string>
+    <string name="update_settings_startup_check_desc">Query the official server once each time the app opens. Only shows a card when a newer version exists.</string>
+
+    <!-- DAX / Xposed module integration -->
+    <string name="xposed_module_description">NeoDhizuku module: lets selected apps use DeviceOwner APIs through NeoDhizuku. Do not enable the System Framework scope.</string>
+    <string name="hook_config_title">Xposed module</string>
+    <string name="hook_config_entry_title">Module scope</string>
+    <string name="hook_config_entry_desc">LSPosed / LSPatch scope and behavior</string>
+    <string name="hook_config_master">Enable module</string>
+    <string name="hook_config_master_desc">Without this switch the module stays completely inactive</string>
+    <string name="hook_config_scope">Scope</string>
+    <string name="hook_config_scope_desc">Leave empty to follow the scope selected in LSPosed. Selected apps are checked below.</string>
+    <string name="hook_config_behavior">Behavior</string>
+    <string name="hook_config_query">Owner queries</string>
+    <string name="hook_config_call">Owner calls</string>
+    <string name="hook_config_force_true">Always return true</string>
+    <string name="hook_config_installer">Package installer</string>
+    <string name="hook_config_append_admins">Append to active admins</string>
+    <string name="hook_config_reported">Reported processes</string>
+    <string name="hook_config_no_report">No process has reported yet</string>
+    <string name="hook_config_lspatch">LSPatch note</string>
+    <string name="hook_config_lspatch_desc">The target app must be able to see NeoDhizuku. Add the queries entry while patching, or use an app that has QUERY_ALL_PACKAGES.</string>
+    <string name="hook_config_copy_queries">Copy queries snippet</string>
+    <string name="hook_config_note_desc">Only active when LSPosed or LSPatch loads this APK as a module. Devices without them are unaffected. Do not enable the System Framework scope.</string>
+
+    <!-- Device identity: dynamic package name -->
+    <string name="owner_identity_title">Device identity</string>
+    <string name="owner_identity_desc">Remove or transfer a device admin component even when its package name was changed. Candidates come from the system, not from the current applicationId. Transfer requires this instance to be the device owner.</string>
+    <string name="owner_identity_entry">Remove / transfer owner (any package)</string>
+    <string name="owner_identity_same_project">same project</string>
+    <string name="owner_identity_self">current package</string>
+    <string name="owner_identity_active">active</string>
+    <string name="owner_identity_inactive">inactive</string>
+    <string name="owner_identity_remove">Remove admin</string>
+    <string name="owner_identity_remove_shell">Force remove via Shizuku</string>
+    <string name="owner_identity_transfer">Transfer owner here</string>
+    <string name="owner_identity_add">Add component</string>
+    <string name="owner_identity_hint">pkg/.server.DhizukuDAReceiver</string>
+    <string name="owner_identity_empty">No device admin component found.</string>
+
+    <!-- Round 30: tablet rail, hook scope, confirm dialogs -->
+    <string name="hook_config_scope_title">Scope</string>
+    <string name="hook_config_scope_follow_desc">Always follows the apps selected in LSPosed / LSPatch. This page does not pick apps on its own.</string>
+    <string name="hook_config_framework">Framework: %1$s</string>
+    <string name="hook_config_framework_none">No LSPosed / LSPatch detected</string>
+    <string name="hook_config_hooked">Hooked %1$d apps / %2$d processes</string>
+    <string name="hook_config_restart_title">Restart target apps after scope changes</string>
+    <string name="hook_config_restart_desc">The module is loaded once when a process starts. After adding or removing apps in LSPosed / LSPatch, force-stop and reopen those apps. Behavior switches below sync over heartbeat and do not need a restart.</string>
+    <string name="hook_config_restart_notice">The master switch was just turned on, or an in-app scope was cleared. Force-stop and reopen any target apps already running.</string>
+    <string name="hook_config_restart_dismiss">Got it</string>
+    <string name="about_admin_residue_confirm_title">Clear device identity?</string>
+    <string name="about_admin_residue_confirm_desc">This unconditionally calls the clear device owner, clear profile owner and remove active admin APIs. If this app is still the owner, it must be activated again. This cannot be undone.</string>
+    <string name="about_admin_residue_confirm_ok">Clear anyway</string>
+    <string name="owner_identity_confirm_title">Confirm device identity change?</string>
+    <string name="owner_identity_confirm_desc">Removing or transferring a device admin / owner identity cannot be undone. Check the component below before continuing.</string>
+    <string name="owner_identity_confirm_ok">Confirm</string>
 </resources>

@@ -10,40 +10,48 @@ interface SettingsRepo {
     fun flowServiceStoppedByUser(): Flow<Boolean>
     fun flowDenyMode(): Flow<String>
     /**
-     * 向客户端返回上游 Dhizuku 的版本号（默认开启）。
+     * 更严格的服务校验，默认关闭。
      *
-     * 部分客户端会校验版本，返回本项目的版本号可能被判定为不兼容，
-     * 因此默认沿用上游值；关闭后返回本项目自身的版本号。
+     * 关闭时只按包名放行 —— 只认上游权限名的硬编码客户端同样可用；
+     * 开启后额外要求调用方持有本应用自身声明的权限，仅持有上游权限名的会被拒绝。
      */
+    fun flowStrictServiceCheck(): Flow<Boolean>
+
+    /** 向客户端返回上游 Dhizuku 的版本号，默认开启。见 [isUseLegacyVersion] */
     fun flowUseLegacyVersion(): Flow<Boolean>
 
-    // ------------------------------------------------------------------
-    // 实验性功能
-    //
-    // 与上面的开关不同：这些修复**默认关闭**，关闭时走原有逻辑，
-    // 开启后才走修复后的分支，两套逻辑并存以便对照。
-    // ------------------------------------------------------------------
-
-    /** 实验性：免删账号激活缺陷修复，默认关闭 */
+    /** 实验性：免删账号激活缺陷修复，默认关闭。见 [isExperimentalQuickActivateFix] */
     fun flowExperimentalQuickActivateFix(): Flow<Boolean>
 
-    /** 实验性：权限委派残留清理，默认关闭 */
+    /** 实验性：权限委派残留清理，默认关闭。见 [isExperimentalDelegationCleanup] */
     fun flowExperimentalDelegationCleanup(): Flow<Boolean>
 
-    /**
-     * 检测更新时把非正式版本（alpha / beta / 灰度）也算作可更新，默认关闭。
-     *
-     * 关闭时只提示正式版，避免普通用户收到不稳定的构建。
-     */
+    /** 完整运行日志，默认关闭。见 [isExperimentalVerboseLog] */
+    fun flowExperimentalVerboseLog(): Flow<Boolean>
+
+    /** 检测更新时把非正式版本也算作可更新，默认关闭。见 [isUpdateAllowPreRelease] */
     fun flowUpdateAllowPreRelease(): Flow<Boolean>
 
-    /**
-     * 完整运行日志，默认关闭。
-     *
-     * 关闭时运行日志只保留权限调用、权限变更与激活相关的内容，
-     * 开启后不再过滤，全部分类照常记录。
-     */
-    fun flowExperimentalVerboseLog(): Flow<Boolean>
+    /** 每次打开应用时从官网检查更新，默认开启。见 [isStartupUpdateCheck] */
+    fun flowStartupUpdateCheck(): Flow<Boolean>
+
+    /** 更新拉取来源，见 [updateSource] */
+    fun flowUpdateSource(): Flow<String>
+
+    /** 允许明文 HTTP 的更新地址，见 [isUpdateAllowInsecure] */
+    fun flowUpdateAllowInsecure(): Flow<Boolean>
+
+    /** 自定义来源的版本清单地址，见 [updateCustomUrl] */
+    fun flowUpdateCustomUrl(): Flow<String>
+
+    /** 调试：官方服务器地址，见 [debugOfficialBase] */
+    fun flowDebugOfficialBase(): Flow<String>
+
+    /** 调试：Build 索引地址，留空时由官方地址推导。见 [debugBuildIndex] */
+    fun flowDebugBuildIndex(): Flow<String>
+
+    /** 调试：网络超时（毫秒），见 [debugTimeoutMs] */
+    fun flowDebugTimeoutMs(): Flow<Int>
 
     /** 服务拒绝模式，见 [DenyMode] */
     var denyMode: String
@@ -71,6 +79,43 @@ interface SettingsRepo {
     /** 完整运行日志。默认关闭，关闭时只记录权限与激活相关日志 */
     var isExperimentalVerboseLog: Boolean
 
+    /**
+     * 实验性：使用更严格的白名单校验，默认关闭。
+     *
+     * 关闭时判定白名单只比对包名；开启后连加入白名单时记录的签名一并比对，
+     * 同一个包名被重新签名后不再算白名单内。
+     */
+    fun flowExperimentalStrictWhitelist(): Flow<Boolean>
+
     /** 检测更新时把非正式版本也算作可更新，默认关闭 */
     var isUpdateAllowPreRelease: Boolean
+
+    /** 每次打开应用时从官网检查更新，默认开启 */
+    var isStartupUpdateCheck: Boolean
+
+    /** 更新拉取来源。见 [flowUpdateSource] */
+    var updateSource: String
+
+    /** 允许明文 HTTP 的更新地址。见 [flowUpdateAllowInsecure] */
+    var isUpdateAllowInsecure: Boolean
+
+    /** 自定义来源的版本清单地址。见 [flowUpdateCustomUrl] */
+    var updateCustomUrl: String
+
+    /** 调试：官方服务器地址 */
+    var debugOfficialBase: String
+
+    /** 调试：官方服务器 Build 索引地址，留空时由官方地址推导 */
+    var debugBuildIndex: String
+
+    /** 调试：网络超时（毫秒） */
+    var debugTimeoutMs: Int
+
+    /** 实验性：使用更严格的白名单校验，默认关闭。见 [flowExperimentalStrictWhitelist] */
+    var isExperimentalStrictWhitelist: Boolean
+
+    /**
+     * 更严格的服务校验，默认关闭。见 [flowStrictServiceCheck]。
+     */
+    var isStrictServiceCheck: Boolean
 }

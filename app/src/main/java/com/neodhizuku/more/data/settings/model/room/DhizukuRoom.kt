@@ -44,7 +44,7 @@ abstract class DhizukuRoom : RoomDatabase() {
             )
             if (NeoDhizuku.on(NeoDhizuku.FixDbDowngradeAndDeStorage)) {
                 // 允许降级时重建数据库，授权记录本就可以重新生成
-                builder.fallbackToDestructiveMigrationOnDowngrade()
+                builder.fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
             }
             return builder.build()
         }

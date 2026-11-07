@@ -39,6 +39,8 @@ import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.asFlow
 import com.neodhizuku.more.ui.page.settings.SettingsPage
 import com.neodhizuku.more.ui.theme.DhizukuTheme
+import com.neodhizuku.more.ui.theme.ThemeConfig
+import com.neodhizuku.more.ui.util.RecentsVisibility
 import org.koin.core.component.KoinComponent
 import androidx.core.net.toUri
 
@@ -93,6 +95,14 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
         }
         requestPostNotificationPermission()
         requestIgnoreBatteryOptimization()
+        RecentsVisibility.apply(this, ThemeConfig.getHideFromRecents(this))
+    }
+
+    // 从多任务返回、或在设置里刚改过开关，都要重新套一次：
+    // setExcludeFromRecents 只作用于当时存在的任务，新任务不继承。
+    override fun onResume() {
+        super.onResume()
+        RecentsVisibility.apply(this, ThemeConfig.getHideFromRecents(this))
     }
 
     fun requestPostNotificationPermission() {

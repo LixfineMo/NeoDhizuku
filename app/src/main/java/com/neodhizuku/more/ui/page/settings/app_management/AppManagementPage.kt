@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -61,9 +62,11 @@ import androidx.navigation.NavController
 
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.R
+import com.neodhizuku.more.server.ClientApiVersion
+import com.neodhizuku.more.ui.component.ClientApiBadge
 import com.neodhizuku.more.ui.theme.AppIconCache
 import com.neodhizuku.more.ui.theme.exclude
-import com.neodhizuku.more.ui.theme.plus
+import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
@@ -118,10 +121,15 @@ fun AppManagementPage(
                 if (isEmpty) Text(
                     stringResource(R.string.home_app_management_dsp),
                     modifier = Modifier
-                        .padding(it + PaddingValues(16.dp))
+                        .padding(it.combine(PaddingValues(16.dp)))
                         .align(Alignment.Center)
                 )
-                else ItemsWidget(viewModel = viewModel, contentPadding = it)
+                // `it` 是 Scaffold 自己的内边距（顶栏高度），页面外面传进来的
+                // contentPadding（底栏让位）必须叠上去，否则列表最后一项会压在底栏下。
+                else ItemsWidget(
+                    viewModel = viewModel,
+                    contentPadding = it.combine(contentPadding)
+                )
                 PullToRefreshDefaults.Indicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -140,7 +148,7 @@ private fun ItemsWidget(
     contentPadding: PaddingValues
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp) + contentPadding,
+        contentPadding = PaddingValues(16.dp).combine(contentPadding),
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -189,14 +197,21 @@ private fun LazyItemScope.ItemWidget(
                 )
 
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        label,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Medium
-                        ),
-                        color = if (data.blocked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        else MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            ),
+                            color = if (data.blocked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        ClientApiBadge(version = ClientApiVersion.ofPackage(packageName))
+                    }
                     Text(
                         packageName,
                         style = MaterialTheme.typography.bodySmall,

@@ -293,7 +293,7 @@ private fun UnsupportedCard() {
             Text(
                 text = stringResource(
                     R.string.quick_activate_unsupported_dsp,
-                    android.os.Build.VERSION.SDK_INT
+                    androidVersionLabel()
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
@@ -423,4 +423,32 @@ private fun CommandDialog(onDismiss: () -> Unit) {
             }
         }
     )
+}
+
+/**
+ * 把 [android.os.Build.VERSION.SDK_INT] 转成人类可读的版本名。
+ *
+ * 形如 `Android 12（API 31）`。用于提示文案——只报 API 数字（31）对用户没有意义，
+ * 且与同一段文案里的「Android 13」不是一个口径。
+ *
+ * 未收录的版本（含未来的新版本）降级为 `API xx`，避免给出错误的版本号。
+ */
+private fun androidVersionLabel(): String {
+    val code = android.os.Build.VERSION.SDK_INT
+    val name = when (code) {
+        37 -> "17"
+        36 -> "16"
+        35 -> "15"
+        34 -> "14"
+        33 -> "13"
+        32 -> "12L"
+        31 -> "12"
+        30 -> "11"
+        29 -> "10"
+        28 -> "9"
+        27 -> "8.1"
+        26 -> "8.0"
+        else -> null
+    }
+    return if (name != null) "Android $name（API $code）" else "API $code"
 }

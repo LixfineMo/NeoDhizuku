@@ -86,13 +86,18 @@ object LocaleHelper {
     /** 把 tag（如 zh-rCN）解析成 Locale，无法解析则返回 null */
     fun toLocale(tag: String): Locale? {
         if (tag.isEmpty()) return null
-        // Android 资源目录用 -r 分隔地区（zh-rCN），Locale 用下划线（zh_CN）
+        // Android 资源目录用 -r 分隔地区（zh-rCN），语言标签用连字符（zh-CN）
         val normalized = tag.replace("-r", "-")
+        // forLanguageTag 自 API 21 可用（minSdk 26），解析失败时返回 ROOT（language 为空）
+        Locale.forLanguageTag(normalized)
+            .takeIf { it.language.isNotEmpty() }
+            ?.let { return it }
+        // 少数非标准 tag（如带 script/variant 的旧写法）回退到构造器
         val parts = normalized.split("-")
-        return when (parts.size) {
-            1 -> Locale(parts[0])
-            2 -> Locale(parts[0], parts[1])
-            else -> Locale(parts[0], parts[1])
+        return if (parts.size >= 2) {
+            @Suppress("DEPRECATION") Locale(parts[0], parts[1])
+        } else {
+            @Suppress("DEPRECATION") Locale(parts[0])
         }
     }
 

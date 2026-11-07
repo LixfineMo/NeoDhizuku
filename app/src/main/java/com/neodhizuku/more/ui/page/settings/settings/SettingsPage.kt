@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,12 +48,14 @@ import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.LocaleHelper
 import com.neodhizuku.more.server.DhizukuState
+import com.neodhizuku.more.server.HookConfigStore
 import com.neodhizuku.more.server.ServiceStatus
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
-import com.neodhizuku.more.ui.theme.plus
+import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,8 +63,21 @@ fun SettingsPage(
     windowInsets: WindowInsets,
     navController: NavController,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    /** 底部四页之间用翻页切换，其余路由交给 NavController */
+    onSelectTab: (String) -> Unit = { route ->
+        runCatching { navController.navigate(route) }
+    },
     viewModel: SettingsViewModel = koinViewModel()
 ) {
+    // 模块配置入口只在 LSPosed / LSPatch 真的加载过本 APK 时出现。
+    // 没有框架的用户看不到这一项 —— 这正是「无 root / 无 LSP 完全无感」在界面侧的保证。
+    val moduleDetected by produceState(initialValue = false) {
+        while (true) {
+            value = HookConfigStore.moduleDetected()
+            delay(1500)
+        }
+    }
+
     // 设备管理员也算已激活，管理分区（软件管理 / 黑名单 / 授权）同样可用
     val isOwner = DhizukuState.state.isActive
 
@@ -93,10 +110,10 @@ fun SettingsPage(
             )
         }) {
         LazyColumn(
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(16.dp).combine(contentPadding),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it + contentPadding),
+                .padding(it),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // 管理分区只在已激活时显示，未激活时没有可管理的内容
@@ -118,7 +135,7 @@ fun SettingsPage(
                                 ServiceStatus.authorizedCount
                             ),
                             onClick = {
-                                navController.navigate(SettingsRoute.AppManagement.route)
+                                onSelectTab(SettingsRoute.AppManagement.route)
                             }
                         )
                         HorizontalDividerSafe()
@@ -152,6 +169,28 @@ fun SettingsPage(
                                 navController.navigate(SettingsRoute.Security.route)
                             }
                         )
+                        HorizontalDividerSafe()
+                        // 单项系统接口：与共享服务同级，直接放在服务板块内
+                        ManageEntry(
+                            title = stringResource(R.string.api_policy_entry_title),
+                            desc = stringResource(R.string.api_policy_entry_desc),
+                            onClick = {
+                                NeoLog.d(NeoLog.NAV) { "settings -> api_policy" }
+                                navController.navigate(SettingsRoute.ApiPolicy.route)
+                            }
+                        )
+                        // DAX 化 Xposed 模块：仅在框架已加载本 APK 时显示
+                        if (moduleDetected) {
+                            HorizontalDividerSafe()
+                            ManageEntry(
+                                title = stringResource(R.string.hook_config_entry_title),
+                                desc = stringResource(R.string.hook_config_entry_desc),
+                                onClick = {
+                                    NeoLog.d(NeoLog.NAV) { "settings -> hook_config" }
+                                    navController.navigate(SettingsRoute.HookConfig.route)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -172,7 +211,7 @@ fun SettingsPage(
                             title = stringResource(R.string.nav_call_log),
                             desc = stringResource(R.string.settings_manage_calllog_desc),
                             onClick = {
-                                navController.navigate(SettingsRoute.CallLog.route)
+                                onSelectTab(SettingsRoute.CallLog.route)
                             }
                         )
                     }
@@ -240,6 +279,15 @@ fun SettingsPage(
                 ElevatedCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         LanguageEntry()
+                        HorizontalDividerSafe()
+                        ManageEntry(
+                            title = stringResource(R.string.update_settings_title),
+                            desc = stringResource(R.string.update_settings_entry_dsp),
+                            onClick = {
+                                NeoLog.d(NeoLog.NAV) { "settings -> update_settings" }
+                                navController.navigate(SettingsRoute.UpdateSettings.route)
+                            }
+                        )
                         HorizontalDividerSafe()
                         ManageEntry(
                             title = stringResource(R.string.about_title),

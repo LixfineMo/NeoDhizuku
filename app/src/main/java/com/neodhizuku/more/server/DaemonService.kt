@@ -149,6 +149,42 @@ class DaemonService : Service(), KoinComponent {
         return START_STICKY
     }
 
+    /**
+     * 用户从多任务划掉本应用的任务时回调。
+     *
+     * 守护服务和界面在同一个进程，划卡会连带杀掉服务；MIUI 等定制系统的划卡
+     * 接近强制停止，START_STICKY 的重建会被压制或明显延迟，期间第三方（如雹）
+     * 拿不到 binder。这里抢在进程被杀前补一次启动，缩短空窗。
+     *
+     * 未激活时不能走 startForegroundService：onCreate 里 foreground(false)
+     * 会不调 startForeground()，反而触发 RemoteServiceException 直接杀进程。
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+
+        val stoppedByUser = runCatching { settingsRepo.isServiceStoppedByUser }
+            .getOrDefault(false)
+        if (stoppedByUser) {
+            NeoLog.i(NeoLog.DAEMON) { "onTaskRemoved: 用户已停止，不拉起" }
+            return
+        }
+        if (!DhizukuState.state.isActive) {
+            NeoLog.i(NeoLog.DAEMON) { "onTaskRemoved: 未激活，不拉起" }
+            return
+        }
+
+        NeoLog.i(NeoLog.DAEMON) { "onTaskRemoved: 划卡后重新拉起服务" }
+        val intent = Intent(this, DaemonService::class.java)
+        // 后台启动前台服务在 Android 12+ 受限，失败就退回普通 startService，
+        // 由 onCreate 里的 foreground() 决定是否继续走前台。
+        runCatching { startForegroundService(intent) }
+            .onFailure { e ->
+                NeoLog.w(NeoLog.DAEMON) { "onTaskRemoved: startForegroundService 失败，退回 startService" }
+                runCatching { startService(intent) }
+                    .onFailure { NeoLog.w(NeoLog.DAEMON) { "onTaskRemoved: 拉起失败" } }
+            }
+    }
+
     override fun onDestroy() {
         foreground(false)
         unregisterReceiver(packageReceiver)

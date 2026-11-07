@@ -1,3 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- 调试分区 / debug sections -->
+    <string name="debug_menu_notice">Debug tools act on the running process immediately. Misuse may break activation or authorization.</string>
+    <string name="debug_menu_update_config">Update config</string>
+    <string name="debug_menu_update_config_desc">Official / custom manifest URLs, timeout, insecure links, latest build</string>
+    <string name="debug_menu_runtime_params">Runtime parameters</string>
+    <string name="debug_menu_runtime_params_desc">Edit every writable variable in memory. No safety filter.</string>
+    <string name="debug_menu_runtime_info">Runtime info</string>
+    <string name="debug_menu_runtime_info_desc">Tokens, interface states, identity, memory, process and config snapshots</string>
+    <string name="debug_menu_service_files">Service config files</string>
+    <string name="debug_menu_service_files_desc">Read and write every file in the app private storage</string>
+    <string name="debug_menu_reset">Reset NeoDhizuku</string>
+    <string name="debug_menu_reset_desc">Wipe all app data and configuration, then exit</string>
+    <string name="debug_reset_step1_title">Reset NeoDhizuku?</string>
+    <string name="debug_reset_step1_text">This clears all preferences, authorization records, private files and the database. Device owner / admin identity is kept.</string>
+    <string name="debug_reset_step2_title">This cannot be undone</string>
+    <string name="debug_reset_step2_text">The manager will exit immediately after wiping. Reopen it to rebuild defaults.</string>
+    <string name="debug_reset_continue">Continue</string>
+    <string name="debug_reset_final">Wipe and exit</string>
+    <string name="debug_update_config_title">Update config</string>
+    <string name="debug_params_title">Runtime parameters</string>
+    <string name="debug_params_notice">Variable names are shown as-is. Changes take effect immediately; some are restored on restart.</string>
+    <string name="debug_info_title">Runtime info</string>
+    <string name="debug_info_notice">Tap any row to copy its value. Refresh to take a new snapshot.</string>
+    <string name="debug_info_refresh">Refresh</string>
+    <string name="debug_info_copied">Copied: %1$s</string>
+    <string name="debug_service_files_title">Service config files</string>
+    <string name="debug_service_files_notice">CE and DE storage are both listed. Binary files are read-only; edits to api_policy.json / whitelist.json reload immediately.</string>
+    <string name="debug_service_files_empty">No files found.</string>
+    <string name="debug_service_file_save">Save</string>
+    <string name="update_settings_startup_check">Check for updates on startup</string>
+    <string name="update_settings_startup_check_desc">Query the official server once each time the app opens. Only shows a card when a newer version exists.</string>
+
+    <!-- DAX / Xposed module integration -->
+    <string name="xposed_module_description">NeoDhizuku module: lets selected apps use DeviceOwner APIs through NeoDhizuku. Do not enable the System Framework scope.</string>
+    <string name="hook_config_title">Xposed module</string>
+    <string name="hook_config_entry_title">Module scope</string>
+    <string name="hook_config_entry_desc">LSPosed / LSPatch scope and behavior</string>
+    <string name="hook_config_master">Enable module</string>
+    <string name="hook_config_master_desc">Without this switch the module stays completely inactive</string>
+    <string name="hook_config_scope">Scope</string>
+    <string name="hook_config_scope_desc">Leave empty to follow the scope selected in LSPosed. Selected apps are checked below.</string>
+    <string name="hook_config_behavior">Behavior</string>
+    <string name="hook_config_query">Owner queries</string>
+    <string name="hook_config_call">Owner calls</string>
+    <string name="hook_config_force_true">Always return true</string>
+    <string name="hook_config_installer">Package installer</string>
+    <string name="hook_config_append_admins">Append to active admins</string>
+    <string name="hook_config_reported">Reported processes</string>
+    <string name="hook_config_no_report">No process has reported yet</string>
+    <string name="hook_config_lspatch">LSPatch note</string>
+    <string name="hook_config_lspatch_desc">The target app must be able to see NeoDhizuku. Add the queries entry while patching, or use an app that has QUERY_ALL_PACKAGES.</string>
+    <string name="hook_config_copy_queries">Copy queries snippet</string>
+    <string name="hook_config_note_desc">Only active when LSPosed or LSPatch loads this APK as a module. Devices without them are unaffected. Do not enable the System Framework scope.</string>
+
+    <!-- Device identity: dynamic package name -->
+    <string name="owner_identity_title">Device identity</string>
+    <string name="owner_identity_desc">Remove or transfer a device admin component even when its package name was changed. Candidates come from the system, not from the current applicationId. Transfer requires this instance to be the device owner.</string>
+    <string name="owner_identity_entry">Remove / transfer owner (any package)</string>
+    <string name="owner_identity_same_project">same project</string>
+    <string name="owner_identity_self">current package</string>
+    <string name="owner_identity_active">active</string>
+    <string name="owner_identity_inactive">inactive</string>
+    <string name="owner_identity_remove">Remove admin</string>
+    <string name="owner_identity_remove_shell">Force remove via Shizuku</string>
+    <string name="owner_identity_transfer">Transfer owner here</string>
+    <string name="owner_identity_add">Add component</string>
+    <string name="owner_identity_hint">pkg/.server.DhizukuDAReceiver</string>
+    <string name="owner_identity_empty">No device admin component found.</string>
+
+    <!-- Round 30: tablet rail, hook scope, confirm dialogs -->
+    <string name="hook_config_scope_title">Scope</string>
+    <string name="hook_config_scope_follow_desc">Always follows the apps selected in LSPosed / LSPatch. This page does not pick apps on its own.</string>
+    <string name="hook_config_framework">Framework: %1$s</string>
+    <string name="hook_config_framework_none">No LSPosed / LSPatch detected</string>
+    <string name="hook_config_hooked">Hooked %1$d apps / %2$d processes</string>
+    <string name="hook_config_restart_title">Restart target apps after scope changes</string>
+    <string name="hook_config_restart_desc">The module is loaded once when a process starts. After adding or removing apps in LSPosed / LSPatch, force-stop and reopen those apps. Behavior switches below sync over heartbeat and do not need a restart.</string>
+    <string name="hook_config_restart_notice">The master switch was just turned on, or an in-app scope was cleared. Force-stop and reopen any target apps already running.</string>
+    <string name="hook_config_restart_dismiss">Got it</string>
+    <string name="about_admin_residue_confirm_title">Clear device identity?</string>
+    <string name="about_admin_residue_confirm_desc">This unconditionally calls the clear device owner, clear profile owner and remove active admin APIs. If this app is still the owner, it must be activated again. This cannot be undone.</string>
+    <string name="about_admin_residue_confirm_ok">Clear anyway</string>
+    <string name="owner_identity_confirm_title">Confirm device identity change?</string>
+    <string name="owner_identity_confirm_desc">Removing or transferring a device admin / owner identity cannot be undone. Check the component below before continuing.</string>
+    <string name="owner_identity_confirm_ok">Confirm</string>
 </resources>

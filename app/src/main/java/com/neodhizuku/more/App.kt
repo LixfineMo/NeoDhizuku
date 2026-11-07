@@ -6,12 +6,15 @@ import android.util.Log
 import com.google.android.material.color.DynamicColors
 
 import com.neodhizuku.more.di.init.appModules
+import com.neodhizuku.more.data.common.util.StartupUpdateChecker
+import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.server.ManagerIntegrity
 
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
@@ -20,6 +23,7 @@ import rikka.sui.Sui
 class App : Application(), KoinComponent {
     override fun onCreate() {
         super.onCreate()
+        com.neodhizuku.more.data.settings.UiFlags.init(this)
         startKoin {
             androidLogger()
             androidContext(this@App)
@@ -43,6 +47,18 @@ class App : Application(), KoinComponent {
                 "临时所有者=${com.neodhizuku.more.data.common.util.DpDirectActivation.isTemporaryCached()}"
         }
         Sui.init(packageName)
+        // 每次打开都从官网查一次有没有新版本；只提示不打扰，失败也不影响使用。
+        // 「启动时检查更新」关掉时整段跳过，且不会占用进程内那一次检查机会。
+        runCatching {
+            val repo = get<SettingsRepo>()
+            if (repo.isStartupUpdateCheck) {
+                StartupUpdateChecker.checkOnce(repo)
+            } else {
+                NeoLog.i(NeoLog.UI) { "启动检查：已在更新设置中关闭" }
+            }
+        }.onFailure {
+            NeoLog.w(NeoLog.UI) { "启动更新检查未能启动：${it.message}" }
+        }
         DynamicColors.applyToActivitiesIfAvailable(this)
         exemptHiddenApiIfNeeded()
         ManagerIntegrity.verifyOnStartup(this)

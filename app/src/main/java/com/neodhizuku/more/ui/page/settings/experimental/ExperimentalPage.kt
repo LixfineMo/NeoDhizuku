@@ -146,6 +146,20 @@ fun ExperimentalPage(
                                 )
                             }
                         )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                        SwitchEntry(
+                            title = stringResource(R.string.experimental_strict_whitelist),
+                            desc = stringResource(R.string.experimental_strict_whitelist_desc),
+                            checked = viewModel.state.strictWhitelist,
+                            onCheckedChange = { enabled ->
+                                viewModel.requestToggle(
+                                    ExperimentalFeature.StrictWhitelist, enabled
+                                )
+                            }
+                        )
                     }
                 }
             }
@@ -159,6 +173,7 @@ private fun featureTitle(feature: ExperimentalFeature): String = stringResource(
         ExperimentalFeature.QuickActivateFix -> R.string.experimental_quick_activate_fix
         ExperimentalFeature.DelegationCleanup -> R.string.experimental_delegation_cleanup
         ExperimentalFeature.VerboseLog -> R.string.experimental_verbose_log
+        ExperimentalFeature.StrictWhitelist -> R.string.experimental_strict_whitelist
     }
 )
 

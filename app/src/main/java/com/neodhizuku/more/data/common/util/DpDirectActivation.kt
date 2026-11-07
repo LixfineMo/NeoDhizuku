@@ -323,7 +323,6 @@ object DpDirectActivation : KoinComponent {
     }
 
     // ------------------------------------------------------------------
-    // 步骤
     // ------------------------------------------------------------------
 
     /**
@@ -474,7 +473,6 @@ object DpDirectActivation : KoinComponent {
             val setupOk = invokeForceUpdateUserSetupComplete(dpm, 0)
             log += "forceUpdateUserSetupComplete(0): ${if (setupOk) "成功" else "失败（不阻断）"}"
 
-            // ⑤
             val adminOk = invokeSetActiveAdminV1(dpm, admin)
             log += "setActiveAdmin: ${if (adminOk) "成功" else "失败"}"
             if (!adminOk) {
@@ -839,8 +837,8 @@ object DpDirectActivation : KoinComponent {
         if (types[0] != ComponentName::class.java) return null
         for (i in 1 until types.size) {
             when (types[i]) {
-                Boolean::class.javaPrimitiveType, java.lang.Boolean::class.java -> Unit
-                Integer.TYPE, java.lang.Integer::class.java -> Unit
+                Boolean::class.java, Boolean::class.javaObjectType -> Unit
+                Int::class.java, Int::class.javaObjectType -> Unit
                 String::class.java -> Unit
                 else -> return null
             }
@@ -849,8 +847,8 @@ object DpDirectActivation : KoinComponent {
             when (i) {
                 0 -> admin
                 else -> when (types[i]) {
-                    Boolean::class.javaPrimitiveType, java.lang.Boolean::class.java -> true
-                    Integer.TYPE, java.lang.Integer::class.java -> userId
+                    Boolean::class.java, Boolean::class.javaObjectType -> true
+                    Int::class.java, Int::class.javaObjectType -> userId
                     else -> null
                 }
             }

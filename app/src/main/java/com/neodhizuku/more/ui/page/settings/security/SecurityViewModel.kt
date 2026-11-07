@@ -48,6 +48,11 @@ class SecurityViewModel : ViewModel(), KoinComponent {
                 state = state.copy(useLegacyVersion = legacy)
             }
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowStrictServiceCheck().collect { strict ->
+                state = state.copy(strictServiceCheck = strict)
+            }
+        }
     }
 
     fun setAllowOwnerTransfer(enabled: Boolean) {
@@ -97,6 +102,18 @@ class SecurityViewModel : ViewModel(), KoinComponent {
             settingsRepo.isUseLegacyVersion = enabled
         }
     }
+
+    /**
+     * 更严格的服务校验。
+     *
+     * 关闭（默认）时只按包名放行，只认上游权限名的硬编码客户端同样可用；
+     * 开启后额外要求调用方持有本应用自身声明的权限。
+     */
+    fun setStrictServiceCheck(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.isStrictServiceCheck = enabled
+        }
+    }
 }
 
 data class SecurityViewState(
@@ -110,5 +127,7 @@ data class SecurityViewState(
     /** 能力不足时的处理 */
     val insufficientMode: InsufficientMode = InsufficientMode.DEFAULT,
     /** 返回上游 Dhizuku 的版本号，默认开启 */
-    val useLegacyVersion: Boolean = true
+    val useLegacyVersion: Boolean = true,
+    /** 更严格的服务校验，默认关闭 */
+    val strictServiceCheck: Boolean = false
 )

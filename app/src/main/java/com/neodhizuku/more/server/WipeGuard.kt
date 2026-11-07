@@ -48,12 +48,23 @@ object WipeGuard {
     /** 该 uid 当前是否持有有效的放行标记 */
     @Synchronized
     fun isGranted(uid: Int): Boolean {
+        // 顺带回收全部过期标记：只清当前 uid 的话，其它 uid 的过期标记会一直
+        // 留在表里（放行标记是一次性的，用过即应移除，实际残留的都是没用过的）
+        purgeExpired()
         val until = grants[uid] ?: return false
-        if (SystemClock.uptimeMillis() > until) {
-            grants.remove(uid)
-            return false
-        }
+        if (SystemClock.uptimeMillis() > until) return false
         return true
+    }
+
+    /** 回收过期标记。擦除放行属于高风险状态，不该比需要它的时候活得更久 */
+    @Synchronized
+    fun purgeExpired() {
+        val now = SystemClock.uptimeMillis()
+        val before = grants.size
+        grants.entries.removeIf { now > it.value }
+        if (grants.size != before) {
+            NeoLog.d(NeoLog.SERVER) { "wipe guard: 回收过期放行标记 ${before - grants.size} 条" }
+        }
     }
 
     /** 写入放行标记（用户在确认页通过全部警告后调用） */

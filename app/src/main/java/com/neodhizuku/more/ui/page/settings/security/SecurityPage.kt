@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
+import androidx.compose.material.icons.automirrored.twotone.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.twotone.CheckCircle
@@ -44,6 +45,7 @@ import androidx.navigation.NavController
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.settings.repo.DenyMode
 import com.neodhizuku.more.data.settings.repo.InsufficientMode
+import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
@@ -114,7 +116,32 @@ fun SecurityPage(
                             checked = viewModel.state.useLegacyVersion,
                             onCheckedChange = viewModel::setUseLegacyVersion
                         )
+                        androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        SwitchEntry(
+                            title = stringResource(R.string.strict_service_check),
+                            desc = stringResource(R.string.strict_service_check_desc),
+                            checked = viewModel.state.strictServiceCheck,
+                            onCheckedChange = viewModel::setStrictServiceCheck
+                        )
                     }
+                }
+            }
+
+            item("whitelist_title") {
+                Text(
+                    stringResource(R.string.whitelist_manage_section),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            item("whitelist_card") {
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    EntryRow(
+                        title = stringResource(R.string.whitelist_manage_title),
+                        desc = stringResource(R.string.whitelist_manage_entry_desc),
+                        onClick = { navController.navigate(SettingsRoute.Whitelist.route) }
+                    )
                 }
             }
 
@@ -179,6 +206,42 @@ fun SecurityPage(
                     )
                 }
             }
+        }
+    }
+}
+
+/** 跳转子页面的入口行 */
+@Composable
+private fun EntryRow(
+    title: String,
+    desc: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        color = Color.Transparent,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    desc,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.TwoTone.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

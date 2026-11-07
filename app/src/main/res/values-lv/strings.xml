@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="cancel">Atcelt</string>
-    <string name="retry">…„\t\n„­­“»«…Mēģināt vēlreiz</string>
+    <string name="retry">Mēģināt vēlreiz</string>
     <string name="home_status_owner_granted">Jūs esiet īpašnieks!!!</string>
     <string name="home_status_owner_denied">Gaida aktivizāciju</string>
     <string name="home_app_management_title">Lietotņu pārvaldība</string>
-    <string name="home_app_management_dsp">Šeit tiek uzskaitītas lietotnes, kuras ir pieprasījušas vai ziņojušas par Dhizuku.</string>
+    <string name="home_app_management_dsp">Šeit tiek uzskaitītas lietotnes, kuras ir pieprasījušas vai ziņojušas par NeoDhizuku.</string>
     <string name="home_dhizuku_dsp">Ja ir uzstādītas citas Dhizuku implementācijas, varat pārslēgties starp tām pēc vēlēšanās. Lūdzu, &lt;a href=%1$s&gt;skatiet dokumentāciju&lt;/a&gt;.</string>
     <string name="home_dhizuku_title">Aktivizēt izmantojot Dhizuku</string>
     <string name="home_adb_title">Aktivizēt izmantojot ADB</string>
@@ -16,42 +16,128 @@
     <string name="confirm">Labi</string>
     <string name="finish">Pabeigts</string>
     <string name="donate">Ziedot</string>
-    <string name="request_permission_text">Vai atļaut <b>%1$s</b> izmantot Dhizuku?</string>
+    <string name="request_permission_text">Vai atļaut <b>%1$s</b> izmantot NeoDhizuku?</string>
     <string name="agree">Atļaut</string>
     <string name="refuse">Liegt</string>
     <string name="service_channel_name">Fona pakalpojums</string>
-    <string name="service_running">Dhizuku palaists</string>
+    <string name="service_running">NeoDhizuku palaists</string>
     <string name="home_shizuku_title">Aktivizēt izmantojot Shizuku</string>
     <string name="home_shizuku_dsp">Izmantojot Shizuku, jums ir iespēja palaist ADB komandas bez datora palīdzības. Lūdzu, &lt;a href=%1$s&gt;skatiet dokumentāciju&lt;/a&gt;.</string>
     <string name="home_deactivate_title">Deaktivizēt</string>
     <string name="home_deactivate_dsp">Vai tiešām vēlaties deaktivizēt?</string>
-    <string name="permission_description">Izmantot Dhizuku API</string>
+    <string name="permission_description">Izmantot NeoDhizuku API</string>
     <string name="agreement_title">Politika</string>
     <string name="agree_text">Piekrist</string>
     <string name="agreement_text">Šī ir mūsu lietotāju politika. Lūdzu, izlasiet to un piekrītiet tai. &lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;Lietošanas noteikumi&lt;/a&gt;, &lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;Konfidencialitātes politika&lt;/a&gt; Šis ziņojums vairs netiks rādīts, kad būsiet tam piekritis.</string>
     <string name="settings">Iestatījumi</string>
-    <string name="settings_desc">Konfigurēt Dhizuku darbību</string>
+    <string name="settings_desc">Konfigurēt NeoDhizuku darbību</string>
     <string name="enable_dhizuku">Iespējot Dhizuku</string>
     <string name="enable_dhizuku_desc">Atļaut lietotnēm izmantot Dhizuku pakalpojumus</string>
     <string name="whitelist_mode">Baltā saraksta režīms</string>
     <string name="whitelist_mode_desc">Atļaut izmantot Dhizuku tikai iepriekš apstiprinātām lietotnēm</string>
     <string name="block_app">Bloķēt lietotni</string>
-    <string name="block_app_desc">Pilnībā liegt piekļuvi Dhizuku</string>
+    <string name="block_app_desc">Pilnībā liegt piekļuvi NeoDhizuku</string>
     <string name="auto_deny_in">Automātiski liegt pēc</string>
     <string name="auto_deny_in_seconds">Automātiska liegšana pēc %d sekundēm</string>
-    <string name="app_blocked_notice">Šī lietotne ir bloķēta un nevar piekļūt Dhizuku</string>
-    <string name="allow_dhizuku_access">Atļaut piekļuvi Dhizuku</string>
+    <string name="app_blocked_notice">Šī lietotne ir bloķēta un nevar piekļūt NeoDhizuku</string>
+    <string name="allow_dhizuku_access">Atļaut piekļuvi NeoDhizuku</string>
     <string name="unblock_app">Atbloķēt lietotni</string>
     <string name="denying_access">Piekļuve tiek liegta…</string>
-    <string name="daemon_service_notification_title">Dhizuku dēmons</string>
-    <string name="daemon_service_notification_text">Šis ir Dhizuku paziņojums, kas nodrošina pakalpojuma pieejamību jebkurā laikā. Varat to noturēt nospiestu, lai paslēptu šo paziņojumu.</string>
+    <string name="daemon_service_notification_title">NeoDhizuku dēmons</string>
+    <string name="daemon_service_notification_text">Šis ir NeoDhizuku paziņojums, kas nodrošina pakalpojuma pieejamību jebkurā laikā. Varat to noturēt nospiestu, lai paslēptu šo paziņojumu.</string>
     <string name="copy">Kopēt</string>
     <string name="confirm_device_owner">Ierīces īpašnieks</string>
     <string name="confirm_profile_owner">Profila īpašnieks</string>
     <string name="profile_owner_warning_title">Brīdinājums</string>
-    <string name="profile_owner_warning_dsp">Šīs izmaiņas drīkst veikt tikai lietotāji, kuri saprot to sekas. Dhizuku izstrādātāji nevar garantēt neko attiecībā uz negaidītu rīcību, ko izraisījusi šī režīma maiņa.</string>
+    <string name="profile_owner_warning_dsp">Šīs izmaiņas drīkst veikt tikai lietotāji, kuri saprot to sekas. NeoDhizuku izstrādātāji nevar garantēt neko attiecībā uz negaidītu rīcību, ko izraisījusi šī režīma maiņa.</string>
     <string name="donate_hide_action">Slēpt</string>
     <string name="donate_hide_confirm_title">Slēpt ziedojumu pogu</string>
     <string name="donate_hide_confirm_dsp">Šo darbību lietotnē nevar atsaukt. Vai tiešām vēlaties neatgriezeniski paslēpt ziedojumu pogu?</string>
     <string name="home_status_owner_transferred">%1$s ir pārsūtīts!!!</string>
+
+    <!-- 调试分区 / debug sections -->
+    <string name="debug_menu_notice">Debug tools act on the running process immediately. Misuse may break activation or authorization.</string>
+    <string name="debug_menu_update_config">Update config</string>
+    <string name="debug_menu_update_config_desc">Official / custom manifest URLs, timeout, insecure links, latest build</string>
+    <string name="debug_menu_runtime_params">Runtime parameters</string>
+    <string name="debug_menu_runtime_params_desc">Edit every writable variable in memory. No safety filter.</string>
+    <string name="debug_menu_runtime_info">Runtime info</string>
+    <string name="debug_menu_runtime_info_desc">Tokens, interface states, identity, memory, process and config snapshots</string>
+    <string name="debug_menu_service_files">Service config files</string>
+    <string name="debug_menu_service_files_desc">Read and write every file in the app private storage</string>
+    <string name="debug_menu_reset">Reset NeoDhizuku</string>
+    <string name="debug_menu_reset_desc">Wipe all app data and configuration, then exit</string>
+    <string name="debug_reset_step1_title">Reset NeoDhizuku?</string>
+    <string name="debug_reset_step1_text">This clears all preferences, authorization records, private files and the database. Device owner / admin identity is kept.</string>
+    <string name="debug_reset_step2_title">This cannot be undone</string>
+    <string name="debug_reset_step2_text">The manager will exit immediately after wiping. Reopen it to rebuild defaults.</string>
+    <string name="debug_reset_continue">Continue</string>
+    <string name="debug_reset_final">Wipe and exit</string>
+    <string name="debug_update_config_title">Update config</string>
+    <string name="debug_params_title">Runtime parameters</string>
+    <string name="debug_params_notice">Variable names are shown as-is. Changes take effect immediately; some are restored on restart.</string>
+    <string name="debug_info_title">Runtime info</string>
+    <string name="debug_info_notice">Tap any row to copy its value. Refresh to take a new snapshot.</string>
+    <string name="debug_info_refresh">Refresh</string>
+    <string name="debug_info_copied">Copied: %1$s</string>
+    <string name="debug_service_files_title">Service config files</string>
+    <string name="debug_service_files_notice">CE and DE storage are both listed. Binary files are read-only; edits to api_policy.json / whitelist.json reload immediately.</string>
+    <string name="debug_service_files_empty">No files found.</string>
+    <string name="debug_service_file_save">Save</string>
+    <string name="update_settings_startup_check">Check for updates on startup</string>
+    <string name="update_settings_startup_check_desc">Query the official server once each time the app opens. Only shows a card when a newer version exists.</string>
+
+    <!-- DAX / Xposed module integration -->
+    <string name="xposed_module_description">NeoDhizuku module: lets selected apps use DeviceOwner APIs through NeoDhizuku. Do not enable the System Framework scope.</string>
+    <string name="hook_config_title">Xposed module</string>
+    <string name="hook_config_entry_title">Module scope</string>
+    <string name="hook_config_entry_desc">LSPosed / LSPatch scope and behavior</string>
+    <string name="hook_config_master">Enable module</string>
+    <string name="hook_config_master_desc">Without this switch the module stays completely inactive</string>
+    <string name="hook_config_scope">Scope</string>
+    <string name="hook_config_scope_desc">Leave empty to follow the scope selected in LSPosed. Selected apps are checked below.</string>
+    <string name="hook_config_behavior">Behavior</string>
+    <string name="hook_config_query">Owner queries</string>
+    <string name="hook_config_call">Owner calls</string>
+    <string name="hook_config_force_true">Always return true</string>
+    <string name="hook_config_installer">Package installer</string>
+    <string name="hook_config_append_admins">Append to active admins</string>
+    <string name="hook_config_reported">Reported processes</string>
+    <string name="hook_config_no_report">No process has reported yet</string>
+    <string name="hook_config_lspatch">LSPatch note</string>
+    <string name="hook_config_lspatch_desc">The target app must be able to see NeoDhizuku. Add the queries entry while patching, or use an app that has QUERY_ALL_PACKAGES.</string>
+    <string name="hook_config_copy_queries">Copy queries snippet</string>
+    <string name="hook_config_note_desc">Only active when LSPosed or LSPatch loads this APK as a module. Devices without them are unaffected. Do not enable the System Framework scope.</string>
+
+    <!-- Device identity: dynamic package name -->
+    <string name="owner_identity_title">Device identity</string>
+    <string name="owner_identity_desc">Remove or transfer a device admin component even when its package name was changed. Candidates come from the system, not from the current applicationId. Transfer requires this instance to be the device owner.</string>
+    <string name="owner_identity_entry">Remove / transfer owner (any package)</string>
+    <string name="owner_identity_same_project">same project</string>
+    <string name="owner_identity_self">current package</string>
+    <string name="owner_identity_active">active</string>
+    <string name="owner_identity_inactive">inactive</string>
+    <string name="owner_identity_remove">Remove admin</string>
+    <string name="owner_identity_remove_shell">Force remove via Shizuku</string>
+    <string name="owner_identity_transfer">Transfer owner here</string>
+    <string name="owner_identity_add">Add component</string>
+    <string name="owner_identity_hint">pkg/.server.DhizukuDAReceiver</string>
+    <string name="owner_identity_empty">No device admin component found.</string>
+
+    <!-- Round 30: tablet rail, hook scope, confirm dialogs -->
+    <string name="hook_config_scope_title">Scope</string>
+    <string name="hook_config_scope_follow_desc">Always follows the apps selected in LSPosed / LSPatch. This page does not pick apps on its own.</string>
+    <string name="hook_config_framework">Framework: %1$s</string>
+    <string name="hook_config_framework_none">No LSPosed / LSPatch detected</string>
+    <string name="hook_config_hooked">Hooked %1$d apps / %2$d processes</string>
+    <string name="hook_config_restart_title">Restart target apps after scope changes</string>
+    <string name="hook_config_restart_desc">The module is loaded once when a process starts. After adding or removing apps in LSPosed / LSPatch, force-stop and reopen those apps. Behavior switches below sync over heartbeat and do not need a restart.</string>
+    <string name="hook_config_restart_notice">The master switch was just turned on, or an in-app scope was cleared. Force-stop and reopen any target apps already running.</string>
+    <string name="hook_config_restart_dismiss">Got it</string>
+    <string name="about_admin_residue_confirm_title">Clear device identity?</string>
+    <string name="about_admin_residue_confirm_desc">This unconditionally calls the clear device owner, clear profile owner and remove active admin APIs. If this app is still the owner, it must be activated again. This cannot be undone.</string>
+    <string name="about_admin_residue_confirm_ok">Clear anyway</string>
+    <string name="owner_identity_confirm_title">Confirm device identity change?</string>
+    <string name="owner_identity_confirm_desc">Removing or transferring a device admin / owner identity cannot be undone. Check the component below before continuing.</string>
+    <string name="owner_identity_confirm_ok">Confirm</string>
 </resources>

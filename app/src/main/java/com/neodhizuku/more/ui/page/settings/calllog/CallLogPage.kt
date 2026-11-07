@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import com.neodhizuku.more.ui.theme.combine
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 
@@ -32,7 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -127,9 +128,8 @@ fun CallLogPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(contentPadding)
         ) {
-            TabRow(selectedTabIndex = tab.ordinal) {
+            PrimaryTabRow(selectedTabIndex = tab.ordinal) {
                 Tab(
                     selected = tab == LogTab.Audit,
                     onClick = { tab = LogTab.Audit },
@@ -143,8 +143,8 @@ fun CallLogPage(
             }
 
             when (tab) {
-                LogTab.Audit -> AuditList(state.audit)
-                LogTab.Runtime -> RuntimeList(state.runtime)
+                LogTab.Audit -> AuditList(state.audit, contentPadding)
+                LogTab.Runtime -> RuntimeList(state.runtime, contentPadding)
             }
         }
     }
@@ -259,7 +259,10 @@ private fun auditText(list: List<AuditEntity>): String =
     list.joinToString("\n") { auditLine(it) }
 
 @Composable
-private fun AuditList(entries: List<AuditEntity>) {
+private fun AuditList(
+    entries: List<AuditEntity>,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
     if (entries.isEmpty()) {
         EmptyHint(stringResource(R.string.call_log_empty))
         return
@@ -274,7 +277,7 @@ private fun AuditList(entries: List<AuditEntity>) {
     val today = dayStart(System.currentTimeMillis())
 
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(16.dp).combine(contentPadding),
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -414,7 +417,10 @@ private fun dedupe(list: List<RuntimeLogEntity>): List<RuntimeLineItem> {
 }
 
 @Composable
-private fun RuntimeList(entries: List<RuntimeLogEntity>) {
+private fun RuntimeList(
+    entries: List<RuntimeLogEntity>,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
     if (entries.isEmpty()) {
         EmptyHint(stringResource(R.string.call_log_empty_runtime))
         return
@@ -426,7 +432,7 @@ private fun RuntimeList(entries: List<RuntimeLogEntity>) {
     val today = dayStart(System.currentTimeMillis())
 
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(16.dp).combine(contentPadding),
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

@@ -52,6 +52,11 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
                 state = state.copy(verboseLog = it)
             }
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.flowExperimentalStrictWhitelist().collect {
+                state = state.copy(strictWhitelist = it)
+            }
+        }
     }
 
     /**
@@ -91,6 +96,9 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
 
                 ExperimentalFeature.VerboseLog ->
                     settingsRepo.isExperimentalVerboseLog = enabled
+
+                ExperimentalFeature.StrictWhitelist ->
+                    settingsRepo.isExperimentalStrictWhitelist = enabled
             }
         }
     }
@@ -105,7 +113,10 @@ enum class ExperimentalFeature {
     DelegationCleanup,
 
     /** 完整运行日志 */
-    VerboseLog
+    VerboseLog,
+
+    /** 使用更严格的白名单校验 */
+    StrictWhitelist
 }
 
 data class ExperimentalViewState(
@@ -114,5 +125,7 @@ data class ExperimentalViewState(
     /** 权限委派残留清理，默认关闭 */
     val delegationCleanup: Boolean = false,
     /** 完整运行日志，默认关闭 */
-    val verboseLog: Boolean = false
+    val verboseLog: Boolean = false,
+    /** 使用更严格的白名单校验，默认关闭 */
+    val strictWhitelist: Boolean = false
 )

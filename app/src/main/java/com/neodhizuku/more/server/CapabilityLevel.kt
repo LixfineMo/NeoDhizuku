@@ -89,7 +89,6 @@ enum class CapabilityLevel(
             "getStorageEncryption",
             "setRequireStorageCardEncryption",
             "getRequireStorageCardEncryption",
-            // 查询
             "isAdminActive",
             "getActiveAdmins"
         )

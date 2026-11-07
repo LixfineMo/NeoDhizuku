@@ -51,24 +51,74 @@ object RequestPermissionToken {
         val listener: IDhizukuRequestPermissionListener?
     ) {
         val issuedAt = System.currentTimeMillis()
+
+        /**
+         * 是否已被弹窗取用。
+         *
+         * 取用**不等于**移除：token 必须先留在表里，等 [dispatchResult] 拿到
+         * listener 回调完成后再移除。之前 consume 直接 remove，导致
+         * dispatchResult 二次取用时拿到 null、listener 永不回调，
+         * 客户端表现为授权后一直转圈。
+         */
+        @Volatile
+        var consumed: Boolean = false
     }
 
     private val tokens = ConcurrentHashMap<String, Record>()
 
+    /** 调试用的内存快照，字段保持变量名，不做翻译。 */
+    data class Snapshot(
+        val token: String,
+        val uid: Int,
+        val issuedAt: Long,
+        val consumed: Boolean,
+        val hasListener: Boolean,
+        val remainingMs: Long
+    )
+
+    fun snapshot(): List<Snapshot> {
+        val now = System.currentTimeMillis()
+        return tokens.entries.map { (token, record) ->
+            Snapshot(
+                token = token,
+                uid = record.uid,
+                issuedAt = record.issuedAt,
+                consumed = record.consumed,
+                hasListener = record.listener != null,
+                remainingMs = (TTL_MILLIS - (now - record.issuedAt)).coerceAtLeast(0L)
+            )
+        }.sortedByDescending { it.issuedAt }
+    }
+
+    fun clearAll() {
+        tokens.clear()
+    }
+
     fun issue(uid: Int, listener: IDhizukuRequestPermissionListener?): String {
+        // 顺带清理过期记录：签发是低频操作，在这里兜底比另起定时任务简单可靠
+        purgeExpired()
         val token = UUID.randomUUID().toString()
         tokens[token] = Record(uid, listener)
         return token
     }
 
     /**
-     * 校验并消费 token（单次有效）。
+     * 校验并标记 token 为已取用（单次有效）。
+     *
+     * 记录本身保留在表中，供 [dispatchResult] 回调使用。
+     *
      * @return token 对应的 uid；无效或过期返回 -1。
      */
     fun consume(token: String?): Int {
         if (token.isNullOrEmpty()) return -1
-        val record = tokens.remove(token) ?: return -1
-        if (System.currentTimeMillis() - record.issuedAt > TTL_MILLIS) return -1
+        val record = tokens[token] ?: return -1
+        if (isExpired(record)) {
+            tokens.remove(token)
+            return -1
+        }
+        // 已被取用过：同一 token 不允许二次打开弹窗
+        if (record.consumed) return -1
+        record.consumed = true
         return record.uid
     }
 
@@ -77,21 +127,30 @@ object RequestPermissionToken {
         tokens.remove(token)
     }
 
+    /**
+     * 回调授权结果并移除记录。
+     *
+     * 必须**先移除再回调**：回调是跨进程调用，对端可能立刻再次发起请求，
+     * 晚移除会让这条已完成的记录多留一会儿。
+     */
     fun dispatchResult(token: String?, grantResult: Int) {
-        val record = tokens.remove(token ?: "")
-        if (record == null) return
+        if (token.isNullOrEmpty()) return
+        val record = tokens.remove(token) ?: return
         try {
             record.listener?.onRequestPermission(grantResult)
         } catch (ignored: RemoteException) {
         }
     }
 
-    /** token 是否仍未被消费（用于判断弹窗有没有真的被拉起来） */
+    /** token 是否仍未被取用（用于判断弹窗有没有真的被拉起来） */
     fun isPending(token: String?): Boolean {
         if (token.isNullOrEmpty()) return false
         val record = tokens[token] ?: return false
-        return System.currentTimeMillis() - record.issuedAt <= TTL_MILLIS
+        return !record.consumed && !isExpired(record)
     }
+
+    private fun isExpired(record: Record): Boolean =
+        System.currentTimeMillis() - record.issuedAt > TTL_MILLIS
 
     /** 清理过期 token，避免长期持有 listener 引用 */
     fun purgeExpired() {

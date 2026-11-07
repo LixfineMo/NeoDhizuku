@@ -55,6 +55,12 @@ object AlertNotifier {
     private const val ID_PERMISSION_REQUEST = 2100
     private const val ID_WIPE_BLOCKED = 2200
 
+    /** 守卫降级（反射失效，进入保守拦截） */
+    private const val ID_GUARD_DEGRADED = 2300
+
+    /** 单项接口策略拒绝 */
+    private const val ID_API_DENIED = 2400
+
     fun ensureChannel(context: Context) {
         // 通知是辅助功能，任何一步失败都只记录、不外抛
         runCatching {
@@ -187,6 +193,49 @@ object AlertNotifier {
                 "已拦截 $appLabel 擦除设备数据的请求", appLabel
             ),
             pending
+        )
+    }
+
+    /**
+     * 守卫降级：反射不到方法对照表，守卫进入保守模式（一律拦截）。
+     *
+     * 这条通知必须发。守卫失效后用户会发现"设备策略类操作全都用不了了"，
+     * 但不说清楚原因，用户只会以为是 bug —— 最终往往是关掉加固了事，
+     * 反而退回到无保护状态。
+     */
+    fun guardDegraded(context: Context) {
+        post(
+            context,
+            ID_GUARD_DEGRADED,
+            str(context, R.string.alert_guard_degraded_title, "安全守卫已降级"),
+            str(
+                context, R.string.alert_guard_degraded_text,
+                "无法载入设备策略方法对照表，当前所有设备策略调用都会被拦截"
+            )
+        )
+    }
+
+    /**
+     * 某个接口被单项策略拒绝。
+     *
+     * 与其它拦截不同，这条**不带** PendingIntent —— 被拒的是第三方的一次调用，
+     * 用户此时没有必须马上处理的事；通知的作用只是让用户知道「它试过、被挡了」，
+     * 免得用户奇怪某个应用为什么突然不工作。
+     *
+     * @param pkg 调用方包名，取不到时传 null
+     * @param apiLabel 被拒接口的人话名称
+     */
+    fun apiDenied(context: Context, pkg: String?, apiLabel: String) {
+        val who = pkg?.takeIf { it.isNotBlank() }
+            ?: runCatching { context.packageName }.getOrDefault("未知应用")
+        post(
+            context,
+            ID_API_DENIED,
+            str(context, R.string.alert_api_denied_title, "已阻止一次接口调用"),
+            str(
+                context, R.string.alert_api_denied_text,
+                "已阻止 %1\$s 调用「%2\$s」", who, apiLabel
+            )
         )
     }
 

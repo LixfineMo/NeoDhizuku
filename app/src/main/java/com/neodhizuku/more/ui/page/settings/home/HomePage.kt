@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.AttachMoney
 import androidx.compose.material.icons.twotone.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.twotone.Cancel
 import androidx.compose.material.icons.twotone.Code
@@ -101,10 +103,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 import com.neodhizuku.more.NeoDhizuku
+import com.neodhizuku.more.data.settings.UiFlags
 import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.R
-import com.neodhizuku.more.ui.theme.plus
+import com.neodhizuku.more.ui.theme.combine
 import com.neodhizuku.more.data.common.util.DpDirectActivation
+import com.neodhizuku.more.data.common.util.StartupUpdateChecker
 import com.neodhizuku.more.data.common.util.checkShizukuWorked
 import com.neodhizuku.more.data.common.util.openUrlInBrowser
 import com.neodhizuku.more.data.common.util.toast
@@ -112,11 +116,13 @@ import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import com.neodhizuku.more.server.DaemonService
 import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.server.ServiceStatus
+import com.neodhizuku.more.server.HookConfigStore
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
 
 import kotlin.system.exitProcess
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -128,10 +134,17 @@ fun HomePage(
     windowInsets: WindowInsets,
     navController: NavController,
     contentPadding: androidx.compose.foundation.layout.PaddingValues =
-        androidx.compose.foundation.layout.PaddingValues(0.dp)
+        androidx.compose.foundation.layout.PaddingValues(0.dp),
+    /** 底部四页之间用翻页切换，其余路由交给 NavController */
+    onSelectTab: (String) -> Unit = { route ->
+        runCatching { navController.navigate(route) }
+    }
 ) {
     val dhizukuState = DhizukuState.state
     val context = LocalContext.current
+
+    // 冷启动时已在 Application 里查过一次官网清单，这里只负责把结果显示出来
+    val startupUpdate by StartupUpdateChecker.state.collectAsState()
 
     // 向导被置 0 后若还没恢复，即使已激活也要保留免删激活入口，
     // 否则用户找不到「手动恢复」的地方。
@@ -160,32 +173,46 @@ fun HomePage(
             )
         }) {
         LazyColumn(
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(16.dp).combine(contentPadding),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it + contentPadding),
+                .padding(it),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (startupUpdate is StartupUpdateChecker.State.Available) item("startup_update") {
+                StartupUpdateWidget(startupUpdate as StartupUpdateChecker.State.Available, navController)
+            }
             item("dhizuku_state") {
                 DhizukuStateWidget(navController)
             }
+            // 状态卡没显示时（未激活 / 关了状态卡），徽标仍需可见
+            val showStatusCard = NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard) && dhizukuState.isActive
+            if (!showStatusCard) item("status_badges") {
+                StatusBadges(includeActivation = false)
+            }
             if (dhizukuState.isActive) item("settings") {
-                SettingsWidget(navController)
+                SettingsWidget(navController, onSelectTab)
             }
             if (dhizukuState.isActive) item("app_management") {
-                AppManagementWidget(navController)
+                AppManagementWidget(navController, onSelectTab)
             }
-            if (dhizukuState.isActive) item("dhizuku") {
+            // 激活入口按"是否已是所有者"而不是"是否可用"来分流。
+            //
+            // 仅设备管理员时 isActive 为 true，但那不是真正的所有者：
+            // 用 isActive 判断会立刻把 Shizuku / 免删 / ADB 三条升级路径藏掉，
+            // 只留下"通过其他实现转移"这一条在设备管理员下根本走不通的入口。
+            // 因此这几项统一改用 isOwner。
+            if (dhizukuState.isOwner) item("dhizuku") {
                 DhizukuWidget(navController)
             }
-            if (!dhizukuState.isActive) item("shizuku") {
+            if (!dhizukuState.isOwner) item("shizuku") {
                 ShizukuWidget(navController)
             }
-            // 未激活时始终显示；已激活但向导未恢复时也保留
-            if (!dhizukuState.isActive || setupPendingRestore) item("quick_activate") {
+            // 未成为所有者时始终显示；已成为所有者但向导未恢复时也保留
+            if (!dhizukuState.isOwner || setupPendingRestore) item("quick_activate") {
                 QuickActivateWidget(navController)
             }
-            if (!dhizukuState.isActive) item("adb") {
+            if (!dhizukuState.isOwner) item("adb") {
                 AdbWidget()
             }
             if (dhizukuState.isActive) item("home_deactivate_title") {
@@ -193,6 +220,50 @@ fun HomePage(
             }
         }
     }
+}
+
+/**
+ * 启动检查发现新版本时的提示卡。
+ *
+ * 只提示不打断：点整卡直接下载，点"详情"去关于页看完整更新日志。
+ * 下载地址为空（清单里只给了详情链接）时退化成跳关于页。
+ */
+@Composable
+private fun LazyItemScope.StartupUpdateWidget(
+    state: StartupUpdateChecker.State.Available,
+    navController: NavController
+) {
+    val context = LocalContext.current
+    CardWidget(
+        onClick = {
+            if (state.downloadUrl.isBlank()) {
+                navController.navigate(SettingsRoute.About.route)
+            } else {
+                context.openUrlInBrowser(state.downloadUrl)
+            }
+        },
+        icon = {
+            Icon(imageVector = Icons.TwoTone.Bolt, contentDescription = null)
+        },
+        title = {
+            Text(stringResource(R.string.home_update_available_title, state.version))
+        },
+        text = {
+            val brief = state.changelog.lineSequence()
+                .map { it.trim() }
+                .filter { it.isNotBlank() }
+                .take(3)
+                .joinToString("\n")
+            Text(brief.ifBlank { stringResource(R.string.home_update_available_dsp) })
+        },
+        content = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = { navController.navigate(SettingsRoute.About.route) }) {
+                    Text(stringResource(R.string.home_update_detail))
+                }
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -231,7 +302,7 @@ private fun TopBarActions(navController: NavController) {
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Outlined.Error, contentDescription = stringResource(R.string.about_title))
+                    Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about_title))
                 }
             }
             DropdownMenu(
@@ -320,9 +391,8 @@ private fun TopBarActions(navController: NavController) {
             TextButton(onClick = {
                 shutdownDialogShow = false
                 if (NeoDhizuku.on(NeoDhizuku.FixShutdownAction)) {
-                    // 只停服务，不动 API 开关。
-                    // 之前顺手把 isDhizukuEnabled 置 false，导致首页仍显示「已激活」
-                    // 但第三方全部被拒 —— 表现就是「识别不到服务」。
+                    // 只停服务，不动 API 开关：改了 isDhizukuEnabled 会让首页
+                    // 显示「已激活」却把第三方全部拒掉，表现为「识别不到服务」。
                     // 服务是 START_STICKY，因此同时写入"用户已停止"标记，
                     // 系统重建时 DaemonService 会自行再停一次。
                     val appContext = context.applicationContext
@@ -558,7 +628,7 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(Modifier.height(6.dp))
-                StatusTag(label = activationLabel())
+                StatusBadges(includeActivation = true)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = stringResource(
@@ -663,12 +733,43 @@ private fun ServiceStatCard(
     }
 }
 
+/**
+ * 状态卡上并排的纯色药丸：身份标签 + 模块框架 + TEST ONLY。
+ * 模块框架只在真的有进程报到（或模块被加载过）时出现，
+ * 没有 LSPosed / LSPatch 的设备完全看不到它。
+ */
 @Composable
-private fun StatusTag(label: String) {
+private fun StatusBadges(includeActivation: Boolean) {
+    val framework = hookFrameworkLabel()
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (includeActivation) StatusTag(label = activationLabel())
+        if (framework != null) StatusTag(label = framework, color = Color(0xFF6A1B9A))
+        if (UiFlags.testOnlyLabel) StatusTag(label = "TEST ONLY", color = Color(0xFFB26A00))
+    }
+}
+
+/** 每 2 秒读一次报到表；只存内存，重启即清空，与「启动后才生效」一致。 */
+@Composable
+private fun hookFrameworkLabel(): String? {
+    var label by remember { mutableStateOf(HookConfigStore.frameworkLabel()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            label = HookConfigStore.frameworkLabel()
+            delay(2000L)
+        }
+    }
+    return label
+}
+
+@Composable
+private fun StatusTag(label: String, color: Color? = null) {
     androidx.compose.foundation.layout.Box(
         modifier = androidx.compose.ui.Modifier
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.primary)
+            .background(color ?: MaterialTheme.colorScheme.primary)
             .padding(horizontal = 8.dp, vertical = 2.dp)
     ) {
         Text(
@@ -680,9 +781,12 @@ private fun StatusTag(label: String) {
 }
 
 @Composable
-private fun LazyItemScope.SettingsWidget(navController: NavController) {
+private fun LazyItemScope.SettingsWidget(
+    navController: NavController,
+    onSelectTab: (String) -> Unit
+) {
     CardWidget(onClick = {
-        navController.navigate(SettingsRoute.Settings.route)
+        onSelectTab(SettingsRoute.Settings.route)
     }, icon = {
         Icon(imageVector = Icons.TwoTone.Settings, contentDescription = null)
     }, title = {
@@ -693,9 +797,12 @@ private fun LazyItemScope.SettingsWidget(navController: NavController) {
 }
 
 @Composable
-private fun LazyItemScope.AppManagementWidget(navController: NavController) {
+private fun LazyItemScope.AppManagementWidget(
+    navController: NavController,
+    onSelectTab: (String) -> Unit
+) {
     CardWidget(onClick = {
-        navController.navigate(SettingsRoute.AppManagement.route)
+        onSelectTab(SettingsRoute.AppManagement.route)
     }, icon = {
         Icon(imageVector = Icons.TwoTone.RoomPreferences, contentDescription = null)
     }, title = {
@@ -722,18 +829,12 @@ private fun LazyItemScope.DhizukuWidget(navController: NavController) {
 private fun LazyItemScope.ShizukuWidget(navController: NavController) {
     val context = LocalContext.current
     CardWidget(onClick = {
-        if (checkShizukuWorked()) {
-            navController.navigate(SettingsRoute.Activate.route(SettingsRoute.Activate.Mode.Shizuku))
-        } else {
-            if (NeoDhizuku.on(NeoDhizuku.FixShizukuEntryFeedback)) {
-                // 未安装时给出提示，否则点击没有任何反馈
-                context.toast(R.string.home_shizuku_not_installed)
-                runCatching {
-                    context.openUrlInBrowser("https://shizuku.rikka.app/download/")
-                }
-            }
-            return@CardWidget
+        // 检测不到 Shizuku 服务时仍进入激活界面：用户可能只是暂时没启动服务，
+        // 直接甩到下载页既打断了流程，也无法在服务已装但未运行时给出引导。
+        if (!checkShizukuWorked() && NeoDhizuku.on(NeoDhizuku.FixShizukuEntryFeedback)) {
+            context.toast(R.string.home_shizuku_not_installed)
         }
+        navController.navigate(SettingsRoute.Activate.route(SettingsRoute.Activate.Mode.Shizuku))
     }, icon = {
         Icon(imageVector = Icons.TwoTone.Terminal, contentDescription = null)
     }, title = {
@@ -878,6 +979,14 @@ private fun LazyItemScope.DeactivateWidget() {
     var state by remember {
         mutableStateOf(false)
     }
+
+    // 仅设备管理员（没有所有者身份）时，"取消激活"要移除的是设备管理员，
+    // 而不是所有者。
+    //
+    // clearProfileOwner / clearDeviceOwnerApp 只对所有者有效，在设备管理员
+    // 下调用必然抛异常，界面上就表现为一直提示"移除所有者失败"。
+    val adminOnly = !DhizukuState.state.isOwner && DhizukuState.state.isDeviceAdmin
+
     CardWidget(onClick = {
         state = true
     }, icon = {
@@ -898,21 +1007,71 @@ private fun LazyItemScope.DeactivateWidget() {
             if (NeoDhizuku.on(NeoDhizuku.FixDeactivateRefresh)) {
                 // 成功后要刷新状态并停服务，否则界面仍显示已激活、通知残留
                 val appContext = context.applicationContext
-                val succeeded = runCatching {
-                    if (DhizukuState.state.isProfileOwner) {
+                // 身份在点击时重新判定：弹窗停留期间状态可能已经变了
+                val current = DhizukuState.state
+
+                // 成败不能只看"有没有抛异常"。
+                // 移除所有者是系统侧的多步操作（清 owner 标记 → 撤销 admin → 通知各用户），
+                // 权限由别的实现（Shizuku / 其他 Dhizuku 实现）写入时尤其常见：
+                // 前几步已经生效、后面某一步回抛异常，于是表现为「提示失败、实际已经成功」。
+                // 因此每一步各自吞掉异常，最后重新查询系统，用真实身份是否消失来判定。
+                val thrown = ArrayList<String>()
+
+                // 不再只跑第一个命中的分支：转移过来的权限可能同时残留
+                // 资料所有者与设备所有者两种身份，只清一种会留下另一种。
+                if (current.isProfileOwner) {
+                    runCatching {
                         @Suppress("DEPRECATION")
                         manager.clearProfileOwner(DhizukuState.admin)
-                    } else {
+                    }.onFailure {
+                        thrown.add("clearProfileOwner:${it.javaClass.simpleName}")
+                    }
+                }
+                if (current.isDeviceOwner) {
+                    runCatching {
                         @Suppress("DEPRECATION")
                         manager.clearDeviceOwnerApp(appContext.packageName)
+                    }.onFailure {
+                        thrown.add("clearDeviceOwnerApp:${it.javaClass.simpleName}")
                     }
-                    true
-                }.getOrDefault(false)
+                }
+                if (current.isDeviceAdmin) {
+                    runCatching {
+                        @Suppress("DEPRECATION")
+                        manager.removeActiveAdmin(DhizukuState.admin)
+                    }.onFailure {
+                        thrown.add("removeActiveAdmin:${it.javaClass.simpleName}")
+                    }
+                }
                 runCatching {
                     appContext.stopService(Intent(appContext, DaemonService::class.java))
                 }
                 DhizukuState.sync(appContext)
-                if (!succeeded) context.toast(R.string.home_deactivate_failed)
+
+                val after = DhizukuState.state
+                val removed = if (current.isOwner) {
+                    // 所有者：两种所有者身份都要消失
+                    !after.isProfileOwner && !after.isDeviceOwner
+                } else if (current.isDeviceAdmin) {
+                    !after.isDeviceAdmin
+                } else {
+                    // 本来就没有身份，没有可移除的东西
+                    true
+                }
+                if (!removed) {
+                    context.toast(
+                        if (!current.isOwner && current.isDeviceAdmin) R.string.home_deactivate_admin_failed
+                        else R.string.home_deactivate_failed
+                    )
+                }
+                NeoLog.i(NeoLog.HOME) {
+                    "取消激活: profileOwner=${current.isProfileOwner} " +
+                        "deviceOwner=${current.isDeviceOwner} " +
+                        "deviceAdmin=${current.isDeviceAdmin} -> removed=$removed " +
+                        "(after: profileOwner=${after.isProfileOwner} " +
+                        "deviceOwner=${after.isDeviceOwner} " +
+                        "deviceAdmin=${after.isDeviceAdmin}) thrown=$thrown"
+                }
             } else {
                 try {
                     @Suppress("DEPRECATION")
@@ -934,7 +1093,12 @@ private fun LazyItemScope.DeactivateWidget() {
     }, title = {
         Text(stringResource(R.string.home_deactivate_title))
     }, text = {
-        Text(stringResource(R.string.home_deactivate_dsp))
+        Text(
+            stringResource(
+                if (adminOnly) R.string.home_deactivate_admin_dsp
+                else R.string.home_deactivate_dsp
+            )
+        )
     })
 }
 

@@ -44,3 +44,13 @@
 -keep class com.rosan.dhizuku.aidl.** { *; }
 -keep class com.rosan.neodhizuku.server_api.** { *; }
 -keep class com.rosan.neodhizuku.shared.** { *; }
+
+
+# DAX / Xposed module: assets/xposed_init 里写的是类名字符串，
+# release 开了 minify，类名一旦被 R8 改掉 LSPosed 就 ClassNotFoundException。
+# 同时保留客户端 API 与 AIDL 生成类——模块代码运行在目标进程，
+# 它加载的是**本 APK 的 dex**，这些类必须真实存在且名字不变。
+-keep class com.neodhizuku.hook.HookInit { *; }
+-keep class com.neodhizuku.hook.** { *; }
+-keep class com.rosan.dhizuku.api.** { *; }
+-keep class com.rosan.dhizuku.shared.** { *; }

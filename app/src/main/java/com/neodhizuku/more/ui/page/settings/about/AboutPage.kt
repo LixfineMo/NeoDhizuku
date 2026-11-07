@@ -1,15 +1,9 @@
 package com.neodhizuku.more.ui.page.settings.about
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,10 +29,12 @@ import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.automirrored.twotone.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -46,14 +42,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import com.neodhizuku.more.server.DhizukuState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -61,12 +60,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.neodhizuku.more.BuildConfig
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.UpdateLinks
+import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.data.common.util.openUrlInBrowser
-import com.neodhizuku.more.server.DhizukuState
+import com.neodhizuku.more.data.common.util.toast
 import com.neodhizuku.more.server.ServiceStatus
 import org.koin.androidx.compose.koinViewModel
 
@@ -107,7 +106,20 @@ fun AboutPage(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item("about_icon") {
-                AnimatedAppIcon()
+                var taps by remember { mutableStateOf(0) }
+                var lastTapAt by remember { mutableLongStateOf(0L) }
+                WaveAppIcon(
+                    onTap = {
+                        val now = System.currentTimeMillis()
+                        if (now - lastTapAt > 2_000L) taps = 0
+                        lastTapAt = now
+                        taps += 1
+                        if (taps >= 5) {
+                            taps = 0
+                            navController.navigate(SettingsRoute.Debug.route)
+                        }
+                    }
+                )
             }
 
             item("about_cards") {
@@ -124,11 +136,265 @@ fun AboutPage(
                 LinkRow()
             }
 
+            item("about_credits") {
+                CreditsCard()
+            }
+
             item("about_update") {
                 UpdateCard()
             }
+
+            item("about_feedback") {
+                FeedbackCard()
+            }
+
+            item("about_admin_residue") {
+                AdminResidueCard(navController)
+            }
         }
     }
+}
+
+/**
+ * 设备身份状态卡：显示系统报告的三项身份，并提供强制清除入口。
+ *
+ * 存在的理由：把设备所有者转移给别的应用之后，部分机型不会顺带卸掉
+ * 本应用的设备管理员身份，于是出现"设置里显示未激活、卸载却报设备管理
+ * 器阻止"的错位状态。此时 [DhizukuState.state] 三项往往全为 false，
+ * 按状态判断会以为"没有可清理的东西"，因此这张卡无条件显示，
+ * 并且清除动作不看状态、直接调清理接口。
+ */
+@Composable
+private fun AdminResidueCard(navController: NavController) {
+    val context = LocalContext.current
+    var result by remember { mutableStateOf<String?>(null) }
+    var confirmClear by remember { mutableStateOf(false) }
+    val state = DhizukuState.state
+
+    LaunchedEffect(Unit) { runCatching { DhizukuState.sync(context) } }
+
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                stringResource(R.string.about_admin_residue_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                stringResource(R.string.about_admin_residue_dsp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                stringResource(
+                    R.string.about_admin_residue_state,
+                    state.isDeviceOwner.toString(),
+                    state.isProfileOwner.toString(),
+                    state.isDeviceAdmin.toString()
+                ),
+                style = MaterialTheme.typography.bodySmall
+            )
+            result?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall)
+            }
+            TextButton(onClick = { confirmClear = true }) {
+                Text(stringResource(R.string.about_admin_residue_clean))
+            }
+            TextButton(onClick = { navController.navigate(SettingsRoute.OwnerIdentity.route) }) {
+                Text(stringResource(R.string.owner_identity_entry))
+            }
+        }
+    }
+
+    // 清除动作不看当前状态、直接调三个清理接口，属于不可逆操作，必须二次确认。
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            title = { Text(stringResource(R.string.about_admin_residue_confirm_title)) },
+            text = { Text(stringResource(R.string.about_admin_residue_confirm_desc)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmClear = false
+                    val r = runCatching { DhizukuState.forceCleanup(context) }
+                        .getOrDefault(emptyMap())
+                    runCatching { DhizukuState.sync(context) }
+                    result = if (r.isEmpty()) {
+                        context.getString(R.string.about_admin_residue_failed)
+                    } else {
+                        r.entries.joinToString("  ") {
+                            "${it.key}=${if (it.value) "ok" else "fail"}"
+                        }
+                    }
+                }) {
+                    Text(stringResource(R.string.about_admin_residue_confirm_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClear = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+}
+
+/**
+ * 底部反馈卡：点开弹窗填表，发到更新配置里那一台服务器。
+ *
+ * 整张卡片就是一个点击区，不再内嵌按钮 —— 一行标题加一行说明已经够长，
+ * 再放一个按钮会把它挤成三行。
+ */
+@Composable
+private fun FeedbackCard(viewModel: AboutViewModel = koinViewModel()) {
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.collect()
+    }
+
+    // 提交结束后 toast 一次，成功关窗、失败留着让用户改
+    LaunchedEffect(viewModel.feedbackState) {
+        when (val state = viewModel.feedbackState) {
+            is FeedbackState.Success -> {
+                context.toast(R.string.feedback_success_toast)
+                showDialog = false
+                viewModel.resetFeedback()
+            }
+
+            is FeedbackState.Empty -> {
+                context.toast(R.string.feedback_empty)
+                viewModel.resetFeedback()
+            }
+
+            is FeedbackState.Failed -> {
+                context.toast(
+                    state.message?.takeIf { it.isNotBlank() }
+                        ?: context.getString(R.string.feedback_failed)
+                )
+                viewModel.resetFeedback()
+            }
+
+            else -> Unit
+        }
+    }
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = { showDialog = true }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.AutoMirrored.TwoTone.Send,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.about_feedback_title),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    stringResource(R.string.about_feedback_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+
+    if (showDialog) {
+        FeedbackDialog(
+            sending = viewModel.feedbackState is FeedbackState.Sending,
+            onDismiss = { showDialog = false },
+            onSend = { title, content, contact ->
+                viewModel.submitFeedback(title, content, contact)
+            }
+        )
+    }
+}
+
+/** 反馈弹窗：标题、内容、联系方式（可选）。 */
+@Composable
+private fun FeedbackDialog(
+    sending: Boolean,
+    onDismiss: () -> Unit,
+    onSend: (String, String, String) -> Unit
+) {
+    var title by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var contact by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = { if (!sending) onDismiss() },
+        title = { Text(stringResource(R.string.feedback_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(stringResource(R.string.feedback_field_title)) },
+                    singleLine = true,
+                    enabled = !sending,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = content,
+                    onValueChange = { content = it },
+                    label = { Text(stringResource(R.string.feedback_field_content)) },
+                    minLines = 4,
+                    maxLines = 8,
+                    enabled = !sending,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = contact,
+                    onValueChange = { contact = it },
+                    label = { Text(stringResource(R.string.feedback_field_contact)) },
+                    singleLine = true,
+                    enabled = !sending,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onSend(title, content, contact) },
+                enabled = !sending
+            ) {
+                Text(
+                    stringResource(
+                        if (sending) R.string.feedback_sending else R.string.feedback_send
+                    )
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !sending) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 /** 底部更新卡：开关、检查按钮与结果提示。 */
@@ -233,7 +499,7 @@ private fun UpdateCard(viewModel: AboutViewModel = koinViewModel()) {
                 onDismiss = { viewModel.dismissUpdate() },
                 onDownload = {
                     // 清单里没给地址时退回仓库主页，总比点了没反应好
-                    val url = state.info.apkUrl.ifBlank {
+                    val url = state.info.downloadUrl.ifBlank {
                         UpdateLinks.REPO_HOME
                     }
                     context.openUrlInBrowser(url)
@@ -299,89 +565,6 @@ private fun UpdateDialog(
     )
 }
 
-/**
- * 顶部图标：应用图标 + 缓慢旋转的渐变环。
- *
- * 环用 sweepGradient 配 infiniteRepeatable 旋转，随主题色变化，
- * 静止状态下也能看出"活着"。
- */
-@Composable
-private fun AnimatedAppIcon() {
-    val context = LocalContext.current
-    val icon = remember(context) { loadSelfIcon(context) }
-
-    val infiniteTransition = rememberInfiniteTransition(label = "about_icon_rotation")
-    val angle by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 9000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "about_icon_angle"
-    )
-
-    val primary = MaterialTheme.colorScheme.primary
-    val tertiary = MaterialTheme.colorScheme.tertiary
-
-    Box(
-        modifier = Modifier.size(140.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // 旋转的渐变环
-        Box(
-            modifier = Modifier
-                .size(128.dp)
-                .rotate(angle)
-                .border(
-                    width = 3.dp,
-                    brush = Brush.sweepGradient(
-                        colors = listOf(
-                            primary,
-                            tertiary,
-                            primary.copy(alpha = 0.15f),
-                            primary
-                        )
-                    ),
-                    shape = CircleShape
-                )
-        )
-
-        // 应用图标本身
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            modifier = Modifier.size(104.dp)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                if (icon != null) {
-                    androidx.compose.foundation.Image(
-                        painter = rememberDrawablePainter(drawable = icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(CircleShape)
-                    )
-                } else {
-                    Text(
-                        text = "N",
-                        style = MaterialTheme.typography.displaySmall,
-                        color = primary
-                    )
-                }
-            }
-        }
-    }
-}
-
-private fun loadSelfIcon(context: Context) = try {
-    context.packageManager.getApplicationIcon(BuildConfig.APPLICATION_ID)
-} catch (_: PackageManager.NameNotFoundException) {
-    null
-}
 
 /** 左卡：版本相关 */
 @Composable
@@ -490,7 +673,7 @@ private fun InfoRow(label: String, value: String) {
     }
 }
 
-/** 底部外链：GitHub 与 QQ 反馈群 */
+/** 底部外链：GitHub、QQ 反馈群与 Telegram 群 */
 @Composable
 private fun LinkRow() {
     val context = LocalContext.current
@@ -503,15 +686,27 @@ private fun LinkRow() {
             LinkButton(
                 painter = painterResource(R.drawable.ic_github),
                 label = stringResource(R.string.about_github),
+                // 单色图标，跟随主题前景色
+                tint = MaterialTheme.colorScheme.onSurface,
                 onClick = { context.openUrlInBrowser(AboutLinks.GITHUB) }
             )
-            Spacer(Modifier.width(24.dp))
         }
         if (AboutLinks.QQ_GROUP.isNotEmpty()) {
+            Spacer(Modifier.width(24.dp))
             LinkButton(
-                painter = painterResource(R.drawable.ic_qq),
+                painter = null,
+                letter = "Q",
                 label = stringResource(R.string.about_qq_group),
                 onClick = { context.openUrlInBrowser(AboutLinks.QQ_GROUP) }
+            )
+        }
+        if (AboutLinks.TELEGRAM.isNotEmpty()) {
+            Spacer(Modifier.width(24.dp))
+            LinkButton(
+                painter = null,
+                letter = "T",
+                label = stringResource(R.string.about_telegram),
+                onClick = { context.openUrlInBrowser(AboutLinks.TELEGRAM) }
             )
         }
     }
@@ -519,8 +714,10 @@ private fun LinkRow() {
 
 @Composable
 private fun LinkButton(
-    painter: androidx.compose.ui.graphics.painter.Painter,
+    painter: androidx.compose.ui.graphics.painter.Painter? = null,
+    letter: String? = null,
     label: String,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit
 ) {
     Surface(
@@ -542,12 +739,22 @@ private fun LinkButton(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painter,
-                    contentDescription = label,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(24.dp)
-                )
+                if (letter != null) {
+                    // 群图标不跟品牌走：单色字母，跟随前景色，日间/夜间都只有黑白两态
+                    Text(
+                        letter,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                } else if (painter != null) {
+                    Icon(
+                        painter = painter,
+                        contentDescription = label,
+                        tint = tint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
             Text(
                 label,

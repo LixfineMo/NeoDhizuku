@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    明文流量配置。
+
+    targetSdk >= 28 起系统默认禁止明文 HTTP，自建服务器（尤其是走公网 IPv6
+    的家宽服务器）往往没有证书，所以这里放开明文，由应用内的
+    “允许不安全的链接”开关决定要不要真的发起请求。
+
+    只想放行固定域名时，把 base-config 改成 cleartextTrafficPermitted="false"，
+    再加一段 <domain-config cleartextTrafficPermitted="true"> 列出自己的域名。
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

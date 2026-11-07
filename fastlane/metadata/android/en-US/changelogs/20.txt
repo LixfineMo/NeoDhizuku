@@ -1,0 +1,5 @@
+- Added the "Service" page, which groups the API service switch, whitelist, refusal options and device owner transfer.
+- Added the "Use the legacy compatible version name" switch (enabled by default).
+- Added device admin work mode, with capability tiers and a forced confirmation for wipe requests.
+- Call logs are now deduplicated within one second and described in readable text.
+- Added the About page and the language picker.

@@ -356,11 +356,36 @@ object DpmApiCatalog {
         else fillPattern(spec, data)
     }
 
-    /** 供外部判定：某次调用是否为擦除设备数据 */
+    /**
+     * 供外部判定：某次调用是否为擦除设备数据。
+     *
+     * **无法判定时按「是」处理**（fail-closed）。
+     *
+     * 原实现在 `methodName(code)` 返回 null 时返回 false，等于"认不出就放行" ——
+     * 反射一旦失效（Android 版本差异 / hidden API 豁免失败 / 方法改名），
+     * 擦除守卫会**静默失效**，调用方完全不知情。
+     *
+     * 擦除是不可逆操作，认不出时应当拦下来交给用户确认，而不是默认放行。
+     * 代价是反射失效期间设备策略调用需要逐次确认，用户可关闭擦除守卫恢复。
+     */
     fun isWipe(binder: android.os.IBinder?, code: Int): Boolean {
         val descriptor = runCatching { binder?.interfaceDescriptor }.getOrNull()
         if (descriptor != DPM_DESCRIPTOR) return false
-        val method = methodName(code) ?: return false
+        val method = methodName(code) ?: return true
         return method == "wipeData" || method == "wipeDataWithReason"
     }
+
+    /**
+     * 反射出的对照表是否可用。
+     *
+     * 为空说明反射失败 —— 此时 [isWipe] 会对所有设备策略调用返回 true，
+     * 守卫进入保守模式。调用方应据此提示用户，而不是让用户莫名发现"都用不了了"。
+     */
+    /** 调试用：丢弃事务码映射缓存，下次访问时重新反射系统 Stub。 */
+    fun invalidateCache() {
+        codeToName = null
+        nameToCode = null
+    }
+
+    fun isCatalogLoaded(): Boolean = codeToName.orElseLoadCodeToName().isNotEmpty()
 }

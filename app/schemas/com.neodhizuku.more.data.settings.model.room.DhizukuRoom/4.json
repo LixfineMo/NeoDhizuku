@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "878087089509041e69c67517812c7fc8",
+    "identityHash": "a1f4c8e02d6b9375e4c1a8d0f5b2e7c6",
     "entities": [
       {
         "tableName": "app",
@@ -78,7 +78,8 @@
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_app_allow_api` ON `${TABLE_NAME}` (`allow_api`)"
           }
-        ]
+        ],
+        "foreignKeys": []
       },
       {
         "tableName": "audit",
@@ -152,7 +153,8 @@
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_audit_uid` ON `${TABLE_NAME}` (`uid`)"
           }
-        ]
+        ],
+        "foreignKeys": []
       },
       {
         "tableName": "runtime_log",
@@ -205,12 +207,14 @@
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_runtime_log_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
           }
-        ]
+        ],
+        "foreignKeys": []
       }
     ],
+    "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '878087089509041e69c67517812c7fc8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1f4c8e02d6b9375e4c1a8d0f5b2e7c6')"
     ]
   }
 }

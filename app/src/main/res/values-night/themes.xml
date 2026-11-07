@@ -4,5 +4,13 @@
     <style name="Theme.Dhizuku" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+
+        <!-- 窗口底层压成纯黑：Compose 没铺到的边角（过界回弹、启动瞬间）露出的就是它，
+             留系统默认的深灰会让纯黑模式看起来"不够黑"。 -->
+        <item name="android:windowBackground">@android:color/black</item>
+
+        <!-- 状态栏与导航栏透明后露出上面的窗口底色，纯黑模式下即为全黑，不刷成系统深灰。 -->
+        <item name="android:statusBarColor" tools:targetApi="q">@android:color/transparent</item>
+        <item name="android:navigationBarColor" tools:targetApi="q">@android:color/transparent</item>
     </style>
 </resources>

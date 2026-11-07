@@ -42,6 +42,12 @@ data object ServiceStatus {
         authorizedCount = count
     }
 
+    /** 调试用：直接覆盖运行态数值，仅改内存，不触碰服务本身。 */
+    fun setDebugValues(count: Int? = null, startElapsed: Long? = null) {
+        count?.let { authorizedCount = it }
+        startElapsed?.let { startElapsedRealtime = it }
+    }
+
     /** 服务是否在运行（计时基准 >= 0 即运行中） */
     fun isRunning(): Boolean = startElapsedRealtime >= 0L
 
