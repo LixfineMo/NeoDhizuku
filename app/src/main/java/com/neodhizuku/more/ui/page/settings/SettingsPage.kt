@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -23,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import top.yukonga.miuix.kmp.blur.layerBackdrop
@@ -40,7 +37,6 @@ import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.ui.component.AppBackground
 import com.neodhizuku.more.ui.component.FloatingNavBar
 import com.neodhizuku.more.ui.component.NavDestination
-import com.neodhizuku.more.ui.component.SideNavRail
 import com.neodhizuku.more.ui.component.glass.GlassNavBar
 import com.neodhizuku.more.ui.page.settings.activate.ActivatePage
 import com.neodhizuku.more.ui.page.settings.security.SecurityPage
@@ -60,10 +56,8 @@ import com.neodhizuku.more.ui.page.settings.calllog.CallLogPage
 import com.neodhizuku.more.ui.page.settings.delegation.DelegationPage
 import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalPage
 import com.neodhizuku.more.ui.page.settings.home.HomePage
-import com.neodhizuku.more.ui.page.settings.owneridentity.OwnerIdentityPage
 import com.neodhizuku.more.ui.page.settings.theme.ThemePage
 import com.neodhizuku.more.ui.page.settings.apipolicy.ApiPolicyPage
-import com.neodhizuku.more.ui.page.settings.hookconfig.HookConfigPage
 import com.neodhizuku.more.ui.page.settings.whitelist.WhitelistPage
 import com.neodhizuku.more.ui.theme.ThemeConfig
 import com.neodhizuku.more.ui.theme.ThemeSettings
@@ -96,12 +90,6 @@ fun SettingsPage(windowInsets: WindowInsets) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val showNavBar = useNavBar && currentRoute == SettingsRoute.Tabs.route
-
-    // 宽屏（平板 / 横屏）把底部悬浮栏换成左侧竖排导航栏。
-    // 用 screenWidthDp 判断，不额外引入 window-size-class 依赖；
-    // 与手机端一致：只在主 Tab 容器显示，二级页面保持全屏。
-    val expanded = LocalConfiguration.current.screenWidthDp >= 600
-    val railVisible = expanded && showNavBar
 
     // 激活状态变化会让页数量变动，越界时收回最后一页
     LaunchedEffect(tabs.size) {
@@ -180,7 +168,7 @@ fun SettingsPage(windowInsets: WindowInsets) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            if (!expanded && showNavBar) {
+            if (showNavBar) {
                 // 撑满宽度，否则底栏只占内容宽度，两侧点不到
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (glassNavBar) {
@@ -243,19 +231,9 @@ fun SettingsPage(windowInsets: WindowInsets) {
                 )
             }
 
-            Row(modifier = Modifier.fillMaxSize()) {
-                if (railVisible) {
-                    SideNavRail(
-                        tabs = tabs,
-                        selectedIndex = { pagerState.currentPage },
-                        onNavigate = onSelectTab,
-                        liquidGlass = glassNavBar
-                    )
-                }
-                Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = SettingsRoute.Tabs.route,
+            NavHost(
+                navController = navController,
+                startDestination = SettingsRoute.Tabs.route,
                 modifier = Modifier
                     .fillMaxSize()
                     .then(if (showNavBar) Modifier else Modifier.padding(bottom = bottomSpace))
@@ -325,12 +303,6 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     navController = navController
                 )
             }
-            composable(route = SettingsRoute.HookConfig.route) {
-                HookConfigPage(
-                    windowInsets = windowInsets,
-                    navController = navController
-                )
-            }
             composable(route = SettingsRoute.Experimental.route) {
                 ExperimentalPage(
                     windowInsets = windowInsets,
@@ -354,9 +326,6 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     windowInsets = windowInsets,
                     navController = navController
                 )
-            }
-            composable(route = SettingsRoute.OwnerIdentity.route) {
-                OwnerIdentityPage(navController = navController)
             }
             composable(route = SettingsRoute.UpdateSettings.route) {
                 UpdateSettingsPage(
@@ -420,8 +389,6 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     mode = mode
                 )
             }
-            }
-                }
             }
         }
     }

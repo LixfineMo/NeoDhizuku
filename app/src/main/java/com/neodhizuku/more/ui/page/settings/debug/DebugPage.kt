@@ -84,15 +84,6 @@ fun DebugPage(
                     onClick = { navController.navigate(SettingsRoute.DebugServiceFiles.route) }
                 )
             }
-            // 设置页的模块入口只在框架真正加载过本 APK 后出现；
-            // 调试页留一个强制入口，方便刚在 LSPosed 勾完、目标应用还没启动时配置。
-            item("debug_entry_hook") {
-                DebugMenuCard(
-                    title = stringResource(R.string.hook_config_title),
-                    desc = stringResource(R.string.hook_config_entry_desc),
-                    onClick = { navController.navigate(SettingsRoute.HookConfig.route) }
-                )
-            }
             item("debug_entry_reset") {
                 DebugMenuCard(
                     title = stringResource(R.string.debug_menu_reset),

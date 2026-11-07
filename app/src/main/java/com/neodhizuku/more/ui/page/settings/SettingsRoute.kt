@@ -13,14 +13,10 @@ sealed class SettingsRoute(val route: String) {
     data object Whitelist : SettingsRoute("whitelist")
     /** 单项接口配置：逐个接口决定每个应用能用到哪一步 */
     data object ApiPolicy : SettingsRoute("api_policy")
-    /** DAX 化 Xposed 模块：作用域与行为配置 */
-    data object HookConfig : SettingsRoute("hook_config")
     data object Experimental : SettingsRoute("experimental")
     data object Delegation : SettingsRoute("delegation")
     data object Theme : SettingsRoute("theme")
     data object About : SettingsRoute("about")
-    /** 设备身份：动态包名的移除 / 转移 */
-    data object OwnerIdentity : SettingsRoute("owner_identity")
     data object UpdateSettings : SettingsRoute("update_settings")
     data object Debug : SettingsRoute("debug")
     data object DebugUpdateConfig : SettingsRoute("debug_update_config")

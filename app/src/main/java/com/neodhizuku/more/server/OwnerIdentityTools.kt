@@ -122,7 +122,6 @@ object OwnerIdentityTools {
      * 若目标包名本身仍是 device owner，再试一次 clearDeviceOwnerApp
      * （只有 DO 自己能调，参数不符时系统会抛异常，这里吞掉即可）。
      */
-    @Suppress("DEPRECATION")
     fun remove(context: Context, target: ComponentName): ActionResult {
         val manager = dpm(context)
         val direct = runCatching {

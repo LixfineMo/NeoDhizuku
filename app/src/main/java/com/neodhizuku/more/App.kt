@@ -23,7 +23,6 @@ import rikka.sui.Sui
 class App : Application(), KoinComponent {
     override fun onCreate() {
         super.onCreate()
-        com.neodhizuku.more.data.settings.UiFlags.init(this)
         startKoin {
             androidLogger()
             androidContext(this@App)

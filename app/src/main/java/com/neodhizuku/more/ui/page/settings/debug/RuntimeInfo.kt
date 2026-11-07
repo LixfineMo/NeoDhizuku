@@ -297,14 +297,10 @@ object RuntimeInfoCollector : KoinComponent {
             @Suppress("DEPRECATION")
             info.signatures
         }
-        val first = sigs?.firstOrNull()
-        if (first == null) {
-            "-"
-        } else {
-            val md = java.security.MessageDigest.getInstance("SHA-256")
-            md.update(first.toByteArray())
-            md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }.take(32)
-        }
+        val first = sigs?.firstOrNull() ?: return "-"
+        val md = java.security.MessageDigest.getInstance("SHA-256")
+        md.update(first.toByteArray())
+        md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }.take(32)
     }
 }
 

@@ -149,7 +149,7 @@ fun AboutPage(
             }
 
             item("about_admin_residue") {
-                AdminResidueCard(navController)
+                AdminResidueCard()
             }
         }
     }
@@ -165,10 +165,9 @@ fun AboutPage(
  * 并且清除动作不看状态、直接调清理接口。
  */
 @Composable
-private fun AdminResidueCard(navController: NavController) {
+private fun AdminResidueCard() {
     val context = LocalContext.current
     var result by remember { mutableStateOf<String?>(null) }
-    var confirmClear by remember { mutableStateOf(false) }
     val state = DhizukuState.state
 
     LaunchedEffect(Unit) { runCatching { DhizukuState.sync(context) } }
@@ -200,44 +199,21 @@ private fun AdminResidueCard(navController: NavController) {
             result?.let {
                 Text(it, style = MaterialTheme.typography.bodySmall)
             }
-            TextButton(onClick = { confirmClear = true }) {
+            TextButton(onClick = {
+                val r = runCatching { DhizukuState.forceCleanup(context) }
+                    .getOrDefault(emptyMap())
+                runCatching { DhizukuState.sync(context) }
+                result = if (r.isEmpty()) {
+                    context.getString(R.string.about_admin_residue_failed)
+                } else {
+                    r.entries.joinToString("  ") {
+                        "${it.key}=${if (it.value) "ok" else "fail"}"
+                    }
+                }
+            }) {
                 Text(stringResource(R.string.about_admin_residue_clean))
             }
-            TextButton(onClick = { navController.navigate(SettingsRoute.OwnerIdentity.route) }) {
-                Text(stringResource(R.string.owner_identity_entry))
-            }
         }
-    }
-
-    // 清除动作不看当前状态、直接调三个清理接口，属于不可逆操作，必须二次确认。
-    if (confirmClear) {
-        AlertDialog(
-            onDismissRequest = { confirmClear = false },
-            title = { Text(stringResource(R.string.about_admin_residue_confirm_title)) },
-            text = { Text(stringResource(R.string.about_admin_residue_confirm_desc)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmClear = false
-                    val r = runCatching { DhizukuState.forceCleanup(context) }
-                        .getOrDefault(emptyMap())
-                    runCatching { DhizukuState.sync(context) }
-                    result = if (r.isEmpty()) {
-                        context.getString(R.string.about_admin_residue_failed)
-                    } else {
-                        r.entries.joinToString("  ") {
-                            "${it.key}=${if (it.value) "ok" else "fail"}"
-                        }
-                    }
-                }) {
-                    Text(stringResource(R.string.about_admin_residue_confirm_ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmClear = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
     }
 }
 

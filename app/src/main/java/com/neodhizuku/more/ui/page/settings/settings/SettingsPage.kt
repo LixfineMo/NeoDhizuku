@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,14 +47,12 @@ import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.LocaleHelper
 import com.neodhizuku.more.server.DhizukuState
-import com.neodhizuku.more.server.HookConfigStore
 import com.neodhizuku.more.server.ServiceStatus
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
 import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,15 +66,6 @@ fun SettingsPage(
     },
     viewModel: SettingsViewModel = koinViewModel()
 ) {
-    // 模块配置入口只在 LSPosed / LSPatch 真的加载过本 APK 时出现。
-    // 没有框架的用户看不到这一项 —— 这正是「无 root / 无 LSP 完全无感」在界面侧的保证。
-    val moduleDetected by produceState(initialValue = false) {
-        while (true) {
-            value = HookConfigStore.moduleDetected()
-            delay(1500)
-        }
-    }
-
     // 设备管理员也算已激活，管理分区（软件管理 / 黑名单 / 授权）同样可用
     val isOwner = DhizukuState.state.isActive
 
@@ -179,18 +167,6 @@ fun SettingsPage(
                                 navController.navigate(SettingsRoute.ApiPolicy.route)
                             }
                         )
-                        // DAX 化 Xposed 模块：仅在框架已加载本 APK 时显示
-                        if (moduleDetected) {
-                            HorizontalDividerSafe()
-                            ManageEntry(
-                                title = stringResource(R.string.hook_config_entry_title),
-                                desc = stringResource(R.string.hook_config_entry_desc),
-                                onClick = {
-                                    NeoLog.d(NeoLog.NAV) { "settings -> hook_config" }
-                                    navController.navigate(SettingsRoute.HookConfig.route)
-                                }
-                            )
-                        }
                     }
                 }
             }

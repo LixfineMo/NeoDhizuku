@@ -103,7 +103,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 import com.neodhizuku.more.NeoDhizuku
-import com.neodhizuku.more.data.settings.UiFlags
 import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.R
 import com.neodhizuku.more.ui.theme.combine
@@ -116,13 +115,11 @@ import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import com.neodhizuku.more.server.DaemonService
 import com.neodhizuku.more.server.DhizukuState
 import com.neodhizuku.more.server.ServiceStatus
-import com.neodhizuku.more.server.HookConfigStore
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
 
 import kotlin.system.exitProcess
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -184,11 +181,6 @@ fun HomePage(
             }
             item("dhizuku_state") {
                 DhizukuStateWidget(navController)
-            }
-            // 状态卡没显示时（未激活 / 关了状态卡），徽标仍需可见
-            val showStatusCard = NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard) && dhizukuState.isActive
-            if (!showStatusCard) item("status_badges") {
-                StatusBadges(includeActivation = false)
             }
             if (dhizukuState.isActive) item("settings") {
                 SettingsWidget(navController, onSelectTab)
@@ -628,7 +620,7 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(Modifier.height(6.dp))
-                StatusBadges(includeActivation = true)
+                StatusTag(label = activationLabel())
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = stringResource(
@@ -733,43 +725,12 @@ private fun ServiceStatCard(
     }
 }
 
-/**
- * 状态卡上并排的纯色药丸：身份标签 + 模块框架 + TEST ONLY。
- * 模块框架只在真的有进程报到（或模块被加载过）时出现，
- * 没有 LSPosed / LSPatch 的设备完全看不到它。
- */
 @Composable
-private fun StatusBadges(includeActivation: Boolean) {
-    val framework = hookFrameworkLabel()
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (includeActivation) StatusTag(label = activationLabel())
-        if (framework != null) StatusTag(label = framework, color = Color(0xFF6A1B9A))
-        if (UiFlags.testOnlyLabel) StatusTag(label = "TEST ONLY", color = Color(0xFFB26A00))
-    }
-}
-
-/** 每 2 秒读一次报到表；只存内存，重启即清空，与「启动后才生效」一致。 */
-@Composable
-private fun hookFrameworkLabel(): String? {
-    var label by remember { mutableStateOf(HookConfigStore.frameworkLabel()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            label = HookConfigStore.frameworkLabel()
-            delay(2000L)
-        }
-    }
-    return label
-}
-
-@Composable
-private fun StatusTag(label: String, color: Color? = null) {
+private fun StatusTag(label: String) {
     androidx.compose.foundation.layout.Box(
         modifier = androidx.compose.ui.Modifier
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(50))
-            .background(color ?: MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(horizontal = 8.dp, vertical = 2.dp)
     ) {
         Text(

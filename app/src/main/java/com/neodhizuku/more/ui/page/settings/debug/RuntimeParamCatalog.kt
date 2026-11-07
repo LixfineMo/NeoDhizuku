@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-import com.neodhizuku.more.data.settings.UiFlags
 import com.neodhizuku.more.data.common.util.OfficialEndpoint
 import com.neodhizuku.more.data.common.util.StartupUpdateChecker
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
@@ -180,15 +179,11 @@ object RuntimeParamCatalog : KoinComponent {
                         "failed" -> StartupUpdateChecker.State.Failed("debug")
                         else -> null
                     }
-                    if (state != null) StartupUpdateChecker.forceState(state)
+                    if (state == null) false else {
+                        StartupUpdateChecker.forceState(state)
+                        true
+                    }
                 }, "Idle / Checking / UpToDate / Available / Failed")
-            )
-        ),
-        ParamGroup(
-            "UiFlags",
-            listOf(
-                bool("testOnlyLabel", { UiFlags.testOnlyLabel }, { UiFlags.testOnlyLabel = it },
-                    "false = hide the TEST ONLY badge")
             )
         ),
         ParamGroup(
