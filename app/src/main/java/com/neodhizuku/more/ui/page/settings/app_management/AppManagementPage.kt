@@ -32,8 +32,8 @@ import androidx.compose.material.icons.twotone.Block
 import androidx.compose.material.icons.twotone.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -166,14 +166,13 @@ private fun LazyItemScope.ItemWidget(
     viewModel: AppManagementViewModel,
     data: AppManagementViewData
 ) {
-    Card(
+    NeoCard(
         modifier = Modifier
             .animateItem()
             .fillMaxWidth(),
         colors = if (data.blocked) CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-        ) else CardDefaults.cardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) else CardDefaults.cardColors()
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

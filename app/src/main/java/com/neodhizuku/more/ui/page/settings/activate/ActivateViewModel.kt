@@ -251,7 +251,6 @@ class ActivateViewModel : ViewModel(), KoinComponent {
 
     /**
      * 是否已经是指定的设备所有者。
-     *
      * 用公开 API 判定，不依赖反射；失败一律返回 false（按"还不是"处理，
      * 走正常激活流程，最坏情况是系统回报 OWNER_ALREADY_SET）。
      */
@@ -345,10 +344,8 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    // ------------------------------------------------------------------
     // 不篡改系统单例 DevicePolicyManager 的 mService 字段，
     // 而是直接把包装后的 binder 转成 IDevicePolicyManager 调用。
-    // ------------------------------------------------------------------
 
     private fun requireWrappedDevicePolicyManager(
         wrapper: (IBinder) -> IBinder,
@@ -424,15 +421,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
 
     /**
      * 以兼容方式调用 IDevicePolicyManager 上的隐藏方法。
-     *
      * 直接按编译期签名调用在方法签名变更的系统上会抛 NoSuchMethodError ——
      * 编译期链接的是 SDK 里的 stub，运行期解析的是设备上的真实 framework，
      * 两者不一致时调用点在运行期才崩，且是 Error 而非 Exception。
-     *
      * 策略：先按编译期签名试；仅在"签名不匹配"（NoSuchMethodError /
      * NoSuchMethodException）时，扫描同名方法、按参数位置匹配，
      * 多出来的尾部参数按类型填默认值，逐个试直到成功。
-     *
      * 业务性异常（如"设备所有者已设置"）原样抛出，交给上层错误映射处理。
      */
     private fun invokeDpmCompat(

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  单项系统接口的名称、说明、分组名由 DpmPolicyStrings 以 R.string 直引，
+  压缩器本就会保留；这里再显式声明一次，防止以后改成动态查名时复发。
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/dpm_*" />

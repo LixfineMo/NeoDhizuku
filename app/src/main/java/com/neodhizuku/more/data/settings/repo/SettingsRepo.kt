@@ -11,7 +11,6 @@ interface SettingsRepo {
     fun flowDenyMode(): Flow<String>
     /**
      * 更严格的服务校验，默认关闭。
-     *
      * 关闭时只按包名放行 —— 只认上游权限名的硬编码客户端同样可用；
      * 开启后额外要求调用方持有本应用自身声明的权限，仅持有上游权限名的会被拒绝。
      */
@@ -61,7 +60,10 @@ interface SettingsRepo {
     var isWhitelistMode: Boolean
     var isDhizukuEnabled: Boolean
     var isDonateButtonHidden: Boolean
-    /** 允许第三方应用主动转移设备所有者，默认关闭 */
+    /**
+     * 是否允许第三方应用主动转移设备所有者，默认关闭。
+     * 只作用于第三方经共享服务发起的请求；本应用内发起的转移不受此开关影响。
+     */
     var isAllowOwnerTransfer: Boolean
 
     /** 用户主动停止了守护服务；为 true 时服务被系统重建会立即再次停止 */
@@ -81,9 +83,8 @@ interface SettingsRepo {
 
     /**
      * 实验性：使用更严格的白名单校验，默认关闭。
-     *
      * 关闭时判定白名单只比对包名；开启后连加入白名单时记录的签名一并比对，
-     * 同一个包名被重新签名后不再算白名单内。
+     * 同一个包名被重新签名后即不在白名单内。
      */
     fun flowExperimentalStrictWhitelist(): Flow<Boolean>
 

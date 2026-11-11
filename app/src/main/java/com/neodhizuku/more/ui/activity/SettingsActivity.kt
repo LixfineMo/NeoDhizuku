@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -39,7 +40,9 @@ import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.asFlow
 import com.neodhizuku.more.ui.page.settings.SettingsPage
 import com.neodhizuku.more.ui.theme.DhizukuTheme
+import com.neodhizuku.more.ui.theme.LocalUiEngine
 import com.neodhizuku.more.ui.theme.ThemeConfig
+import com.neodhizuku.more.ui.theme.UiEngineStore
 import com.neodhizuku.more.ui.util.RecentsVisibility
 import org.koin.core.component.KoinComponent
 import androidx.core.net.toUri
@@ -55,7 +58,7 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
 
     private lateinit var stringLauncher: ActivityResultLauncher<String>
 
-    /** 电池优化弹窗只在首次（用户未曾处理过）时引导一次，不再每次冷启动都弹 */
+    /** 电池优化弹窗只在首次（用户未曾处理过）时引导一次 */
     private val batteryPromptShownKey = "battery_optimization_prompted"
 
     // 语言必须在界面建立之前套上，否则切换后要等下次冷启动才生效。
@@ -77,14 +80,13 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
         }
 
         super.onCreate(savedInstanceState)
+        UiEngineStore.init(this)
         setContent {
-            DhizukuTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    AgreementDialog()
-                    SettingsPage(windowInsets = WindowInsets.safeDrawing)
-                }
+            val engine by UiEngineStore.engine.collectAsState()
+            // MiuixTheme 由 DhizukuTheme 在取到当前配色之后统一套，
+            // 这里只提供引擎标记，避免两层主题互相覆盖。
+            CompositionLocalProvider(LocalUiEngine provides engine) {
+                AppRoot()
             }
         }
 
@@ -120,7 +122,7 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
     @SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization() {
         if (NeoDhizuku.on(NeoDhizuku.FixBatteryOptimizationPrompt)) {
-            // 只引导一次；用户从系统设置里改回来后我们也不再反复打扰。
+            // 只引导一次；用户从系统设置里改回来后不反复打扰。
             if (appPrefs.getBoolean(batteryPromptShownKey, false)) return
             appPrefs.edit { putBoolean(batteryPromptShownKey, true) }
         }
@@ -136,6 +138,16 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
             } catch (_: ActivityNotFoundException) {
                 // Some TV and embedded system images omit this optional settings activity.
                 return
+            }
+        }
+    }
+
+    @Composable
+    private fun AppRoot() {
+        DhizukuTheme {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                AgreementDialog()
+                SettingsPage(windowInsets = WindowInsets.safeDrawing)
             }
         }
     }

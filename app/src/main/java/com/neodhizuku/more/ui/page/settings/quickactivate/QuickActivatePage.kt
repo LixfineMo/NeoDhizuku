@@ -28,7 +28,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,7 +106,6 @@ fun QuickActivatePage(
     // 三个步骤的执行骨架完全相同，抽出来避免重复三遍。
     // 显式声明为函数类型变量，避免作为参数传递时类型推断失败。
     val runStep: (String, suspend () -> DpDirectActivation.StepResult) -> Unit = { tag, action ->
-        // F9：竞态。`scope.launch` 是异步的，连点两次会在第一次置位前就启动第二次。
         // 开启实验性修复时立即置位；未开启保持原行为，便于对照。
         if (DpDirectActivation.isFixEnabled()) running = true
         scope.launch {
@@ -239,7 +238,7 @@ fun QuickActivatePage(
 
 @Composable
 private fun WarningCard() {
-    ElevatedCard(
+    NeoCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
         )
@@ -276,7 +275,7 @@ private fun WarningCard() {
 
 @Composable
 private fun UnsupportedCard() {
-    ElevatedCard(
+    NeoCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
         )
@@ -311,7 +310,7 @@ private fun StepCard(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
-    ElevatedCard {
+    NeoCard {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -427,10 +426,8 @@ private fun CommandDialog(onDismiss: () -> Unit) {
 
 /**
  * 把 [android.os.Build.VERSION.SDK_INT] 转成人类可读的版本名。
- *
  * 形如 `Android 12（API 31）`。用于提示文案——只报 API 数字（31）对用户没有意义，
  * 且与同一段文案里的「Android 13」不是一个口径。
- *
  * 未收录的版本（含未来的新版本）降级为 `API xx`，避免给出错误的版本号。
  */
 private fun androidVersionLabel(): String {

@@ -18,7 +18,6 @@ data class AppManagementViewState(
 
 /**
  * 从设置页跳转到软件管理时，指定默认落在哪个标签。
- *
  * 不用导航参数是为了避免改动 NavHost 的 composable(route=...) 签名；
  * 这里用一个进程内的临时变量，页面进入时读一次即可。
  */

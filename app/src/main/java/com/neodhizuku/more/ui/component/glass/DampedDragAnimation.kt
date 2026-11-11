@@ -20,11 +20,9 @@ import kotlinx.coroutines.launch
 /**
  * 阻尼拖动手势：按下即预览到按下位置对应的项并整体放大，
  * 拖动时连续跟手，松手用弹簧落到最近的一项。
- *
  * 与「拖动到哪就跳到哪」的写法区别在两点：位移用高刚度弹簧（stiffness 1000）
  * 收敛，松手后仍有惯性尾巴；缩放的 X/Y 用不同阻尼（0.6 / 0.7），
  * 回弹时会有轻微的横向拉伸，这是手感来源。
- *
  * 所有动画值都是快照状态，读取一律放在 `offset {}` / `graphicsLayer {}` /
  * `drawWithCache {}` 这些延迟读取的位置，拖动过程中不触发重组。
  */
@@ -62,13 +60,14 @@ internal class DampedDragAnimation(
 
     private val mutatorMutex = MutatorMutex()
     private val velocityTracker = VelocityTracker()
+    private var dragJob: Job? = null
+    private var decaying = false
 
     /** 当前位置（小数，拖动中连续变化） */
     val value: Float get() = valueAnimation.value
 
     /**
      * 是否正被手指拖动。
-     *
      * 普通字段而非快照状态：只在协程里读，用于判断要不要让位给手势，
      * 不需要触发重组。
      */
@@ -78,7 +77,6 @@ internal class DampedDragAnimation(
 
     /**
      * 本次手势是否真的拖动过（越过 touch slop）。
-     *
      * 用来区分「点一下」和「拖一段」：点一下时页面应该滑过去，
      * 拖动过则页面没跟着动、松手要直接对齐。
      */
@@ -194,6 +192,13 @@ internal class DampedDragAnimation(
         }
     }
 
+    /** 拖动中直接落位：不重启弹簧，也不每帧堆协程。 */
+    fun dragTo(value: Float) {
+        val target = value.coerceIn(valueRange)
+        dragJob?.cancel()
+        dragJob = animationScope.launch { valueAnimation.snapTo(target) }
+    }
+
     /** 外部页码变化时平滑跟随：带一次按压，落位后解除。 */
     fun animateToValue(value: Float) {
         animationScope.launch {
@@ -211,7 +216,6 @@ internal class DampedDragAnimation(
 
     /**
      * 无动画落位。
-     *
      * 底栏随二级页面移出组合后 remember 会重建，此时不能用动画补一段位移
      * （会看到药丸从第一项滑过来），必须直接落位。
      */
@@ -225,7 +229,6 @@ internal class DampedDragAnimation(
 
     /**
      * 点击后药丸自己滑向目标页，与 Pager 的翻页动画同时启动、规格一致。
-     *
      * 兜底驱动源：Pager 若逐帧回传位置，[followToSync] 下一帧就接管并取消它
      * （Animatable.snapTo 会停掉正在跑的动画），两者不打架；若没回传，
      * 它就是唯一驱动源，药丸不会停在原地。
@@ -239,29 +242,33 @@ internal class DampedDragAnimation(
 
     /**
      * 逐帧跟随外部连续位置（Pager 的滚动偏移），不做弹簧、不碰按压与缩放。
-     *
      * 与 [animateToValue] 的区别：后者是「目标变了，自己跑一段动画过去」，
      * 每来一个新整数页就要重启一次动画；本方法是「位置就是外部给的」，
      * 逐帧写入，因此不会在中间页停住。
-     *
-     * 位置必须同步写入：之前每帧都另起协程去 snapTo，协程要等下一次调度才执行，
-     * 药丸因此稳定滞后页面一帧 —— 页面滑完了药丸还在路上，就是「不同步」。
+     * 位置必须同步写入 snapTo，否则协程调度会让药丸滞后页面一帧。
      */
     suspend fun followToSync(value: Float) {
         val target = value.coerceIn(valueRange)
         // 先判再写：snapTo 之后 targetValue 必然等于 target，判断就没意义了
         if (valueAnimation.targetValue == target) {
-            // 位置不再变化：速度要归零，否则药丸会一直停在变形状态。
-            // 停止跟随后没有人再写入速度，必须在这里收尾。
-            if (velocityAnimation.value != 0f) {
-                animationScope.launch { velocityAnimation.animateTo(0f, velocitySpec) }
+            // 停止跟随：只起一次衰减协程，不要每帧重复启动。
+            if (velocityAnimation.value != 0f && !decaying) {
+                decaying = true
+                animationScope.launch {
+                    velocityAnimation.animateTo(0f, velocitySpec)
+                    decaying = false
+                }
             }
             return
         }
         // 位置同步写入：这是药丸与页面同步的关键，绝不能另起协程去写
         valueAnimation.snapTo(target)
-        // 速度只影响形变，异步更新即可 —— 同步做会把逐帧跟随卡在这里
-        animationScope.launch { updateVelocity() }
+        // 形变速度同步打点，避免翻页期间堆积互相取消的协程。
+        velocityTracker.addPosition(System.currentTimeMillis(), Offset(target, 0f))
+        val span = valueRange.endInclusive - valueRange.start
+        if (span > 0f) {
+            velocityAnimation.snapTo(velocityTracker.calculateVelocity().x / span)
+        }
     }
 
 
@@ -275,7 +282,6 @@ internal class DampedDragAnimation(
 
 /**
  * 带长按与边界检查的拖动检测。
- *
  * 与 `detectDragGestures` 的区别：不消费事件，且抬起/取消分开回调，
  * 这样底栏的手势不会把 Pager 的横向滑动吃掉。
  */

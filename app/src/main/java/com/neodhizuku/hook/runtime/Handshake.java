@@ -12,9 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 心跳即热更新通道：configVersion 变化或连续失联时，把本进程标记成"需重取配置"。
- * 模块不主动卸载 hook（Xposed 没有可靠的 unhook 时点），而是让每次调用前的
- * whenGranted() 门控读到最新配置后自行降级 —— fail-closed 于"不干预"。
+ * 心跳用于检测 configVersion 变化与连续失联。模块不主动卸载 hook
+ * （Xposed 没有可靠的 unhook 时点），由 whenGranted() 读取最新配置后降级为不干预。
  */
 public final class Handshake {
     private static final AtomicBoolean started = new AtomicBoolean(false);

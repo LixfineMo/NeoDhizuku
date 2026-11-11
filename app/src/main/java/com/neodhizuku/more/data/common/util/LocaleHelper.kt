@@ -9,11 +9,9 @@ import java.util.Locale
 
 /**
  * 应用内语言切换。
- *
  * 项目没有引入 appcompat，因此不走 AppCompatDelegate，而是自己维护
  * Configuration：在 attachBaseContext 阶段套一层已设置好语言的 Context，
  * 切换后重建 Activity 即可生效。
- *
  * 选择持久化在 SharedPreferences("app") 的 "app_language" 键，
  * 空字符串或未设置表示跟随系统。
  */
@@ -40,6 +38,7 @@ object LocaleHelper {
         Language("", "Follow system", true),
         Language("en", "English", true),
         Language("zh-rCN", "简体中文", true),
+        Language("zh-rMO", "中文（喵喵）", true),
         Language("zh-rTW", "繁體中文", true),
         Language("ja", "日本語", true),
         Language("ko", "한국어", true),

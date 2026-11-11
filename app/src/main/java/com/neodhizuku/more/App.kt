@@ -39,6 +39,11 @@ class App : Application(), KoinComponent {
         // 免删模式标记先落内存，首页身份标签才能立刻显示"设备所有者（临时）"
         com.neodhizuku.more.data.common.util.DpDirectActivation.refreshTemporary(this)
         DhizukuState.sync(this)
+        if (BuildConfig.TEST_ONLY) {
+            NeoLog.i(NeoLog.BOOT) {
+                "testOnly 包：覆盖安装请用 adb install -r -t <apk>，应用内点 APK 无法安装"
+            }
+        }
         NeoLog.i(NeoLog.BOOT) {
             "能力等级=${DhizukuState.state.level} " +
                 "isOwner=${DhizukuState.state.isOwner} " +
@@ -78,13 +83,11 @@ class App : Application(), KoinComponent {
 
     /**
      * 把总开关与分项开关同步到 server_api（Variables）与 client api（DhizukuVariables）。
-     *
      * 这里**刻意使用反射**而不是直接赋值：
      * app 可能编译/运行在两种模式下：
      *   1) 使用本地 Dhizuku-API 源码（composite build）—— 这些字段存在，同步生效；
      *   2) 使用 Maven 上的官方包 —— 这些字段不存在，直接赋值会导致
      *      "Unresolved reference" 编译失败。反射在字段缺失时静默跳过。
-     *
      * 在模式 2 下，API 侧的改动本来就不存在（settings.gradle.kts 会打印警告），
      * 因此跳过同步是正确的行为。
      */

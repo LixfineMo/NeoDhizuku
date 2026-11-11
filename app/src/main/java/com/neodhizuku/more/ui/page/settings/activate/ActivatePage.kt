@@ -35,9 +35,10 @@ import androidx.compose.material.icons.twotone.Shield
 import androidx.compose.material.icons.twotone.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoDropdownMenu
+import com.neodhizuku.more.ui.component.NeoDropdownItem
+import com.neodhizuku.more.ui.component.NeoCard
+import com.neodhizuku.more.ui.component.TransferTargetInfo
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -56,6 +57,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -161,19 +163,21 @@ fun ActivatePage(
                                 )
                                 Icon(imageVector = Icons.TwoTone.ArrowDropDown, contentDescription = null)
                             }
-                            DropdownMenu(
+                            NeoDropdownMenu(
                                 expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false }
                             ) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.confirm_device_owner)) },
+                                NeoDropdownItem(
+                                    text = stringResource(R.string.confirm_device_owner),
+                                    selected = ownerType == ActivateViewModel.OwnerType.Device,
                                     onClick = {
                                         ownerType = ActivateViewModel.OwnerType.Device
                                         menuExpanded = false
                                     }
                                 )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.confirm_profile_owner)) },
+                                NeoDropdownItem(
+                                    text = stringResource(R.string.confirm_profile_owner),
+                                    selected = ownerType == ActivateViewModel.OwnerType.Profile,
                                     onClick = {
                                         menuExpanded = false
                                         profileOwnerWarningShow = true
@@ -229,21 +233,85 @@ fun ActivatePage(
                         )
                     }
                 } else {
+                    // 通过 Dhizuku 转移所有者属于不可逆操作：两道确认后才真正执行。
+                    var transferStage by remember { mutableIntStateOf(0) }
+
                     ActivateFab(
                         modifier = Modifier
                             .fillMaxWidth()
                             .navigationBarsPadding()
                             .padding(16.dp),
                         textRes = R.string.confirm,
-                        onClick = {
-                            comp?.let {
-                                if (DhizukuState.state.isProfileOwner)
-                                    viewModel.activateAsProfileOwner(mode = mode, comp = it)
-                                else
-                                    viewModel.activateAsDeviceOwner(mode = mode, comp = it)
-                            }
-                        }
+                        onClick = { transferStage = 1 }
                     )
+
+                    if (transferStage == 1) {
+                        AlertDialog(
+                            onDismissRequest = { transferStage = 0 },
+                            title = {
+                                Text(stringResource(R.string.activate_transfer_confirm_title))
+                            },
+                            text = {
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    val ctx = LocalContext.current
+                                    TransferTargetInfo(
+                                        packageName = ctx.packageName,
+                                        appLabel = ctx.applicationInfo
+                                            .loadLabel(ctx.packageManager).toString()
+                                    )
+                                    Text(stringResource(R.string.activate_transfer_confirm_text))
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { transferStage = 2 }) {
+                                    Text(stringResource(R.string.owner_transfer_confirm1_continue))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { transferStage = 0 }) {
+                                    Text(stringResource(R.string.cancel))
+                                }
+                            }
+                        )
+                    }
+
+                    if (transferStage == 2) {
+                        AlertDialog(
+                            onDismissRequest = { transferStage = 0 },
+                            title = {
+                                Text(stringResource(R.string.activate_transfer_confirm_again_title))
+                            },
+                            text = {
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    val ctx = LocalContext.current
+                                    TransferTargetInfo(
+                                        packageName = ctx.packageName,
+                                        appLabel = ctx.applicationInfo
+                                            .loadLabel(ctx.packageManager).toString()
+                                    )
+                                    Text(stringResource(R.string.activate_transfer_confirm_again_text))
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    transferStage = 0
+                                    comp?.let {
+                                        if (DhizukuState.state.isProfileOwner)
+                                            viewModel.activateAsProfileOwner(mode = mode, comp = it)
+                                        else
+                                            viewModel.activateAsDeviceOwner(mode = mode, comp = it)
+                                    }
+                                }) {
+                                    Text(stringResource(R.string.confirm))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { transferStage = 0 }) {
+                                    Text(stringResource(R.string.cancel))
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }) { contentPadding ->
@@ -432,7 +500,7 @@ private fun LazyItemScope.ItemWidget(
         else null
     }
 
-    ElevatedCard(
+    NeoCard(
         onClick = ::setCheckedChange,
         interactionSource = interactionSource,
         modifier = Modifier
@@ -516,11 +584,9 @@ private fun ActivateErrorText(error: Throwable?) {
 
 /**
  * 以设备管理员身份激活。
- *
  * 设备所有者门槛高（ADB / Shizuku / 清账号 / Android 13+），
  * 而设备管理员只需系统设置里点一下，**全版本可用**。
  * 代价是能力有限，但"能跑一部分"好过"完全用不了"。
- *
  * 这里直接发起系统授权页；若设备上找不到该页面（少见），
  * 回退到打开设备管理器列表让用户手动勾选。
  */
@@ -529,7 +595,7 @@ private fun DeviceAdminEntry() {
     val context = androidx.compose.ui.platform.LocalContext.current
     val isAdmin = DhizukuState.state.isDeviceAdmin
 
-    ElevatedCard(modifier = Modifier.fillMaxSize()) {
+    NeoCard(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -609,8 +675,7 @@ private fun requestDeviceAdmin(context: android.content.Context) {
 
 /**
  * Shizuku 模式但检测不到服务时的提示卡。
- *
- * 检测不到服务不再直接甩到下载页：用户多半只是没启动 Shizuku / Sui，
+ * 检测不到服务时留在页面说明：用户多半只是没启动 Shizuku / Sui，
  * 或者装了但服务没跑起来。留在页面里给出说明和「重新检测」更直接。
  */
 @Composable
@@ -618,7 +683,7 @@ private fun ShizukuUnavailableCard(
     modifier: Modifier = Modifier,
     onRecheck: () -> Unit
 ) {
-    ElevatedCard(modifier = modifier.fillMaxWidth()) {
+    NeoCard(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -652,7 +717,6 @@ private fun ShizukuUnavailableCard(
 
 /**
  * 打开系统的设备管理员列表页。
- *
  * 各 ROM 把这一页放在不同位置（AOSP 在「安全」下，部分国产 ROM 在
  * 「隐私与安全 → 特殊应用权限 → 设备管理者」），且没有统一的公开 Action，
  * 因此按候选逐个尝试：先试能解析到的 Action，再试常见 Component，

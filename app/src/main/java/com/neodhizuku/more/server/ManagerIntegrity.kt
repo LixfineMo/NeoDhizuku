@@ -8,7 +8,6 @@ import java.security.MessageDigest
 
 /**
  * 启动时的自身完整性校验。
- *
  * Dhizuku 以 DeviceOwner / ProfileOwner 身份运行，被二次打包重签名后同样能拿到设备所有者权限。
  * 这里在启动时比对自身签名 SHA-256 是否落在构建期注入的白名单内，
  * 不在白名单时通过 [IntegrityListener] 通知宿主（用于提示用户或记录日志），

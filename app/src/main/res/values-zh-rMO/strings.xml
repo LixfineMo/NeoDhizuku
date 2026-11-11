@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agreement_title">温馨提示</string>
+    <string name="agreement_text">根据相关政策规定，您需要先阅读并同意&lt;a href=https://iamr0s.github.io/Dhizuku/TERMS.html&gt;《用户条款》&lt;/a&gt;与&lt;a href=https://iamr0s.github.io/Dhizuku/PRIVACY.html&gt;《隐私政策》&lt;/a&gt;后才能开始使用本软件喵～同意后不再弹出此提示，可通过设置页点击链接可再次查看相关文件内容喵～</string>
+    <string name="agree_text">同意了喵</string>
+    <!-- Commonly  used characters -->
+    <string name="cancel">算啦喵</string>
+    <string name="retry">再试一次喵</string>
+    <!-- Home - Status -->
+    <string name="home_status_owner_granted">拿到主人的小鱼干许可啦喵！</string>
+    <string name="home_status_owner_denied">还在等叫醒喵～</string>
+    <!-- Home - Startup update check -->
+    <string name="home_update_available_title">发现新版本 %1$s</string>
+    <string name="home_update_available_dsp">点击可从官网下载啦喵～</string>
+    <string name="home_update_detail">扒开看看喵</string>
+    <!-- Home - Application Management -->
+    <string name="home_app_management_title">巡视罐罐</string>
+    <string name="home_app_management_dsp">已申请或声明使用的罐罐将在此显示喵</string>
+    <!-- Home - Shutdown -->
+    <string name="home_shutdown_title">关闭</string>
+    <string name="home_shutdown_dsp">由于无法关闭小鱼干共享服务，关闭后将会拒绝操作，仅保留查看授权与调用记录的能力喵</string>
+    <!-- Home - Dhizuku -->
+    <string name="home_dhizuku_title">激活（通过 Dhizuku）</string>
+    <string name="home_dhizuku_dsp">如果您安装了其他的小鱼干碗碗，您可以随意在它们之间切换小鱼干来源喵～请&lt;a href=%1$s&gt;阅读帮助&lt;/a&gt;喵</string>
+    <!-- Home - Shizuku -->
+    <string name="home_shizuku_title">激活（通过 Shizuku）</string>
+    <string name="home_shizuku_dsp">使用Shizuku，您无需主人的大房子就可以拿到小鱼干了喵～请&lt;a href=%1$s&gt;阅读帮助&lt;/a&gt;喵</string>
+    <!-- Home - Adb -->
+    <string name="home_adb_title">激活（通过 ADB）</string>
+    <string name="home_adb_dsp">通过ADB（Android Debug Bridge）连接，可以执行一些特权命令。请&lt;a href=%1$s&gt;阅读帮助&lt;/a&gt;。</string>
+    <string name="home_adb_btn_view_command">瞄一眼咒语</string>
+    <string name="confirm">就这么定喵</string>
+    <string name="finish">搞定喵</string>
+    <string name="home_deactivate_title">取消激活</string>
+    <string name="home_deactivate_dsp">真的要哄本喵睡觉喵？</string>
+    <string name="home_deactivate_admin_dsp">当前仅为看窝的喵，确认取消激活（移除看窝的喵）吗？</string>
+    <string name="home_deactivate_admin_failed">移除看窝的喵扑空了，可在猫窝系统设置中手动移除。</string>
+    <string name="donate">投喂小鱼干</string>
+    <string name="request_permission_text">是否允许<b>%1$s</b>访问NeoDhizuku?喵～</string>
+    <string name="agree">同意了喵</string>
+    <string name="refuse">哈—！</string>
+    <string name="service_channel_name">后台猫猫服务喵</string>
+    <string name="service_running">NeoDhizuku正在运行喵</string>
+    <string name="permission_description">使用 NeoDhizuku 的共享服务喵</string>
+    <string name="settings">猫猫偏好</string>
+    <string name="settings_desc">配置 NeoDhizuku 行为喵</string>
+    <string name="enable_dhizuku">允许其他罐罐使用猫猫服务喵</string>
+    <string name="enable_dhizuku_desc">关闭后第三方一律无法使用本猫猫服务喵</string>
+    <string name="whitelist_mode">仅允许白名单罐罐使用猫猫服务喵</string>
+    <string name="whitelist_mode_desc">开启后只有已授权罐罐可以调用，其余一律拒绝喵</string>
+    <string name="block_app">屏蔽罐罐喵</string>
+    <string name="auto_deny_in">自动拒绝：</string>
+    <string name="block_app_desc">拒绝访问 NeoDhizuku 喵</string>
+    <string name="app_blocked_notice">此罐罐已被屏蔽，无法访问 NeoDhizuku喵～</string>
+    <string name="allow_dhizuku_access">允许访问 NeoDhizuku 喵</string>
+    <string name="unblock_app">取消屏蔽罐罐喵</string>
+    <string name="auto_deny_in_seconds">将在 %d 秒后自动拒绝喵～</string>
+    <string name="denying_access">拒绝访问喵</string>
+    <string name="auto_block_in_seconds">将在 %d 秒后加入黑名单喵～</string>
+    <string name="adding_to_blocklist">正在加入黑名单喵…</string>
+    <string name="daemon_service_notification_title">NeoDhizuku 守护进程</string>
+    <string name="daemon_service_notification_text">这是一个毛猫猫的呼噜，用于保证随时提供猫猫服务，你可以长按隐藏此通知喵。</string>
+    <string name="copy">揣进肉垫</string>
+    <string name="confirm_device_owner">拿到猫碗（设备所有者）</string>
+    <string name="confirm_profile_owner">书面许可（资料所有者）</string>
+    <string name="profile_owner_warning_title">警告</string>
+    <string name="profile_owner_warning_dsp">此更改只应由了解其影响的用户进行。NeoDhizuku 的开发者无法对此模式更改导致的任何意外行为做出任何保证喵。</string>
+    <string name="donate_hide_action">隐藏喵</string>
+    <string name="donate_hide_confirm_title">隐藏捐赠按钮</string>
+    <string name="donate_hide_confirm_dsp">此操作无法在罐罐内撤销。确定要永久隐藏捐赠按钮吗喵？</string>
+    <string name="home_status_owner_transferred">%1$s已转移！！喵！</string>
+    <!-- NeoDhizuku: A-11 -->
+    <string name="home_shizuku_not_installed">Shizuku / Sui 未运行喵</string>
+    <string name="activate_shizuku_unavailable">未检测到 Shizuku / Sui 猫猫服务。请先启动 Shizuku 或 Sui，再点重新检测；猫猫服务未运行时无法完成激活喵。</string>
+
+    <!-- NeoDhizuku: A-10 激活错误诊断 -->
+    <string name="activate_err_account_exists">猫爬架上仍存在账户喵～</string>
+    <string name="activate_err_account_exists_advice">Android 要求设置猫窝主人前移除全部账户。请在猫窝系统设置中移除后重试喵。</string>
+    <string name="activate_err_owner_exists">已存在猫窝主人或配置小鱼干文件所有者喵～</string>
+    <string name="activate_err_owner_exists_advice">同一时间只能有一个所有者。请先移除现有所有者，或从 Dhizuku 转移所有权喵。</string>
+    <string name="activate_err_shizuku_down">Shizuku / Sui 不可用喵～</string>
+    <string name="activate_err_shizuku_down_advice">请启动 Shizuku（或安装 Sui）并授予 NeoDhizuku 小鱼干许可后重试喵。</string>
+    <string name="activate_err_hidden_api">当前猫窝系统拦截了所需的私有猫洞接口喵～</string>
+    <string name="activate_err_hidden_api_advice">请改用 ADB 咒语或二维码配置方式激活，具体做法见首页说明喵。</string>
+    <string name="activate_err_not_admin">目标组件不是有效的猫爬架管理器喵～</string>
+    <string name="activate_err_not_admin_advice">所选罐罐未声明猫爬架管理器组件，请换一个罐罐喵。</string>
+    <string name="activate_err_cancelled">激活已取消喵～</string>
+    <string name="activate_err_cancelled_advice">你取消了请求，或操作超时。可以再试一次喵。</string>
+    <string name="activate_err_unknown">激活扑空了喵～</string>
+    <string name="activate_err_unknown_advice">发生未知哈气。可复制诊断信息反馈，或换一种激活方式喵。</string>
+    <string name="activate_err_view_detail">查看技术详情喵～</string>
+
+    <!-- NeoDhizuku: A-13 -->
+    <string name="provisioning_finalized">配置已完成喵</string>
+
+    <!-- NeoDhizuku: A-19 -->
+    <string name="home_deactivate_failed">移除所有者扑空了，可在猫窝系统设置中手动移除喵。</string>
+    <!-- NeoDhizuku: UI-01 底栏 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_app_management">软件管理</string>
+    <string name="nav_call_log">挠爪记录</string>
+    <string name="nav_settings">猫咪偏好</string>
+
+    <!-- NeoDhizuku: UI-02 首页状态卡 -->
+    <string name="home_status_owner_granted_short">醒着呢喵</string>
+    <string name="home_status_tap_to_manage">点击查看激活与转让选项喵～</string>
+
+    <!-- NeoDhizuku: UI-03 软件管理标签 -->
+    <string name="app_tab_authorized">已授权</string>
+    <string name="app_tab_unauthorized">未授权</string>
+    <string name="app_tab_blocked">黑名单</string>
+    <string name="app_empty_authorized">暂无已授权的罐罐喵</string>
+    <string name="app_empty_unauthorized">暂无待授权的罐罐喵</string>
+    <string name="app_empty_blocked">黑名单为空喵</string>
+
+    <!-- NeoDhizuku: UI-04 授权弹窗 -->
+    <string name="add_to_blocklist">加入黑名单喵</string>
+    <string name="request_permission_scope_hint">该罐罐将可以使用猫窝主人能力喵～</string>
+
+    <!-- NeoDhizuku: UI-05 调用记录 -->
+    <string name="call_log_empty">暂无调用记录喵</string>
+    <string name="call_log_times">%1$d 次喵</string>
+    <string name="call_log_footer">仅保存在内存中，重启后清空喵</string>
+    <!-- NeoDhizuku: UI-06 首页服务状态 -->
+    <string name="home_stat_authorized_apps">授权罐罐喵</string>
+    <string name="home_stat_uptime">运行时间喵</string>
+    <string name="home_device_admin_notice">当前仅为看窝的喵：第三方罐罐的 Dhizuku 初始化会扑空了，因为客户端猫洞接口只认可猫窝主人或资料管理员。需要共享小鱼干许可请激活为猫窝主人。</string>
+    <string name="home_status_version">版本：%1$s喵～</string>
+    <!-- NeoDhizuku: UI-07 设置页管理分区 -->
+    <string name="settings_manage_section">管理</string>
+    <string name="settings_manage_apps_desc">%1$d 个已授权应用喵</string>
+    <string name="settings_manage_blocklist_desc">已拉黑的罐罐不会再收到授权请求喵</string>
+    <string name="settings_manage_calllog_desc">查看各罐罐通过 NeoDhizuku 做过什么喵</string>
+    <!-- NeoDhizuku: UI-09 主题页 -->
+    <string name="theme_title">毛色</string>
+    <string name="settings_appearance_section">毛色打扮</string>
+    <string name="settings_theme_desc">深色模式、动态取色喵</string>
+    <string name="theme_mode_section">夜行毛色</string>
+    <string name="theme_color_section">配色</string>
+    <string name="theme_mode_system">跟随猫窝系统喵</string>
+    <string name="theme_mode_system_desc">随猫窝系统的深色模式设置切换喵</string>
+    <string name="theme_mode_light">浅色喵</string>
+    <string name="theme_mode_light_desc">始终使用浅色主题喵</string>
+    <string name="theme_mode_dark">深色喵</string>
+    <string name="theme_mode_dark_desc">始终使用深色主题喵</string>
+    <string name="theme_mode_amoled">深色（纯黑）喵</string>
+    <string name="theme_mode_amoled_desc">深色主题，背景使用纯黑，OLED 屏更省电喵</string>
+    <string name="theme_monet">动态取色喵</string>
+    <string name="theme_monet_desc">从猫窝系统壁纸中提取主题色喵</string>
+    <string name="theme_monet_unsupported">动态取色需要 Android 12 及以上（当前：%1$d）喵</string>
+    <!-- 转移拦截与通知 -->
+    <string name="notifier_channel_security">安全警示喵</string>
+    <string name="notifier_channel_security_desc">猫窝主人转移等高风险事件的提醒喵</string>
+    <string name="alert_transfer_blocked_title">已阻止转移设备所有者</string>
+    <string name="alert_transfer_blocked_text">应用「%1$s」尝试把设备所有者转移出去，已被拦截。可在设置中开启「允许第三方应用主动转移设备所有者」后重试喵。</string>
+
+    <!-- 设置：转移开关 -->
+    <string name="settings_allow_owner_transfer">允许第三方罐罐主动转移猫窝主人喵</string>
+    <string name="settings_allow_owner_transfer_desc">开启后，已授权应用可直接转移设备所有者，无需再次确认；关闭时它们的转移请求会被阻止。此操作不可逆。</string>
+
+    <!-- 调用记录 -->
+    <string name="call_log_tab_audit">挠爪记录</string>
+    <string name="call_log_tab_runtime">运行日志</string>
+    <string name="call_log_today">今天喵</string>
+    <string name="call_log_yesterday">昨天喵</string>
+    <string name="call_log_log_excerpt">猫爪日志片段喵</string>
+    <string name="call_log_clear">清除记录喵</string>
+    <string name="call_log_clear_confirm">清除全部调用记录与运行猫爪日志？此操作不可撤销喵。</string>
+    <string name="call_log_retention">保留时长喵</string>
+    <string name="call_log_retention_7">7 天喵</string>
+    <string name="call_log_retention_30">30 天喵</string>
+    <string name="call_log_retention_90">90 天喵</string>
+    <string name="call_log_retention_forever">永久喵</string>
+    <string name="call_log_empty_runtime">暂无运行猫爪日志喵</string>
+    <string name="settings_security_section">猫猫服务</string>
+    <!-- 服务启停 -->
+    <string name="home_service_stopped">拒绝猫猫服务喵</string>
+    <string name="home_restart_service">重启猫猫服务喵</string>
+    <string name="home_stop_service">停止猫猫服务喵</string>
+    <string name="home_restart_dsp">重启守护猫猫服务，恢复对第三方罐罐的 API 支持喵。</string>
+    <string name="call_log_copy_done">已揣入肉垫喵</string>
+    <string name="call_log_long_press_hint">长按卡片可复制全部内容喵～</string>
+    <string name="alert_permission_request_title">有应用请求 NeoDhizuku 授权</string>
+    <string name="alert_permission_request_text">「%1$s」请求使用 NeoDhizuku。点击处理此请求喵。</string>
+    <string name="quick_activate_title">免删账号临时激活</string>
+    <string name="quick_activate_entry_title">使用免删模式临时激活</string>
+    <string name="quick_activate_entry_dsp">无需删除账号，直接激活猫窝主人。需要 Android 13 及以上与 Shizuku喵。</string>
+
+    <string name="quick_activate_warning_title">操作前必读</string>
+    <string name="quick_activate_warning_dsp">激活过程中会将 user_setup_complete 临时置为 0，此时三键导航的「主页 / 最近任务」键会短暂失灵（返回键可用，全屏手势导航不受影响）。流程结束会自动恢复，若中途扑空了请务必点击第 3 步手动恢复喵。</string>
+    <string name="quick_activate_limit_dsp">限制：仅支持 Android 13（API 33）及以上；需要 Shizuku 或 root 身份执行 shell 咒语；部分厂商 ROM 可能封锁相关猫洞接口喵。</string>
+
+    <string name="quick_activate_unsupported_title">当前设备不支持</string>
+    <string name="quick_activate_unsupported_dsp">免删模式依赖 Android 13 引入的设备策略管理角色，当前系统版本为 %1$s。请改用 Shizuku 或 ADB 方式激活喵。</string>
+
+    <string name="quick_activate_step_open_title">打开向导</string>
+    <string name="quick_activate_step_open_dsp">授予猫爬架策略管理角色，并将 user_setup_complete 置为 0，打开激活所需的向导闸喵。</string>
+    <string name="quick_activate_step_open_btn">打开向导喵～</string>
+
+    <string name="quick_activate_step_activate_title">尝试激活</string>
+    <string name="quick_activate_step_activate_dsp">同步状态后注册为看窝的喵并激活猫窝主人。结束后会自动恢复 user_setup_complete。</string>
+    <string name="quick_activate_step_activate_btn">尝试激活喵～</string>
+
+    <string name="quick_activate_step_restore_title">手动恢复</string>
+    <string name="quick_activate_step_restore_dsp">将 user_setup_complete 恢复为 1。若导航键失灵，执行此步即可立即恢复喵。</string>
+    <string name="quick_activate_step_restore_btn">手动恢复喵～</string>
+
+    <string name="quick_activate_view_command">查看手动执行指令喵～</string>
+    <string name="quick_activate_result_ok">爪到擒来喵</string>
+    <string name="quick_activate_result_fail">操作未完成喵～</string>
+    <string name="quick_activate_success">已激活猫窝主人喵～</string>
+    <string name="security_title">共享服务</string>
+    <string name="settings_security_desc">API 猫猫服务开关、白名单、关闭猫猫服务后的处理方式、猫窝主人转移喵</string>
+    <string name="security_deny_section">拒绝选项</string>
+    <string name="security_deny_mode_title">关闭服务后的处理方式</string>
+    <string name="security_deny_mode_desc">决定第三方罐罐来调用时，猫猫服务如何回应喵。</string>
+
+    <string name="deny_mode_dangerous_fail">拒绝危险猫猫服务并返回扑空了喵～</string>
+    <string name="deny_mode_dangerous_fail_desc">罐罐可查询到猫猫服务，危险操作被拒绝喵。</string>
+    <string name="deny_mode_dangerous_success">拒绝危险猫猫服务并返回得手了喵～</string>
+    <string name="deny_mode_dangerous_success_desc">罐罐可查询到猫猫服务，危险操作返回得手了但不实际执行喵。</string>
+    <string name="deny_mode_all_fail">静默拒绝并返回扑空了喵～</string>
+    <string name="deny_mode_all_fail_desc">罐罐能拿到猫猫服务并完成初始化，但所有调用都扑空了，且不弹出任何界面喵。</string>
+    <string name="deny_mode_all_success">静默拒绝并返回得手了喵～</string>
+    <string name="deny_mode_all_success_desc">罐罐能拿到猫猫服务、查询到"已授权"，但所有操作都不真正执行，只返回得手了喵。</string>
+    <string name="deny_mode_no_action">不做任何处理喵～</string>
+    <string name="deny_mode_no_action_desc">既不拒绝也不放行，请求被挂起，罐罐会一直等待喵。</string>
+
+    <string name="security_api_state_on">API 总开关：已启用喵</string>
+    <string name="security_api_state_off">API 总开关：已停用，第三方一律无法使用喵</string>
+
+    <string name="security_service_section">API 服务</string>
+    <string name="security_transfer_section">设备所有者转移</string>
+
+    <string name="quick_activate_pending_restore">!向导未恢复，请进入手动恢复喵！</string>
+
+
+    <!-- 关于页 -->
+    <string name="about_title">关于</string>
+    <string name="about_card_version_title">版本信息</string>
+    <string name="about_card_detail_title">详细信息</string>
+    <string name="about_version_name">喵龄名</string>
+    <string name="about_version_code">喵龄号</string>
+    <string name="about_build_type">构建类型喵</string>
+    <string name="about_build_type_debug">调试版喵</string>
+    <string name="about_build_type_release">发布版喵</string>
+    <string name="about_package_name">猫牌</string>
+    <string name="about_android_version">Android 喵龄</string>
+    <string name="about_api_level">API 等级喵</string>
+    <string name="about_device">猫爬架</string>
+    <string name="about_activation">激活状态喵</string>
+    <string name="about_not_activated">还在睡喵</string>
+    <string name="about_service_state">猫猫服务状态喵</string>
+    <string name="about_service_running">运行中喵</string>
+    <string name="about_service_stopped">已停止喵</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_qq_group">QQ</string>
+    <string name="about_telegram">TG</string>
+
+    <!-- 设置 → 软件 -->
+    <string name="settings_software_section">软件</string>
+    <string name="settings_language">喵语</string>
+    <string name="settings_language_desc">选择界面语言喵</string>
+    <string name="settings_language_system">跟随猫窝系统喵</string>
+    <string name="settings_language_partial">部分喵</string>
+    <string name="settings_about_desc">喵龄、猫爬架信息与反馈入口</string>
+
+
+    <!-- 能力等级 -->
+    <string name="capability_device_owner">猫窝主人</string>
+    <string name="capability_device_owner_temp">%1$s（临时）喵</string>
+    <string name="capability_device_admin">看窝的喵</string>
+    <string name="home_status_inactive">还在睡喵</string>
+
+    <!-- 服务策略：能力不足 -->
+    <string name="security_insufficient_section">能力不足时</string>
+    <string name="security_insufficient_mode">管理员模式喵～</string>
+    <string name="security_insufficient_note">仅在当前身份无法执行某个操作时生效（例如只有看窝的喵时请求需要所有者的操作）。无论选择哪种回应，该次尝试都会完整记入调用猫爪日志。</string>
+    <string name="insufficient_mode_fail">返回扑空了喵～</string>
+    <string name="insufficient_mode_fail_desc">调用方收到哈气。推荐 —— 避免出现「以为生效了实际没有」的问题喵。</string>
+    <string name="insufficient_mode_success">返回得手了但不执行喵～</string>
+    <string name="insufficient_mode_success_desc">调用方以为操作得手了，实际什么都没发生。适用于遇到哈气就崩溃的罐罐喵。</string>
+    <string name="insufficient_mode_no_action">不做任何处理（挂起）喵～</string>
+    <string name="insufficient_mode_no_action_desc">不返回任何结果，调用方一直等待喵。</string>
+
+    <!-- 擦除拦截 -->
+    <string name="alert_wipe_blocked_title">已拦截擦除请求</string>
+    <string name="alert_wipe_blocked_text">已拦截「%1$s」擦除设备数据的请求喵～</string>
+    <string name="alert_guard_degraded_title">安全守卫已降级</string>
+    <string name="alert_guard_degraded_text">无法载入猫爬架策略猫洞接口的方法对照表，为避免误放行，当前所有猫爬架策略调用都会被拦截。可在设置中关闭擦除守卫 / 所有者转移守卫以恢复正常使用喵。</string>
+    <string name="wipe_warn1_title">不可逆操作</string>
+    <string name="wipe_warn1_text">「%1$s」正在请求擦除设备上的全部数据。这会清除账户、应用、照片与文件，且无法撤销喵。</string>
+    <string name="wipe_warn2_title">请再次确认</string>
+    <string name="wipe_warn2_text">你确定要让「%1$s」擦除这台设备吗？这是最后一次警告喵。</string>
+    <string name="wipe_warn_continue">继续喵～</string>
+    <string name="wipe_warn_cancel">算啦喵</string>
+    <string name="wipe_warn_i_confirm">我确认喵～</string>
+    <string name="wipe_confirm_title">确认擦除设备</string>
+    <string name="wipe_confirm_requester">请求方：%1$s喵～</string>
+    <string name="wipe_confirm_detail">此操作会清除猫爬架上的全部小鱼干数据，之后无法恢复喵。</string>
+    <string name="wipe_confirm_checkbox">我已知晓后果并自愿承担喵～</string>
+    <string name="wipe_confirm_reject">哈气拒绝喵</string>
+    <string name="wipe_confirm_allow">放行一次喵～</string>
+    <string name="wipe_confirm_hint">放行后调用方需在 5 分钟内重试，该授权一次性有效，用后即失效喵。</string>
+
+
+    <!-- 设备管理员激活 -->
+    <string name="activate_device_admin_title">以设备管理员身份激活</string>
+    <string name="activate_device_admin_desc">在猫窝系统设置里点一下即可授予，全喵龄可用。能力有限（详见猫猫服务策略）。</string>
+    <string name="activate_device_admin_already">看窝的喵已激活。部分操作仍需猫窝主人小鱼干许可。</string>
+    <string name="activate_device_admin_action">打开向导喵</string>
+    <string name="activate_device_admin_settings">猫窝系统设置喵</string>
+    <string name="activate_device_admin_explanation">授予看窝的喵，以便本罐罐共享有限的猫爬架策略能力。</string>
+
+    <string name="use_legacy_version">使用旧的兼容喵龄号</string>
+    <string name="use_legacy_version_desc">向客户端返回上游 Dhizuku 的喵龄号。部分罐罐会校验喵龄；关闭后返回本罐罐自身的喵龄号。</string>
+    <!-- 设置 → 灰度功能 → 实验性功能 -->
+    <string name="settings_gray_section">灰度功能</string>
+    <string name="experimental_title">实验性功能</string>
+    <string name="settings_experimental_desc">未经验证的修复与高风险行为喵</string>
+    <string name="experimental_note_title">尚未验证</string>
+    <string name="experimental_note_dsp">这些选项默认关闭。开启后对应功能走修复后的实现，关闭则保持原有行为。仅在能承担风险时启用喵。</string>
+    <string name="experimental_quick_activate_fix">免删账号激活缺陷修复喵～</string>
+    <string name="experimental_quick_activate_fix_desc">为该流程补上缺失的前置校验、运行期签名匹配与状态恢复喵～</string>
+    <string name="experimental_delegation_cleanup">小鱼干许可委派残留清理喵</string>
+    <string name="experimental_delegation_cleanup_desc">取消授权时，一并还原对方已经造成的隐藏、挂起与小鱼干许可锁定状态喵</string>
+    <string name="experimental_verbose_log">完整运行猫爪日志喵</string>
+    <string name="experimental_verbose_log_desc">关闭时运行猫爪日志只保留小鱼干许可调用、小鱼干许可变更与激活相关的内容，开启后记录全部分类喵</string>
+    <string name="experimental_glass_nav_bar">完整的液态玻璃底部选择栏喵</string>
+    <string name="experimental_glass_nav_bar_desc">用带阻尼手势的玻璃选择栏替换现有底栏；玻璃为绘制近似，不会对背景做实时采样，背后的内容不会被真正模糊喵</string>
+    <string name="experimental_enable_warning">这些功能可能不安全或者导致出现bug，可能会出现严重后果，请确认是否开启喵！</string>
+    <string name="experimental_enable_confirm">确认开启喵～</string>
+    <string name="delegation_title">委托管理</string>
+    <string name="delegation_entry_dsp">查看哪些罐罐持有委派出去的猫窝主人能力，也可主动派发给其他罐罐喵</string>
+    <string name="delegation_note_title">谨慎操作</string>
+    <string name="delegation_note_dsp">委派让普通罐罐能够调用有限的几类猫窝主人操作，与本罐罐的授权开关相互独立。因此在本罐罐里取消授权，并不会收回已经委派出去的能力。罐罐通常会自行申请委派，也可以在这里主动派发给它喵。</string>
+    <string name="delegation_owner_required">读取和修改委派需要猫窝主人身份喵。</string>
+    <string name="delegation_section_granted">已申请</string>
+    <string name="delegation_section_others">其他应用</string>
+    <string name="delegation_granted_empty">当前没有罐罐持有委派范围喵。</string>
+    <string name="delegation_others_empty">没有其他可委派的罐罐喵。</string>
+    <string name="delegation_not_delegated">未持有委派范围喵</string>
+    <string name="delegation_grant_hint">勾选要派发给该罐罐的范围喵。</string>
+    <string name="delegation_empty">当前没有罐罐持有委派范围喵。</string>
+    <string name="delegation_loading">正在扫描已安装罐罐……喵</string>
+    <string name="delegation_clear_all">清除全部委派喵</string>
+    <string name="delegation_clear">舔干净</string>
+    <string name="delegation_save">藏好小鱼干</string>
+    <string name="delegation_saved">委派已保存喵～</string>
+    <string name="delegation_cleared">委派已清除喵～</string>
+    <string name="delegation_failed">操作扑空了，详情见猫爪日志喵～</string>
+    <string name="delegation_scope_unknown">其他范围喵</string>
+    <string name="delegation_scope_unknown_desc">尚未收录的范围喵</string>
+    <string name="delegation_scope_app_restrictions">罐罐限制喵</string>
+    <string name="delegation_scope_app_restrictions_desc">为其他罐罐设置托管配置喵</string>
+    <string name="delegation_scope_block_uninstall">阻止卸载喵</string>
+    <string name="delegation_scope_block_uninstall_desc">让某个罐罐无法被卸载喵</string>
+    <string name="delegation_scope_permission_granting">小鱼干许可授予喵</string>
+    <string name="delegation_scope_permission_granting_desc">锁定运行时小鱼干许可，设置里的开关会置灰喵</string>
+    <string name="delegation_scope_package_access">包访问（冻结）喵</string>
+    <string name="delegation_scope_package_access_desc">隐藏或挂起罐罐，被影响的罐罐会从设置里消失喵</string>
+    <string name="delegation_scope_enable_system_apps">启用猫窝系统罐罐喵</string>
+    <string name="delegation_scope_enable_system_apps_desc">重新启用被停用的猫窝系统罐罐喵</string>
+    <string name="delegation_scope_cert_install">证书安装喵</string>
+    <string name="delegation_scope_network_logging">网络猫爪日志喵</string>
+    <string name="delegation_scope_security_logging">安全猫爪日志喵</string>
+    <string name="delegation_scope_cert_selection">证书选择喵</string>
+    <string name="delegation_scope_install_existing_package">安装已有包喵</string>
+    <string name="app_name">NeoDhizuku</string>
+    <string name="update_title">检查更新</string>
+    <string name="update_current">当前喵龄</string>
+    <string name="update_check">检查喵</string>
+    <string name="update_checking">正在检查..喵。</string>
+    <string name="update_no_update">已是最新喵龄</string>
+    <string name="update_failed">检查扑空了，详情见运行猫爪日志喵</string>
+    <string name="update_gray_switch">获取灰度与非正式更新喵</string>
+    <string name="update_gray_switch_desc">开启后才会提示 alpha、beta 与灰度喵龄</string>
+    <string name="update_found_title">发现新版本</string>
+    <string name="update_prerelease_title">存在非正式版本</string>
+    <string name="update_prerelease_dsp">该喵龄被标记为 alpha、beta 或灰度发布。开启上方开关即可接收，也可打开仓库手动下载。</string>
+    <string name="update_download">叼回窝里</string>
+    <string name="update_open_repo">打开仓库喵</string>
+    <string name="delegation_search_hint">按罐罐名或猫牌搜索喵～</string>
+    <!-- NeoDhizuku: 液态玻璃底栏与内置取色板 -->
+    <string name="theme_navbar_section">底部导航栏</string>
+    <string name="theme_liquid_glass">液态玻璃底栏喵</string>
+    <string name="theme_liquid_glass_desc">底栏改为玻璃样式，会真实采样背后的内容并折射。关闭则回到常规底栏喵</string>
+    <string name="theme_recents_section">多任务</string>
+    <string name="theme_hide_from_recents">不在多任务显示管理器喵</string>
+    <string name="theme_hide_from_recents_desc">管理器页面不出现在最近任务列表中。顺带也避免误划卡片把后台猫猫服务一起杀掉喵</string>
+    <string name="theme_background_section">背景</string>
+    <string name="theme_background_image">自定义背景图喵</string>
+    <string name="theme_background_image_desc">选择一张图片铺在每个页面背后。图片会被复制进罐罐，之后一直可用喵</string>
+    <string name="theme_background_pick">选择图片喵</string>
+    <string name="theme_background_clear">舔干净</string>
+    <string name="theme_background_unset">未设置背景图喵</string>
+    <string name="theme_background_blur">模糊程度喵</string>
+    <string name="theme_background_dim">暗化程度喵</string>
+    <string name="theme_background_import_failed">无法读取这张图片喵</string>
+    <string name="theme_custom_color_section">内置主题色</string>
+    <string name="theme_color_brand_purple">品牌紫喵</string>
+    <string name="theme_color_cherry_blossom">樱花粉喵</string>
+    <string name="theme_color_default_blue">默认蓝喵</string>
+    <string name="theme_color_fresh_green">清新绿喵</string>
+    <string name="theme_color_elegant_purple">优雅紫喵</string>
+    <string name="theme_color_vibrant_orange">活力橙喵</string>
+    <string name="theme_color_cyan">青色喵</string>
+    <string name="theme_color_mint_green">薄荷绿喵</string>
+    <string name="theme_color_pink">粉色喵</string>
+    <string name="theme_color_deep_pink">深粉喵</string>
+    <string name="theme_color_ice_blue">冷淡蓝喵</string>
+    <string name="theme_color_rose">玫红喵</string>
+    <string name="strict_service_check">更严格的猫猫服务校验喵</string>
+<string name="strict_service_check_desc">关闭时仅按猫牌放行，只认上游小鱼干许可名的硬编码客户端仍可正常使用；开启后还要求调用方持有本罐罐声明的小鱼干许可喵</string>
+<string name="whitelist_manage_section">白名单</string>
+<string name="whitelist_manage_title">白名单</string>
+<string name="whitelist_manage_entry_desc">选择允许使用本猫猫服务的罐罐喵</string>
+<string name="whitelist_manage_desc">勾选罐罐即可加入白名单。名单存放在本罐罐私有目录，开启白名单模式后生效喵。</string>
+<string name="whitelist_section_whitelisted">白名单应用</string>
+<string name="whitelist_section_others">其他应用</string>
+<string name="whitelist_empty_whitelisted">还没有罐罐加入白名单喵</string>
+<string name="whitelist_empty_others">没有找到其他罐罐喵</string>
+<string name="whitelist_loading">正在加载罐罐…喵</string>
+<string name="experimental_strict_whitelist">使用更严格的白名单校验喵</string>
+<string name="experimental_strict_whitelist_desc">关闭时仅比对猫牌；开启后连带加入白名单时记录的签名一并比对，同名猫牌被重新签名后不再算白名单内喵</string>
+
+    <!-- 更新设置 -->
+    <string name="update_settings_title">换罐罐偏好</string>
+    <string name="update_settings_entry_dsp">更新来源与链接选项喵</string>
+    <string name="update_settings_source">更新拉取来源喵</string>
+    <string name="update_settings_source_official">官方（不安全）喵</string>
+    <string name="update_settings_source_official_desc">自建猫猫服务器，走明文 HTTP喵</string>
+    <string name="update_settings_source_github">GitHub</string>
+    <string name="update_settings_source_github_desc">仓库内的 Raw 小鱼干文件喵</string>
+    <string name="update_settings_source_custom">自定义喵</string>
+    <string name="update_settings_source_custom_desc">使用下方填写的地址喵</string>
+    <string name="update_settings_insecure">允许不安全的链接喵</string>
+    <string name="update_settings_insecure_desc">放行明文 HTTP 地址；关闭时只认 HTTPS喵</string>
+    <string name="update_settings_custom_url">清单地址喵</string>
+    <string name="update_settings_custom_url_hint">https://example.com/update.json</string>
+    <string name="update_settings_custom_url_desc">仅在来源为自定义时生效喵</string>
+    <string name="update_settings_official_base">官方猫猫服务器喵</string>
+
+    <!-- 调试页 -->
+    <string name="debug_title">秘密猫技</string>
+    <string name="debug_official_base">官方猫猫服务器地址喵</string>
+    <string name="debug_timeout">超时（毫秒）喵</string>
+    <string name="debug_save">藏好小鱼干</string>
+    <string name="debug_reset">还原喵～</string>
+    <string name="debug_build_title">最新 Build</string>
+    <string name="debug_build_desc">与更新检测读取同一份清单。按构建日期号比较（例如 20261010）。官方猫猫服务器需具备公网 IPv6 才能连通喵</string>
+    <string name="debug_build_fetch">从官方猫猫服务器拉取最新 Build 喵龄</string>
+    <string name="debug_build_idle">尚未拉取喵</string>
+    <string name="debug_build_found">最新：%1$d（%2$s），共 %3$d 个构建喵</string>
+    <string name="debug_build_failed">拉取失败：%1$s喵</string>
+    <string name="debug_current_title">当前生效配置</string>
+    <string name="debug_current_version_json">喵龄清单与 Build（共用）</string>
+
+    <string name="perm_info_version">喵龄</string>
+    <string name="perm_info_target_sdk">目标 SDK喵</string>
+    <string name="perm_info_installed">安装时间喵</string>
+    <string name="perm_info_updated">更新时间喵</string>
+    <string name="perm_info_signature">签名喵</string>
+    <string name="about_feedback_title">反馈意见</string>
+    <string name="about_feedback_desc">把遇到的问题或建议直接发到猫猫服务器，每天两条喵～</string>
+    <string name="feedback_dialog_title">提交反馈</string>
+    <string name="feedback_field_title">标题</string>
+    <string name="feedback_field_content">反馈内容喵～</string>
+    <string name="feedback_field_contact">联系方式（可选）喵～</string>
+    <string name="feedback_send">发送喵～</string>
+    <string name="feedback_sending">发送中喵～</string>
+    <string name="feedback_success_toast">感谢您的反馈喵～</string>
+    <string name="feedback_failed">发送扑空了，请稍后再试喵～</string>
+    <string name="feedback_empty">请先填写反馈内容喵～</string>
+    <string name="about_credits_title">引用项目</string>
+    <string name="about_credits_entry_desc">点击查看全部引用项目与鸣谢喵</string>
+    <string name="about_credits_dialog_title">挨个蹭蹭</string>
+    <string name="about_credit_dhizuku">原版项目，本项目基于它二次开发喵</string>
+    <string name="about_credit_dhizuku_api">猫窝主人小鱼干许可共享的猫洞接口喵</string>
+    <string name="about_credit_shizuku_api">通过 Shizuku 执行高小鱼干许可咒语喵</string>
+    <string name="about_credit_kernelsu">界面设计参考，其 Manager 同样采用 miuix喵</string>
+    <string name="about_credit_hidden_api">调用被限制的猫窝系统隐藏猫洞接口喵</string>
+    <string name="about_credit_npatch">界面设计参考，尤其是液态玻璃底栏喵</string>
+    <string name="about_credit_miuix">液态玻璃底栏的背景采样与折射喵</string>
+    <string name="about_credit_koin">依赖注入喵</string>
+    <string name="about_admin_residue_title">设备身份状态</string>
+    <string name="about_admin_residue_dsp">把猫窝主人转移给其他罐罐后，部分机型会残留本罐罐的看窝的喵记录，导致无法卸载。若卸载被阻止，可在此清除。</string>
+    <string name="about_admin_residue_state">设备所有者=%1$s 资料管理员=%2$s 设备管理员=%3$s喵</string>
+    <string name="about_admin_residue_clean">清除残留身份喵</string>
+    <string name="about_admin_residue_failed">清除扑空了喵</string>
+    <string name="api_policy_entry_title">单项系统接口</string>
+    <string name="api_policy_entry_desc">逐个决定每个应用能调用哪些系统功能</string>
+    <string name="api_policy_title">单项系统接口</string>
+    <string name="api_policy_desc">按应用单独配置可调用的系统功能（摄像头、锁屏、隐藏应用、清除数据、擦除设备等）。高危项默认关闭。首页停止服务时以拒绝服务为准，此处设置不生效。</string>
+    <string name="api_policy_global_section">全局配置</string>
+    <string name="api_policy_app_section">按应用</string>
+    <string name="api_policy_empty">还没有应用使用过本服务</string>
+    <string name="api_policy_configured_count">已单独配置 %1$d 项</string>
+    <string name="api_policy_follow_global">跟随全局配置</string>
+    <string name="api_policy_explicit">已单独配置</string>
+    <string name="api_policy_expand">展开</string>
+    <string name="api_policy_collapse">收起</string>
+    <string name="api_policy_close">关闭</string>
+    <string name="api_policy_clear_all">全部重置</string>
+    <string name="alert_api_denied_title">已阻止接口调用</string>
+    <string name="alert_api_denied_text">已阻止 %1$s 调用「%2$s」喵～</string>
+    <string name="dpm_lockNow">立即锁定屏幕</string>
+    <string name="dpm_lockNow_d">立刻锁屏，需要输入密码才能再次进入。</string>
+    <string name="dpm_lockNowWithOptions">立即锁定屏幕（带选项）</string>
+    <string name="dpm_lockNowWithOptions_d">锁屏并可附带是否允许延后等选项。</string>
+    <string name="dpm_resetPassword">重置锁屏密码</string>
+    <string name="dpm_resetPassword_d">直接改写设备的锁屏密码。</string>
+    <string name="dpm_setPasswordQuality">设置密码质量要求</string>
+    <string name="dpm_setPasswordQuality_d">规定锁屏密码必须达到的强度等级。</string>
+    <string name="dpm_getPasswordQuality">读取密码质量要求</string>
+    <string name="dpm_getPasswordQuality_d">查询当前要求的密码强度等级。</string>
+    <string name="dpm_setPasswordMinimumLength">设置密码最小长度</string>
+    <string name="dpm_setPasswordMinimumLength_d">规定锁屏密码至少要多少位。</string>
+    <string name="dpm_getPasswordMinimumLength">读取密码最小长度</string>
+    <string name="dpm_getPasswordMinimumLength_d">查询当前密码长度下限。</string>
+    <string name="dpm_setPasswordMinimumUpperCase">设置最少大写字母数</string>
+    <string name="dpm_setPasswordMinimumUpperCase_d">规定密码中至少含多少个大写字母。</string>
+    <string name="dpm_setPasswordMinimumLowerCase">设置最少小写字母数</string>
+    <string name="dpm_setPasswordMinimumLowerCase_d">规定密码中至少含多少个小写字母。</string>
+    <string name="dpm_setPasswordMinimumNumeric">设置最少数字数</string>
+    <string name="dpm_setPasswordMinimumNumeric_d">规定密码中至少含多少个数字。</string>
+    <string name="dpm_setPasswordMinimumSymbols">设置最少符号数</string>
+    <string name="dpm_setPasswordMinimumSymbols_d">规定密码中至少含多少个符号。</string>
+    <string name="dpm_setPasswordMinimumNonLetter">设置最少非字母字符数</string>
+    <string name="dpm_setPasswordMinimumNonLetter_d">规定密码中至少含多少个非字母字符。</string>
+    <string name="dpm_setPasswordExpirationTimeout">设置密码有效期</string>
+    <string name="dpm_setPasswordExpirationTimeout_d">规定多久后必须更换锁屏密码。</string>
+    <string name="dpm_setMaximumTimeToLock">设置自动锁屏等待时间</string>
+    <string name="dpm_setMaximumTimeToLock_d">规定闲置多久后自动锁屏。</string>
+    <string name="dpm_getMaximumTimeToLock">读取自动锁屏等待时间</string>
+    <string name="dpm_getMaximumTimeToLock_d">查询当前自动锁屏的等待时长。</string>
+    <string name="dpm_setMaximumFailedPasswordsForWipe">设置密码错误擦除阈值</string>
+    <string name="dpm_setMaximumFailedPasswordsForWipe_d">规定连续输错多少次密码后擦除整台设备。</string>
+    <string name="dpm_getMaximumFailedPasswordsForWipe">读取密码错误擦除阈值</string>
+    <string name="dpm_getMaximumFailedPasswordsForWipe_d">查询连续输错多少次会触发擦除。</string>
+    <string name="dpm_setKeyguardDisabledFeatures">设置锁屏禁用功能</string>
+    <string name="dpm_setKeyguardDisabledFeatures_d">决定锁屏界面上哪些功能（如通知、指纹）被禁用。</string>
+    <string name="dpm_getKeyguardDisabledFeatures">读取锁屏禁用功能</string>
+    <string name="dpm_getKeyguardDisabledFeatures_d">查询锁屏上被禁用的功能。</string>
+    <string name="dpm_setRequiredStrongAuthTimeout">设置强认证超时</string>
+    <string name="dpm_setRequiredStrongAuthTimeout_d">规定多久后必须重新用强方式解锁。</string>
+    <string name="dpm_requestKeyguardDismiss">请求解除锁屏</string>
+    <string name="dpm_requestKeyguardDismiss_d">请求用户解锁屏幕后继续操作。</string>
+    <string name="dpm_setApplicationHidden">隐藏 / 显示应用</string>
+    <string name="dpm_setApplicationHidden_d">让某个应用从桌面和启动器中消失或恢复。</string>
+    <string name="dpm_isApplicationHidden">查询应用是否被隐藏</string>
+    <string name="dpm_isApplicationHidden_d">查看某个应用当前是否处于隐藏状态。</string>
+    <string name="dpm_setApplicationRestrictions">修改应用运行限制</string>
+    <string name="dpm_setApplicationRestrictions_d">给某个应用下发限制参数（如禁止某些功能）。</string>
+    <string name="dpm_getApplicationRestrictions">读取应用运行限制</string>
+    <string name="dpm_getApplicationRestrictions_d">查看某个应用被施加了哪些限制。</string>
+    <string name="dpm_setApplicationSuspended">暂停 / 恢复应用</string>
+    <string name="dpm_setApplicationSuspended_d">冻结某个应用使其无法运行，或解除冻结。</string>
+    <string name="dpm_isApplicationSuspended">查询应用是否被暂停</string>
+    <string name="dpm_isApplicationSuspended_d">查看某个应用当前是否被冻结。</string>
+    <string name="dpm_setUninstallBlocked">禁止 / 允许卸载应用</string>
+    <string name="dpm_setUninstallBlocked_d">决定某个应用能否被卸载。</string>
+    <string name="dpm_isUninstallBlocked">查询应用是否被禁止卸载</string>
+    <string name="dpm_isUninstallBlocked_d">查看某个应用是否被禁止卸载。</string>
+    <string name="dpm_enableSystemApp">启用系统应用</string>
+    <string name="dpm_enableSystemApp_d">重新启用被停用的系统应用。</string>
+    <string name="dpm_installSystemUpdate">安装系统更新</string>
+    <string name="dpm_installSystemUpdate_d">触发系统 OTA 更新包的安装。</string>
+    <string name="dpm_clearApplicationUserData">清除应用数据</string>
+    <string name="dpm_clearApplicationUserData_d">清空某个应用的全部本地数据。</string>
+    <string name="dpm_installExistingPackage">为其他用户安装已存在的应用</string>
+    <string name="dpm_installExistingPackage_d">把已安装的应用装到其他用户空间。</string>
+    <string name="dpm_setKeepUninstalledPackages">保留已卸载应用的数据</string>
+    <string name="dpm_setKeepUninstalledPackages_d">卸载后仍保留其数据，重装即可恢复。</string>
+    <string name="dpm_getKeepUninstalledPackages">读取保留卸载数据的名单</string>
+    <string name="dpm_getKeepUninstalledPackages_d">查看哪些应用卸载后仍保留数据。</string>
+    <string name="dpm_setPermissionGrantState">修改应用权限授予状态</string>
+    <string name="dpm_setPermissionGrantState_d">直接批准、拒绝或保持某个应用的某项运行时权限。</string>
+    <string name="dpm_getPermissionGrantState">读取应用权限授予状态</string>
+    <string name="dpm_getPermissionGrantState_d">查看某个应用的某项权限当前状态。</string>
+    <string name="dpm_setPermissionPolicy">设置权限默认策略</string>
+    <string name="dpm_setPermissionPolicy_d">决定新权限请求默认自动批准、自动拒绝还是询问。</string>
+    <string name="dpm_getPermissionPolicy">读取权限默认策略</string>
+    <string name="dpm_getPermissionPolicy_d">查看当前权限请求的默认处理方式。</string>
+    <string name="dpm_setPermittedInputMethods">限制可用输入法</string>
+    <string name="dpm_setPermittedInputMethods_d">只允许列表内的输入法，禁用其他输入法。</string>
+    <string name="dpm_getPermittedInputMethods">读取可用输入法限制</string>
+    <string name="dpm_getPermittedInputMethods_d">查看当前允许使用的输入法名单。</string>
+    <string name="dpm_setAccountManagementDisabled">禁止 / 允许账户自动同步</string>
+    <string name="dpm_setAccountManagementDisabled_d">决定某类账户能否被自动同步或修改。</string>
+    <string name="dpm_getAccountTypesWithManagementDisabled">读取被禁管的账户类型</string>
+    <string name="dpm_getAccountTypesWithManagementDisabled_d">查看哪些账户类型被禁止自动管理。</string>
+    <string name="dpm_setCameraDisabled">禁用 / 启用摄像头</string>
+    <string name="dpm_setCameraDisabled_d">彻底关闭或恢复设备的摄像头功能。</string>
+    <string name="dpm_getCameraDisabled">读取摄像头禁用状态</string>
+    <string name="dpm_getCameraDisabled_d">查看摄像头当前是否被禁用。</string>
+    <string name="dpm_setScreenCaptureDisabled">禁用 / 启用截屏与录屏</string>
+    <string name="dpm_setScreenCaptureDisabled_d">禁止或允许截取屏幕内容。</string>
+    <string name="dpm_getScreenCaptureDisabled">读取截屏禁用状态</string>
+    <string name="dpm_getScreenCaptureDisabled_d">查看截屏当前是否被禁用。</string>
+    <string name="dpm_setStatusBarDisabled">禁用 / 启用状态栏</string>
+    <string name="dpm_setStatusBarDisabled_d">隐藏或恢复顶部状态栏。</string>
+    <string name="dpm_setAutoTimeRequired">强制使用自动时间</string>
+    <string name="dpm_setAutoTimeRequired_d">要求必须开启自动获取时间，禁止手动改。</string>
+    <string name="dpm_addUserRestriction">添加用户限制</string>
+    <string name="dpm_addUserRestriction_d">新增一条限制，如禁止安装应用、禁止蓝牙。</string>
+    <string name="dpm_clearUserRestriction">清除用户限制</string>
+    <string name="dpm_clearUserRestriction_d">移除一条已存在的限制。</string>
+    <string name="dpm_setUserRestriction">设置用户限制开关</string>
+    <string name="dpm_setUserRestriction_d">直接把某条限制设为启用或停用。</string>
+    <string name="dpm_getUserRestrictions">读取用户限制列表</string>
+    <string name="dpm_getUserRestrictions_d">查看当前生效的全部限制。</string>
+    <string name="dpm_setNetworkLoggingEnabled">开启 / 关闭网络日志记录</string>
+    <string name="dpm_setNetworkLoggingEnabled_d">记录设备的网络连接行为。</string>
+    <string name="dpm_retrieveNetworkLogs">读取网络日志</string>
+    <string name="dpm_retrieveNetworkLogs_d">取回已记录的网络连接记录。</string>
+    <string name="dpm_setStorageEncryption">要求存储加密</string>
+    <string name="dpm_setStorageEncryption_d">要求设备存储必须加密。</string>
+    <string name="dpm_getStorageEncryption">读取存储加密要求</string>
+    <string name="dpm_getStorageEncryption_d">查看是否要求存储加密。</string>
+    <string name="dpm_getStorageEncryptionStatus">读取存储加密状态</string>
+    <string name="dpm_getStorageEncryptionStatus_d">查看设备当前的实际加密状态。</string>
+    <string name="dpm_installCaCert">安装证书</string>
+    <string name="dpm_installCaCert_d">向系统信任库安装一个证书，可解密 HTTPS 流量。</string>
+    <string name="dpm_uninstallCaCert">卸载证书</string>
+    <string name="dpm_uninstallCaCert_d">从系统信任库移除指定证书。</string>
+    <string name="dpm_getInstalledCaCerts">读取已安装证书</string>
+    <string name="dpm_getInstalledCaCerts_d">查看系统信任库中已安装的证书。</string>
+    <string name="dpm_createAndManageUser">创建并管理新用户</string>
+    <string name="dpm_createAndManageUser_d">新建一个用户或工作资料并接管它。</string>
+    <string name="dpm_removeUser">删除用户</string>
+    <string name="dpm_removeUser_d">删除指定用户及其全部数据。</string>
+    <string name="dpm_switchUser">切换当前用户</string>
+    <string name="dpm_switchUser_d">把前台切换到另一个用户。</string>
+    <string name="dpm_setProfileName">修改资料名称</string>
+    <string name="dpm_setProfileName_d">更改工作资料的显示名称。</string>
+    <string name="dpm_setProfileEnabled">启用 / 停用工作资料</string>
+    <string name="dpm_setProfileEnabled_d">开关工作资料。</string>
+    <string name="dpm_setProfileOwner">设置资料管理员</string>
+    <string name="dpm_setProfileOwner_d">把某个应用设为工作资料的管理者。</string>
+    <string name="dpm_setDeviceOwner">设置设备所有者</string>
+    <string name="dpm_setDeviceOwner_d">把某个应用设为整台设备的所有者。</string>
+    <string name="dpm_transferOwnership">转移设备所有者</string>
+    <string name="dpm_transferOwnership_d">把设备所有者身份转交给另一个应用。</string>
+    <string name="dpm_clearDeviceOwnerApp">清除设备所有者</string>
+    <string name="dpm_clearDeviceOwnerApp_d">移除当前的设备所有者身份。</string>
+    <string name="dpm_setActiveAdmin">激活设备管理员</string>
+    <string name="dpm_setActiveAdmin_d">把某个应用设为设备管理员。</string>
+    <string name="dpm_removeActiveAdmin">移除设备管理员</string>
+    <string name="dpm_removeActiveAdmin_d">取消某个应用的设备管理员身份。</string>
+    <string name="dpm_reboot">重启设备</string>
+    <string name="dpm_reboot_d">立即重新启动设备。</string>
+    <string name="dpm_wipeData">擦除设备数据</string>
+    <string name="dpm_wipeData_d">清空整台设备的全部数据，恢复出厂设置。</string>
+    <string name="dpm_wipeDataWithReason">擦除设备数据（带原因）</string>
+    <string name="dpm_wipeDataWithReason_d">带原因说明地清空整台设备。</string>
+    <string name="dpm_setGlobalSetting">修改系统全局设置</string>
+    <string name="dpm_setGlobalSetting_d">改写系统全局设置项的值。</string>
+    <string name="dpm_setSecureSetting">修改系统安全设置</string>
+    <string name="dpm_setSecureSetting_d">改写系统安全设置项的值。</string>
+    <string name="dpm_setSystemUpdatePolicy">修改系统更新策略</string>
+    <string name="dpm_setSystemUpdatePolicy_d">规定系统更新的安装时机与方式。</string>
+    <string name="dpm_getSystemUpdatePolicy">读取系统更新策略</string>
+    <string name="dpm_getSystemUpdatePolicy_d">查看当前的系统更新策略。</string>
+    <string name="dpm_setOrganizationName">修改组织名称</string>
+    <string name="dpm_setOrganizationName_d">更改设备管理页面上显示的组织名。</string>
+    <string name="dpm_getDeviceOwnerComponent">读取当前设备所有者</string>
+    <string name="dpm_getDeviceOwnerComponent_d">查看谁是当前的设备所有者。</string>
+    <string name="dpm_isDeviceOwnerApp">查询是否为设备所有者</string>
+    <string name="dpm_isDeviceOwnerApp_d">判断某个应用是不是设备所有者。</string>
+    <string name="dpm_isProfileOwnerApp">查询是否为资料管理员</string>
+    <string name="dpm_isProfileOwnerApp_d">判断某个应用是不是工作资料的管理者。</string>
+    <string name="dpm_isAdminActive">查询是否为设备管理员</string>
+    <string name="dpm_isAdminActive_d">判断某个应用是否已激活为设备管理员。</string>
+    <string name="dpm_getActiveAdmins">读取设备管理员列表</string>
+    <string name="dpm_getActiveAdmins_d">查看全部已激活的设备管理员。</string>
+    <string name="dpm_setDeviceOwnerLockScreenInfo">修改锁屏上的所有者信息</string>
+    <string name="dpm_setDeviceOwnerLockScreenInfo_d">更改锁屏界面上显示的所属信息。</string>
+    <string name="dpm_group_lock">锁屏与密码</string>
+    <string name="dpm_group_app">应用管理</string>
+    <string name="dpm_group_perm">权限与账户</string>
+    <string name="dpm_group_restrict">设备限制</string>
+    <string name="dpm_group_storage">存储与加密</string>
+    <string name="dpm_group_user">用户与资料</string>
+    <string name="dpm_group_system">系统操作</string>
+
+    <!-- 调试分区 / debug sections -->
+    <string name="debug_menu_notice">调试工具会立刻作用于运行中的猫猫进程，误改可能导致激活或授权异常喵。</string>
+    <string name="debug_menu_update_config">更新配置喵</string>
+    <string name="debug_menu_update_config_desc">官方与自定义清单地址、超时、不安全链接、最新构建喵</string>
+    <string name="debug_menu_runtime_params">实时参数修改喵</string>
+    <string name="debug_menu_runtime_params_desc">修改运行中全部可写变量，不做危险项屏蔽喵</string>
+    <string name="debug_menu_runtime_info">详细运行信息喵</string>
+    <string name="debug_menu_runtime_info_desc">token、猫洞接口状态、身份、内存、猫猫进程与配置快照喵</string>
+    <string name="debug_menu_service_files">猫猫服务配置修改喵</string>
+    <string name="debug_menu_service_files_desc">读写罐罐私有区里的每一个配置小鱼干文件喵</string>
+    <string name="debug_menu_reset">重置 NeoDhizuku喵</string>
+    <string name="debug_menu_reset_desc">清空重建全部小鱼干数据与配置，然后退出管理器喵</string>
+    <string name="debug_reset_step1_title">重置 NeoDhizuku？</string>
+    <string name="debug_reset_step1_text">将清空全部偏好设置、授权记录、私有小鱼干文件与小鱼干数据库。猫窝主人与看窝的喵身份会保留。</string>
+    <string name="debug_reset_step2_title">此操作无法撤销</string>
+    <string name="debug_reset_step2_text">清空后管理器会立即退出，需重新打开以按默认配置重建喵。</string>
+    <string name="debug_reset_continue">继续喵～</string>
+    <string name="debug_reset_final">清空并退出喵～</string>
+    <string name="debug_update_config_title">更新配置</string>
+    <string name="debug_params_title">实时参数修改</string>
+    <string name="debug_params_notice">变量名按代码原样显示，修改立即生效，部分项重启后恢复喵。</string>
+    <string name="debug_info_title">详细运行信息</string>
+    <string name="debug_info_notice">点击任意一行复制值，刷新可重新采集快照喵。</string>
+    <string name="debug_info_refresh">抖抖毛</string>
+    <string name="debug_info_copied">已复制：%1$s喵～</string>
+    <string name="debug_service_files_title">服务配置修改</string>
+    <string name="debug_service_files_notice">同时列出 CE 与 DE 存储。二进制小鱼干文件只读；修改 api_policy.json / whitelist.json 会立即重载喵。</string>
+    <string name="debug_service_files_empty">没有找到小鱼干文件喵。</string>
+    <string name="debug_service_file_save">确认修改喵</string>
+    <string name="update_settings_startup_check">启动时检查更新喵</string>
+    <string name="update_settings_startup_check_desc">每次打开罐罐时向官网查询一次，仅有新喵龄时才显示提示卡片。</string>
+
+    <!-- DAX / Xposed module integration -->
+    <string name="xposed_module_description">NeoDhizuku 挂件：让被勾选的罐罐经由 NeoDhizuku 使用猫窝主人猫洞接口。请勿勾选猫窝系统框架作用域喵。</string>
+    <string name="hook_config_title">Xposed 模块</string>
+    <string name="hook_config_entry_title">模块设置</string>
+    <string name="hook_config_entry_desc">调整接管后做什么喵</string>
+    <string name="hook_config_master">启用挂件喵</string>
+    <string name="hook_config_master_desc">关掉后就算挂上也不干活喵</string>
+    <string name="hook_config_scope">作用域喵</string>
+    <string name="hook_config_scope_desc">留空则跟随 LSPosed 里勾选的作用域；在下方勾选可进一步限定罐罐喵。</string>
+    <string name="hook_config_behavior">行为喵</string>
+    <string name="hook_config_query">认主人喵</string>
+    <string name="hook_config_call">小鱼干调用喵</string>
+    <string name="hook_config_force_true">一律装作已激活喵</string>
+    <string name="hook_config_installer">悄悄装罐罐喵</string>
+    <string name="hook_config_append_admins">管理员名单喵</string>
+    <string name="hook_config_reported">正在接管的罐罐喵</string>
+    <string name="hook_config_no_report">还没有罐罐被接管喵</string>
+    <string name="hook_config_lspatch">塞进窝里没生效喵？</string>
+    <string name="hook_config_lspatch_desc">被修补的罐罐要能认出 NeoDhizuku 喵，点下面把要用的配置揣进肉垫，修补时加进去就好</string>
+    <string name="hook_config_copy_queries">揣走要用的配置喵</string>
+    <string name="hook_config_note_desc">挂件只在你勾选或塞进窝里的罐罐里生效喵，没有框架的猫窝完全不受影响喵</string>
+
+    <!-- Device identity: dynamic package name -->
+    <string name="owner_identity_title">设备身份</string>
+    <string name="owner_identity_desc">对被改过猫牌的同项目实例执行移除或转移。候选来自猫窝系统实际声明的看窝的喵组件，不按当前 applicationId 推断。转移要求本实例就是猫窝主人。</string>
+    <string name="owner_identity_entry">移除 / 转移所有者（任意猫牌）喵</string>
+    <string name="owner_identity_same_project">同项目喵</string>
+    <string name="owner_identity_self">当前猫牌喵</string>
+    <string name="owner_identity_active">醒着呢喵</string>
+    <string name="owner_identity_inactive">还在睡喵</string>
+    <string name="owner_identity_remove">移除看窝的喵</string>
+    <string name="owner_identity_remove_shell">通过 Shizuku 强清喵</string>
+    <string name="owner_identity_transfer">转移所有者到此组件喵</string>
+    <string name="owner_identity_add">添加组件喵</string>
+    <string name="owner_identity_hint">猫牌/.server.DhizukuDAReceiver喵～</string>
+    <string name="owner_identity_empty">未发现看窝的喵组件。</string>
+
+    <!-- Round 30: tablet rail, hook scope, confirm dialogs -->
+    <string name="hook_config_scope_title">作用范围</string>
+    <string name="hook_config_scope_follow_desc">框架说了算喵，这里不用选罐罐</string>
+    <string name="hook_config_framework">当前框架：%1$s</string>
+    <string name="hook_config_framework_none">还没闻到 LSPosed / LSPatch 喵</string>
+    <string name="hook_config_hooked">已接管 %1$d 个罐罐 / %2$d 个进程喵</string>
+    <string name="hook_config_restart_title">改完要重开目标应用</string>
+    <string name="hook_config_restart_desc">在框架里改完勾选后，把罐罐彻底关掉再打开喵，下面的开关改完立刻生效不用重开</string>
+    <string name="hook_config_restart_notice">刚打开挂件喵，请重新打开已经在跑的罐罐！</string>
+    <string name="hook_config_restart_dismiss">知道啦</string>
+    <string name="about_admin_residue_confirm_title">清除残留身份？</string>
+    <string name="about_admin_residue_confirm_desc">将无条件调用清除猫窝主人、清除资料所有者与移除看窝的喵猫洞接口。若本罐罐仍是所有者，清除后需要重新激活。此操作不可撤销。</string>
+    <string name="about_admin_residue_confirm_ok">确认清除喵～</string>
+    <string name="owner_identity_confirm_title">确认变更设备身份？</string>
+    <string name="owner_identity_confirm_desc">移除或转移看窝的喵 / 所有者身份不可撤销，请先核对下方组件。</string>
+    <string name="owner_identity_confirm_ok">就这么定喵</string>
+    <string name="hook_config_app_filter_title">模块内作用域</string>
+    <string name="hook_config_app_filter_desc">框架层作用域（LSPosed 里勾选的罐罐 / LSPatch 修补的罐罐）决定挂件被注入哪些猫猫进程；这里决定注入后哪些罐罐真正被接管，两层是「与」关系。留空表示完全跟随框架喵。</string>
+    <string name="hook_config_app_filter_empty">未选择 — 跟随框架作用域喵</string>
+    <string name="hook_config_app_filter_count">已选择 %1$d 个应用喵</string>
+    <string name="hook_config_app_filter_restart">在这里增删罐罐后，需强制停止并重开目标罐罐才会生效喵。</string>
+    <string name="hook_config_app_filter_clear">清空选择喵</string>
+    <string name="hook_config_append_admins_desc">让罐罐读到已激活的管理员名单喵</string>
+    <string name="hook_config_call_desc">把罐罐的请求转交给 NeoDhizuku 喵</string>
+    <string name="hook_config_debug_entry">更多高级选项在调试页喵。</string>
+    <string name="hook_config_force_true_desc">就算没激活也装作激活了喵，不建议这样哈气</string>
+    <string name="hook_config_group_call">功能调用</string>
+    <string name="hook_config_group_fallback">其他</string>
+    <string name="hook_config_group_query">身份判断</string>
+    <string name="hook_config_hidden_owner">主人专属本事喵</string>
+    <string name="hook_config_hidden_owner_desc">让罐罐也能用原本只有主人能用的本事喵</string>
+    <string name="hook_config_installer_desc">让罐罐可以悄悄装或踢出别的罐罐喵</string>
+    <string name="hook_config_query_desc">让罐罐认出真正的小鱼干主人喵</string>
+    <string name="hook_config_add_pkg_title">按包名添加</string>
+    <string name="hook_config_add_pkg_hint">例如 com.example.app喵～</string>
+    <string name="hook_config_add_pkg_action">收入爪下</string>
+    <string name="hook_config_remove_pkg">移除喵</string>
+    <string name="security_transfer_confirm_title">应用内转移</string>
+    <string name="security_transfer_confirm_desc">上方开关只影响其他应用：开启后可直接转移，关闭时会被阻止。在 NeoDhizuku 内发起的转移始终需要二次确认。</string>
+    <string name="owner_transfer_confirm1_continue">继续喵～</string>
+    <string name="owner_identity_confirm_again_title">再次确认</string>
+    <string name="activate_transfer_confirm_title">确认通过 Dhizuku 转移设备所有者？</string>
+    <string name="activate_transfer_confirm_text">这会通过 Dhizuku 把猫窝主人交给 NeoDhizuku，过程不可逆喵～</string>
+    <string name="activate_transfer_confirm_again_title">再次确认</string>
+    <string name="activate_transfer_confirm_again_text">确认后马上执行喵～当前主人状态不对就会扑空喵呜～</string>
+    <string name="theme_card_blur">卡片模糊喵</string>
+    <string name="theme_card_blur_desc">设了背景小鱼干后，在卡片背后铺一层磨砂玻璃模糊喵</string>
+    <string name="hook_config_copy_done">揣好啦</string>
+    <string name="theme_appearance_section">外观</string>
+    <string name="theme_nav_section">导航栏与显示</string>
+    <string name="ui_engine_title">UI 引擎</string>
+    <string name="ui_engine_desc">换个猫窝样子喵，立刻生效</string>
+    <string name="ui_engine_original">原版喵</string>
+    <string name="ui_engine_miuix">miuix</string>
+    <string name="theme_tablet_pill">平板模式仍然显示药丸</string>
+    <string name="theme_tablet_pill_desc">关掉后导航条贴着屏幕边，只靠颜色分出当前页</string>
+    <string name="owner_identity_transfer_title">转移设备所有者？</string>
+    <string name="owner_identity_transfer_warning">设备所有者将转移给下面的应用。转移后本应用会立即失去设备所有者权限，且无法撤销；若目标应用没有授权入口，所有者可能再也无法找回。请仔细核对应用名称与包名。</string>
+    <string name="owner_identity_transfer_final_warning">请再次确认：转移完成后无法在 NeoDhizuku 内撤销。请再次核对下面的应用。</string>
+    <string name="owner_transfer_pkg_label">包名：%1$s</string>
+</resources>

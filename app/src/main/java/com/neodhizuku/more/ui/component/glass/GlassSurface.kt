@@ -16,15 +16,11 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 玻璃面板：底色 + 折射 + 轮廓双峰高光 + 内阴影 + 色散 + 细边。
- *
  * 高光的形状是这一层的关键。早先做成「顶沿一条亮带」，看着像塑料板；
- * 改成 **沿整个轮廓的一圈 bloom 描边**：主光源在上方强度 1、副光源在下方 0.4、
+ * 采用 **沿整个轮廓的一圈 bloom 描边**：主光源在上方强度 1、副光源在下方 0.4、
  * 内侧模糊 2dp，上下双峰。玻璃的辨识度几乎全在这圈轮廓光上 —— 边缘亮、中间通透。
- *
  * 光源位置随重力旋转（[specularShift]），所以转动设备时高光会跟着挪。
- *
  * 叠加顺序不能动，动一层就从玻璃变成塑料：
- *
  * 1. **底色**（[containerAlpha]）：半透明，背后内容隐约可见。
  * 2. **vibrancy**：把底色的饱和度抬高，透过玻璃看东西颜色更浓。
  * 3. **几何折射**（[lensAlpha]）：两端窄亮带。API 33 上另有
@@ -33,7 +29,6 @@ import androidx.compose.ui.unit.dp
  * 5. **内阴影**（[shadeAlpha]）：下半压暗，给厚度。
  * 6. **色散**（[dispersionAlpha]）：左右边缘分别偏青、偏橙的细边，
  *    是色散在几何上的廉价近似；真色散走 [glassLens] 的着色器。
- *
  * 全部走 `drawWithCache`，按压进度与重力偏移在缓存块里读取，
  * 拖动过程中不触发重组。
  */
@@ -48,7 +43,9 @@ internal fun Modifier.glassPanel(
     dispersionAlpha: Float = 0f,
     vibrancy: Float = 1f,
     borderColors: List<Color>? = null,
-    pressProgress: () -> Float = { 0f }
+    pressProgress: () -> Float = { 0f },
+    /** 自绘的假折射 / 色散层的可见度。0 表示静态完全不画，按下才渐显。 */
+    refractionProgress: () -> Float = { 0f }
 ): Modifier = this
     .drawWithCache {
         val w = size.width
@@ -149,38 +146,57 @@ internal fun Modifier.glassPanel(
         val dim = Color.Black.copy(alpha = 0.08f * press)
 
         onDrawBehind {
+            // 按压时真折射接管，自绘高光/轮廓按 fade 让路，否则把折射成果糊住。
+            // 在 draw 阶段读 state，不触发重组。
+            val glassFade = 1f - 0.5f * refractionProgress().coerceIn(0f, 1f)
             drawRoundRect(brush = body, cornerRadius = radius, colorFilter = vibrancyFilter)
             if (lens != null) {
-                drawRoundRect(brush = lens, cornerRadius = radius)
+                // alpha 在 draw 阶段读 state：不会触发重组，只触发重绘。
+                drawRoundRect(
+                    brush = lens,
+                    cornerRadius = radius,
+                    alpha = refractionProgress().coerceIn(0f, 1f)
+                )
             }
-            drawRoundRect(brush = shade, cornerRadius = radius)
+            drawRoundRect(brush = shade, cornerRadius = radius, alpha = glassFade)
 
             // 顶沿镜面亮点只在上一半画，落到下半就变成整块发白
             clipRect(0f, 0f, w, h * 0.5f) {
-                drawRoundRect(brush = glint, cornerRadius = radius)
+                drawRoundRect(brush = glint, cornerRadius = radius, alpha = glassFade)
             }
 
             // 轮廓光：内层宽而淡，外层窄而亮
             drawRoundRect(
                 brush = bloom,
                 cornerRadius = radius,
-                style = Stroke(width = specW * 4f)
+                style = Stroke(width = specW * 4f),
+                alpha = glassFade
             )
             drawRoundRect(
                 brush = specular,
                 cornerRadius = radius,
-                style = Stroke(width = specW)
+                style = Stroke(width = specW),
+                alpha = glassFade
             )
 
             clipRect(0f, h - rimH, w, h) {
-                drawRoundRect(brush = rim, cornerRadius = radius)
+                drawRoundRect(brush = rim, cornerRadius = radius, alpha = glassFade)
             }
             if (dispersion != null) {
+                val refractionAlpha = refractionProgress().coerceIn(0f, 1f)
                 clipRect(0f, 0f, dispersionW, h) {
-                    drawRoundRect(brush = dispersion, cornerRadius = radius)
+                    drawRoundRect(
+                        brush = dispersion,
+                        cornerRadius = radius,
+                        alpha = refractionAlpha
+                    )
                 }
                 clipRect(w - dispersionW, 0f, w, h) {
-                    drawRoundRect(brush = dispersion, cornerRadius = radius)
+                    drawRoundRect(
+                        brush = dispersion,
+                        cornerRadius = radius,
+                        alpha = refractionAlpha
+                    )
                 }
             }
             if (press > 0f) {

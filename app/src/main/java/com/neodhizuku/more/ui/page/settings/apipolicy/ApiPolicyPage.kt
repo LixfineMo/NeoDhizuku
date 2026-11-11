@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -47,7 +49,6 @@ import org.koin.androidx.compose.koinViewModel
 
 /**
  * 单项接口配置：逐个接口决定「哪个应用能用、用到哪一步」。
- *
  * 与「拒绝服务」相互独立 —— 拒绝服务是整体开关，这里是细项；
  * 但拒绝服务优先：首页停服时按拒绝模式统一处理，此处配置不参与。
  */
@@ -120,7 +121,7 @@ fun ApiPolicyPage(
             }
 
             item("global_card") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         TextButton(onClick = { globalExpanded = !globalExpanded }) {
                             Text(
@@ -136,7 +137,7 @@ fun ApiPolicyPage(
                                 val group = groupAt[index]
                                 if (group != null) {
                                     Text(
-                                        DpmPolicyCatalog.label(context, group.key),
+                                        DpmPolicyCatalog.groupLabel(context, group),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(
@@ -223,7 +224,7 @@ private fun AppPolicyCard(
     configured: Boolean,
     onClick: () -> Unit
 ) {
-    ElevatedCard(
+    NeoCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick
     ) {
@@ -272,11 +273,13 @@ private fun ApiCheckRow(
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                desc,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (desc.isNotBlank()) {
+                Text(
+                    desc,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             if (explicit) {
                 Text(
                     stringResource(R.string.api_policy_explicit),
@@ -312,12 +315,14 @@ private fun AppPolicyDialog(
         onDismissRequest = onDismiss,
         title = { Text(item.label) },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
                 apis.forEachIndexed { index, def ->
                     val group = groupAt[index]
                     if (group != null) {
                         Text(
-                            DpmPolicyCatalog.label(context, group.key),
+                            DpmPolicyCatalog.groupLabel(context, group),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(
@@ -341,11 +346,14 @@ private fun AppPolicyDialog(
                                 DpmPolicyCatalog.label(context, def.id),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            Text(
-                                DpmPolicyCatalog.desc(context, def.id),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            val apiDesc = DpmPolicyCatalog.desc(context, def.id)
+                            if (apiDesc.isNotBlank()) {
+                                Text(
+                                    apiDesc,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             if (appConfig.containsKey(def.id)) {
                                 Text(
                                     stringResource(R.string.api_policy_explicit),

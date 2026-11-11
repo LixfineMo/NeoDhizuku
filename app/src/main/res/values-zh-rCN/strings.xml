@@ -153,12 +153,10 @@
     <string name="notifier_channel_security_desc">设备所有者转移等高风险事件的提醒</string>
     <string name="alert_transfer_blocked_title">已阻止转移设备所有者</string>
     <string name="alert_transfer_blocked_text">应用「%1$s」尝试把设备所有者转移出去，已被拦截。可在设置中开启「允许第三方应用主动转移设备所有者」后重试。</string>
-    <string name="alert_transfer_allowed_title">设备所有者可能已被转移</string>
-    <string name="alert_transfer_allowed_text">应用「%1$s」已执行设备所有者转移。若该应用不提供授权入口，所有者可能无法再取回。</string>
 
     <!-- 设置：转移开关 -->
     <string name="settings_allow_owner_transfer">允许第三方应用主动转移设备所有者</string>
-    <string name="settings_allow_owner_transfer_desc">开启后，已授权应用可自行把设备所有者交给其他应用，且过程不可逆</string>
+    <string name="settings_allow_owner_transfer_desc">开启后，已授权应用可直接转移设备所有者，无需再次确认；关闭时它们的转移请求会被阻止。此操作不可逆。</string>
 
     <!-- 调用记录 -->
     <string name="call_log_tab_audit">调用记录</string>
@@ -477,8 +475,6 @@
     <string name="about_credits_title">引用项目</string>
     <string name="about_credits_entry_desc">点击查看全部引用项目与鸣谢</string>
     <string name="about_credits_dialog_title">鸣谢</string>
-    <string name="about_credit_ai_translation">翻译由 AI 提供</string>
-    <string name="about_credit_ai_translation_desc">部分界面翻译由 AI 协助生成，读到别扭的地方欢迎反馈。</string>
     <string name="about_credit_dhizuku">原版项目，本项目基于它二次开发</string>
     <string name="about_credit_dhizuku_api">设备所有者权限共享的接口</string>
     <string name="about_credit_shizuku_api">通过 Shizuku 执行高权限命令</string>
@@ -719,4 +715,102 @@
     <string name="debug_service_file_save">确认修改</string>
     <string name="update_settings_startup_check">启动时检查更新</string>
     <string name="update_settings_startup_check_desc">每次打开应用时向官网查询一次，仅有新版本时才显示提示卡片。</string>
+
+    <!-- DAX / Xposed module integration -->
+    <string name="xposed_module_description">NeoDhizuku 模块：让被勾选的应用经由 NeoDhizuku 使用设备所有者接口。请勿勾选系统框架作用域。</string>
+    <string name="hook_config_title">Xposed 模块</string>
+    <string name="hook_config_entry_title">模块设置</string>
+    <string name="hook_config_entry_desc">调整接管后的行为</string>
+    <string name="hook_config_master">启用模块</string>
+    <string name="hook_config_master_desc">关闭后即使模块被加载也不会生效</string>
+    <string name="hook_config_scope">作用域</string>
+    <string name="hook_config_scope_desc">留空则跟随 LSPosed 里勾选的作用域；在下方勾选可进一步限定应用。</string>
+    <string name="hook_config_behavior">行为</string>
+    <string name="hook_config_query">身份判断</string>
+    <string name="hook_config_call">设备策略调用</string>
+    <string name="hook_config_force_true">始终显示为已激活</string>
+    <string name="hook_config_installer">静默安装</string>
+    <string name="hook_config_append_admins">已激活管理员列表</string>
+    <string name="hook_config_reported">正在接管的应用</string>
+    <string name="hook_config_no_report">还没有应用被接管</string>
+    <string name="hook_config_lspatch">修补后没生效？</string>
+    <string name="hook_config_lspatch_desc">修补的应用需要能识别到 NeoDhizuku，点下面复制所需配置，修补时加进去即可。</string>
+    <string name="hook_config_copy_queries">复制所需配置</string>
+    <string name="hook_config_note_desc">模块只在你于 LSPosed 里勾选、或用 LSPatch 修补的应用里生效；没有它们的设备完全不受影响。</string>
+
+    <!-- Device identity: dynamic package name -->
+    <string name="owner_identity_title">设备身份</string>
+    <string name="owner_identity_desc">对被改过包名的同项目实例执行移除或转移。候选来自系统实际声明的设备管理员组件，不按当前 applicationId 推断。转移要求本实例就是设备所有者。</string>
+    <string name="owner_identity_entry">移除 / 转移所有者（任意包名）</string>
+    <string name="owner_identity_same_project">同项目</string>
+    <string name="owner_identity_self">当前包名</string>
+    <string name="owner_identity_active">已激活</string>
+    <string name="owner_identity_inactive">未激活</string>
+    <string name="owner_identity_remove">移除设备管理员</string>
+    <string name="owner_identity_remove_shell">通过 Shizuku 强清</string>
+    <string name="owner_identity_transfer">转移所有者到此组件</string>
+    <string name="owner_identity_add">添加组件</string>
+    <string name="owner_identity_hint">包名/.server.DhizukuDAReceiver</string>
+    <string name="owner_identity_empty">未发现设备管理员组件。</string>
+
+    <!-- Round 30: tablet rail, hook scope, confirm dialogs -->
+    <string name="hook_config_scope_title">作用范围</string>
+    <string name="hook_config_scope_follow_desc">由框架决定，这里不需要选应用。</string>
+    <string name="hook_config_framework">当前框架：%1$s</string>
+    <string name="hook_config_framework_none">未检测到 LSPosed / LSPatch</string>
+    <string name="hook_config_hooked">已接管 %1$d 个应用 / %2$d 个进程</string>
+    <string name="hook_config_restart_title">改完要重开目标应用</string>
+    <string name="hook_config_restart_desc">在框架里改完勾选后，把目标应用彻底关掉再打开；下面的开关改完立即生效，不用重开。</string>
+    <string name="hook_config_restart_notice">刚开启模块，请重新打开已经运行的目标应用。</string>
+    <string name="hook_config_restart_dismiss">知道了</string>
+    <string name="about_admin_residue_confirm_title">清除残留身份？</string>
+    <string name="about_admin_residue_confirm_desc">将无条件调用清除设备所有者、清除资料所有者与移除设备管理员接口。若本应用仍是所有者，清除后需要重新激活。此操作不可撤销。</string>
+    <string name="about_admin_residue_confirm_ok">确认清除</string>
+    <string name="owner_identity_confirm_title">确认变更设备身份？</string>
+    <string name="owner_identity_confirm_desc">移除或转移设备管理员 / 所有者身份不可撤销，请先核对下方组件。</string>
+    <string name="owner_identity_confirm_ok">确认</string>
+    <string name="hook_config_app_filter_title">模块内作用域</string>
+    <string name="hook_config_app_filter_desc">框架层作用域（LSPosed 里勾选的应用 / LSPatch 修补的应用）决定模块被注入哪些进程；这里决定注入后哪些应用真正被接管，两层是「与」关系。留空表示完全跟随框架。</string>
+    <string name="hook_config_app_filter_empty">未选择 — 跟随框架作用域</string>
+    <string name="hook_config_app_filter_count">已选择 %1$d 个应用</string>
+    <string name="hook_config_app_filter_restart">在这里增删应用后，需强制停止并重开目标应用才会生效。</string>
+    <string name="hook_config_app_filter_clear">清空选择</string>
+    <string name="hook_config_append_admins_desc">让应用能读到已激活的管理员列表</string>
+    <string name="hook_config_call_desc">把应用的设备策略请求转交给 NeoDhizuku</string>
+    <string name="hook_config_debug_entry">更多高级选项在调试页。</string>
+    <string name="hook_config_force_true_desc">即使没激活也让应用以为已激活（不推荐）</string>
+    <string name="hook_config_group_call">功能调用</string>
+    <string name="hook_config_group_fallback">其他</string>
+    <string name="hook_config_group_query">身份判断</string>
+    <string name="hook_config_hidden_owner">所有者专属功能</string>
+    <string name="hook_config_hidden_owner_desc">让应用也能用原本只有设备所有者才能用的功能</string>
+    <string name="hook_config_installer_desc">让应用可以静默安装或卸载应用</string>
+    <string name="hook_config_query_desc">让应用查到的设备所有者是真正的所有者</string>
+    <string name="hook_config_add_pkg_title">按包名添加</string>
+    <string name="hook_config_add_pkg_hint">例如 com.example.app</string>
+    <string name="hook_config_add_pkg_action">添加</string>
+    <string name="hook_config_remove_pkg">移除</string>
+    <string name="security_transfer_confirm_title">应用内转移</string>
+    <string name="security_transfer_confirm_desc">上方开关只影响其他应用：开启后可直接转移，关闭时会被阻止。在 NeoDhizuku 内发起的转移始终需要二次确认。</string>
+    <string name="owner_transfer_confirm1_continue">继续</string>
+    <string name="owner_identity_confirm_again_title">再次确认</string>
+    <string name="activate_transfer_confirm_title">确认通过 Dhizuku 转移设备所有者？</string>
+    <string name="activate_transfer_confirm_text">这会通过 Dhizuku 把设备所有者转移给 NeoDhizuku，过程不可逆。</string>
+    <string name="activate_transfer_confirm_again_title">再次确认</string>
+    <string name="activate_transfer_confirm_again_text">确认后将立即执行。若当前所有者状态不对，激活会失败。</string>
+    <string name="theme_card_blur">卡片模糊</string>
+    <string name="theme_card_blur_desc">设置背景图后，在卡片背后应用磨砂玻璃模糊。</string>
+    <string name="hook_config_copy_done">已复制</string>
+    <string name="theme_appearance_section">外观</string>
+    <string name="theme_nav_section">导航栏与显示</string>
+    <string name="ui_engine_title">UI 引擎</string>
+    <string name="ui_engine_desc">切换界面风格，立即生效</string>
+    <string name="ui_engine_original">原版</string>
+    <string name="ui_engine_miuix">miuix</string>
+    <string name="theme_tablet_pill">平板模式仍然显示药丸</string>
+    <string name="theme_tablet_pill_desc">关闭后导航栏贴紧屏幕边缘，只靠图标颜色区分当前页</string>
+    <string name="owner_identity_transfer_title">转移设备所有者？</string>
+    <string name="owner_identity_transfer_warning">设备所有者将转移给下面的应用。转移后本应用会立即失去设备所有者权限，且无法撤销；若目标应用没有授权入口，所有者可能再也无法找回。请仔细核对应用名称与包名。</string>
+    <string name="owner_identity_transfer_final_warning">请再次确认：转移完成后无法在 NeoDhizuku 内撤销。请再次核对下面的应用。</string>
+    <string name="owner_transfer_pkg_label">包名：%1$s</string>
 </resources>

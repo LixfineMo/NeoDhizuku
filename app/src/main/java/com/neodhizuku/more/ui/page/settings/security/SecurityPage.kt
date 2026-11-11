@@ -18,7 +18,7 @@ import androidx.compose.material.icons.automirrored.twotone.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.twotone.CheckCircle
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -94,7 +94,7 @@ fun SecurityPage(
             }
 
             item("service_card") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SwitchEntry(
                             title = stringResource(R.string.enable_dhizuku),
@@ -136,7 +136,7 @@ fun SecurityPage(
             }
 
             item("whitelist_card") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     EntryRow(
                         title = stringResource(R.string.whitelist_manage_title),
                         desc = stringResource(R.string.whitelist_manage_entry_desc),
@@ -155,7 +155,7 @@ fun SecurityPage(
 
             item("deny_card") {
                 var modeExpanded by remember { mutableStateOf(false) }
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         // 折叠选择器：与主题页深浅色一致，
                         // 常态显示当前项，点击展开列出全部（含当前项）
@@ -197,13 +197,30 @@ fun SecurityPage(
             }
 
             item("transfer_card") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                    SwitchEntry(
-                        title = stringResource(R.string.settings_allow_owner_transfer),
-                        desc = stringResource(R.string.settings_allow_owner_transfer_desc),
-                        checked = viewModel.state.allowOwnerTransfer,
-                        onCheckedChange = viewModel::setAllowOwnerTransfer
-                    )
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        SwitchEntry(
+                            title = stringResource(R.string.settings_allow_owner_transfer),
+                            desc = stringResource(R.string.settings_allow_owner_transfer_desc),
+                            checked = viewModel.state.allowOwnerTransfer,
+                            onCheckedChange = viewModel::setAllowOwnerTransfer
+                        )
+                        androidx.compose.material3.HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                stringResource(R.string.security_transfer_confirm_title),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                stringResource(R.string.security_transfer_confirm_desc),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -28,11 +28,9 @@ val PackageInfo.signature: String?
 
 /**
  * 取某个 UID 下的**全部**签名指纹。
- *
  * 只取首个签名者是不够的：
  * - v3 签名轮换后首签名者可能变化 → 已授权 App 静默失效；
  * - 多签名（hasMultipleSigners）时只校验一个 → 其余签名被替换也无法察觉。
- *
  * 注意：Android 平台强制 sharedUserId 的应用使用相同签名，
  * 因此这里不需要（也无法）防"同 UID 不同签名"的冒用场景。
  */

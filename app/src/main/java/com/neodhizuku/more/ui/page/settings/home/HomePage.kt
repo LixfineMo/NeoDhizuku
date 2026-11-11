@@ -8,6 +8,7 @@ import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,8 +19,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.plus
@@ -55,9 +58,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoDropdownMenu
+import com.neodhizuku.more.ui.component.NeoDropdownItem
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -87,6 +90,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ClipEntry
@@ -100,6 +107,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import top.yukonga.miuix.kmp.basic.Card as MiuixCard
+import top.yukonga.miuix.kmp.basic.CardDefaults as MiuixCardDefaults
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.utils.PressFeedbackType
 import androidx.navigation.NavController
 
 import com.neodhizuku.more.NeoDhizuku
@@ -114,12 +126,17 @@ import com.neodhizuku.more.data.common.util.toast
 import com.neodhizuku.more.data.settings.repo.SettingsRepo
 import com.neodhizuku.more.server.DaemonService
 import com.neodhizuku.more.server.DhizukuState
+import com.neodhizuku.more.ui.page.settings.debug.DebugUiOverrides
 import com.neodhizuku.more.server.ServiceStatus
+import com.neodhizuku.more.server.HookConfigStore
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
+import com.neodhizuku.more.ui.theme.LocalUiEngine
+import com.neodhizuku.more.ui.theme.UiEngine
 import com.neodhizuku.more.ui.theme.exclude
 
 import kotlin.system.exitProcess
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -137,8 +154,12 @@ fun HomePage(
         runCatching { navController.navigate(route) }
     }
 ) {
-    val dhizukuState = DhizukuState.state
+    // 显示层读取：调试页的「强制显示已激活」只影响这里，不碰执行链
+    val dhizukuState = DebugUiOverrides.displayState()
     val context = LocalContext.current
+    // LazyColumn 的 content 是 LazyListScope.() -> Unit（非 @Composable），
+    // CompositionLocal 只能在可组合上下文里读取，再把普通值带进去。
+    val uiEngine = LocalUiEngine.current
 
     // 冷启动时已在 Application 里查过一次官网清单，这里只负责把结果显示出来
     val startupUpdate by StartupUpdateChecker.state.collectAsState()
@@ -182,6 +203,12 @@ fun HomePage(
             item("dhizuku_state") {
                 DhizukuStateWidget(navController)
             }
+            // 状态卡没显示时（未激活 / 关了状态卡），徽标仍需可见。
+            // miuix 引擎的状态卡自带身份与框架药丸，不单独占一行。
+            val showStatusCard = NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard) && dhizukuState.isActive
+            if (!showStatusCard && uiEngine != UiEngine.MIUIX) item("status_badges") {
+                StatusBadges(includeActivation = false)
+            }
             if (dhizukuState.isActive) item("settings") {
                 SettingsWidget(navController, onSelectTab)
             }
@@ -189,7 +216,6 @@ fun HomePage(
                 AppManagementWidget(navController, onSelectTab)
             }
             // 激活入口按"是否已是所有者"而不是"是否可用"来分流。
-            //
             // 仅设备管理员时 isActive 为 true，但那不是真正的所有者：
             // 用 isActive 判断会立刻把 Shizuku / 免删 / ADB 三条升级路径藏掉，
             // 只留下"通过其他实现转移"这一条在设备管理员下根本走不通的入口。
@@ -216,7 +242,6 @@ fun HomePage(
 
 /**
  * 启动检查发现新版本时的提示卡。
- *
  * 只提示不打断：点整卡直接下载，点"详情"去关于页看完整更新日志。
  * 下载地址为空（清单里只给了详情链接）时退化成跳关于页。
  */
@@ -297,12 +322,12 @@ private fun TopBarActions(navController: NavController) {
                     Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about_title))
                 }
             }
-            DropdownMenu(
+            NeoDropdownMenu(
                 expanded = donateMenuExpanded,
                 onDismissRequest = { donateMenuExpanded = false }
             ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.donate_hide_action)) },
+                NeoDropdownItem(
+                    text = stringResource(R.string.donate_hide_action),
                     onClick = {
                         donateMenuExpanded = false
                         donateHideConfirmShow = true
@@ -313,11 +338,9 @@ private fun TopBarActions(navController: NavController) {
     }
 
     // 服务启停入口只在已激活时提供。
-    //
     // 未激活时服务本来就不该运行，若照常显示按钮，会落到"服务未运行"分支
     // 展示重启图标；此时点击会去 startForegroundService，而守护服务在未成为
     // 所有者时的启动路径会抛异常导致崩溃。
-    //
     // 判据用 isActive 而非 isOwner：仅设备管理员时服务同样可以运行，
     // 需要能停能启。
     // DhizukuState.state 是 mutableStateOf，读取即自动订阅
@@ -436,8 +459,14 @@ private fun TopBarActions(navController: NavController) {
 private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
     // 用 isActive 而非 isOwner：仅设备管理员也算已激活，
     // 应走新的状态卡布局，身份由 [activationLabel] 显示为「设备管理员」。
-    val isActive = DhizukuState.state.isActive
+    val isActive = DebugUiOverrides.displayState().isActive
     val context = LocalContext.current
+
+    // miuix 引擎：状态区用整宽激活卡 + 下方并排数值卡。
+    if (LocalUiEngine.current == UiEngine.MIUIX) {
+        MiuixStatusRow(navController = navController)
+        return
+    }
 
     // 激活态用左侧状态卡 + 右侧两张服务状态卡的布局，未激活保留原版样式。
     if (NeoDhizuku.on(NeoDhizuku.UseHomeStatusCard) && isActive) {
@@ -479,8 +508,8 @@ private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
                     // 避免沿用旧的二选一逻辑把它误标成「设备所有者」
                     stringResource(
                         when {
-                            DhizukuState.state.isProfileOwner -> R.string.confirm_profile_owner
-                            DhizukuState.state.isDeviceOwner -> R.string.confirm_device_owner
+                            DebugUiOverrides.displayState().isProfileOwner -> R.string.confirm_profile_owner
+                            DebugUiOverrides.displayState().isDeviceOwner -> R.string.confirm_device_owner
                             else -> R.string.capability_device_admin
                         }
                     )
@@ -493,7 +522,6 @@ private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
 
 /**
  * 激活后的首页顶部区域：左侧一张竖向状态卡，右侧上下两张小卡。
- *
  * - 左卡：对勾图标 + 「已激活」+ 所有者类型标签 + 版本号，点击进入激活页
  * - 右上：授权应用数量
  * - 右下：服务运行时间（HH:MM:SS，服务每次启动归零重算）
@@ -520,15 +548,20 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
         }
     }
 
+    // 行高由右侧两张固定高度的数值卡决定，左卡补满剩余空间，底端与运行时间卡对齐。
+    val statCardHeight = 96.dp
+    val statGap = 12.dp
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(statCardHeight * 2 + statGap)
             .animateItem(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(statGap)
     ) {
-        // 左：状态卡，约占 55%
         StatusCard(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
             onClick = {
                 navController.navigate(
                     SettingsRoute.Activate.route(SettingsRoute.Activate.Mode.Dhizuku)
@@ -536,18 +569,21 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
             }
         )
 
-        // 右：上下两张小卡（授权应用 / 运行时间）
         Column(
-            modifier = Modifier.weight(0.72f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.fillMaxWidth(0.42f),
+            verticalArrangement = Arrangement.spacedBy(statGap)
         ) {
             ServiceStatCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(statCardHeight),
                 label = stringResource(R.string.home_stat_authorized_apps),
                 value = authorizedCount.toString()
             )
             ServiceStatCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(statCardHeight),
                 label = stringResource(R.string.home_stat_uptime),
                 value = ServiceStatus.formatUptime(uptime),
                 stopped = uptime < 0
@@ -557,7 +593,7 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
 
     // 仅设备管理员时，第三方应用的标准 Dhizuku 初始化必然失败：
     // 客户端 API 只认可设备所有者 / 资料管理员，设备管理员不在其中。
-    if (DhizukuState.state.level ==
+    if (DebugUiOverrides.displayState().level ==
         com.neodhizuku.more.server.CapabilityLevel.DEVICE_ADMIN
     ) {
         Text(
@@ -568,6 +604,240 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
                 .fillMaxWidth()
                 .animateItem()
                 .padding(horizontal = 4.dp)
+        )
+    }
+}
+
+/** miuix 引擎的首页状态区。未激活时只有顶部提示条。 */
+@Composable
+private fun LazyItemScope.MiuixStatusRow(navController: NavController) {
+    val state = DebugUiOverrides.displayState()
+    val isActive = state.isActive
+    val authorizedCount = ServiceStatus.authorizedCount
+    var uptime by remember { mutableLongStateOf(ServiceStatus.uptimeMillis()) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            uptime = ServiceStatus.uptimeMillis()
+            delay(1000)
+        }
+    }
+
+    // 未激活时不显示状态卡与数值卡。
+    if (!isActive) {
+        MiuixWarningBanner()
+        return
+    }
+
+    // 激活卡占满整行，下方两张数值卡横向并排一行，不再做左右分栏。
+    val statusCardHeight = 160.dp
+    val statCardHeight = 88.dp
+    val statGap = 12.dp
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateItem(),
+        verticalArrangement = Arrangement.spacedBy(statGap)
+    ) {
+        MiuixStatusCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(statusCardHeight),
+            onClick = {
+                navController.navigate(
+                    SettingsRoute.Activate.route(SettingsRoute.Activate.Mode.Dhizuku)
+                )
+            }
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(statGap)
+        ) {
+            MiuixStatCard(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(statCardHeight),
+                label = stringResource(R.string.home_stat_authorized_apps),
+                value = authorizedCount.toString()
+            )
+            MiuixStatCard(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(statCardHeight),
+                label = stringResource(R.string.home_stat_uptime),
+                value = if (uptime < 0) "--:--:--" else ServiceStatus.formatUptime(uptime)
+            )
+        }
+    }
+
+    if (state.level == com.neodhizuku.more.server.CapabilityLevel.DEVICE_ADMIN) {
+        Text(
+            text = stringResource(R.string.home_device_admin_notice),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateItem()
+                .padding(horizontal = 4.dp)
+        )
+    }
+}
+
+/** 未激活时的红色提示条，对应 miuix 风格顶部警告横幅。 */
+@Composable
+private fun MiuixWarningBanner() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFDE9E9))
+            .padding(horizontal = 20.dp, vertical = 16.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.home_status_owner_denied),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFFD32F2F)
+        )
+    }
+}
+
+/** 激活卡：走 miuix 交互卡，按压反馈与新版 KernelSU 首页状态卡一致。 */
+@Composable
+private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val cardColor = Color(0xFFE8F8EC)
+    val ringColor = Color(0xFF2FCB63)
+
+    MiuixCard(
+        modifier = modifier,
+        onClick = onClick,
+        showIndication = true,
+        pressFeedbackType = PressFeedbackType.Tilt,
+        cornerRadius = 24.dp,
+        insideMargin = PaddingValues(0.dp),
+        colors = MiuixCardDefaults.defaultColors(color = cardColor)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(20.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.home_status_owner_granted_short),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF111318)
+                )
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MiuixTag(label = activationLabel(), color = MiuixTheme.colorScheme.primary)
+                    val framework = hookFrameworkLabel()
+                    if (framework != null) {
+                        MiuixTag(label = framework, color = Color(0xFF6A1B9A))
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.home_status_version, displayVersionName()),
+                    fontSize = 14.sp,
+                    color = Color(0xFF4A4F58)
+                )
+                // 卡片剩余空间留给右下角的圆环。
+                Spacer(Modifier.weight(1f))
+            }
+            MiuixCheckRing(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 10.dp, y = 26.dp)
+                    .size(108.dp),
+                color = ringColor
+            )
+        }
+    }
+}
+
+/** 下方数值卡：浅灰底、灰色标签、大号粗体数值，两张等宽并排。 */
+@Composable
+private fun MiuixStatCard(modifier: Modifier = Modifier, label: String, value: String) {
+    MiuixCard(
+        modifier = modifier,
+        cornerRadius = 24.dp,
+        insideMargin = PaddingValues(0.dp),
+        colors = MiuixCardDefaults.defaultColors(color = Color(0xFFF4F5F7))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = Color(0xFF6B7280),
+                maxLines = 1
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = value,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF111318),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/** 身份药丸：miuix 蓝 / 未激活红，白字圆角胶囊。 */
+@Composable
+private fun MiuixTag(label: String, color: Color) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50.dp))
+            .background(color)
+            .padding(horizontal = 12.dp, vertical = 5.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
+        )
+    }
+}
+
+/** 右下角圆环 + 对勾；开口留在右下，由卡片边缘裁切。 */
+@Composable
+private fun MiuixCheckRing(modifier: Modifier = Modifier, color: Color) {
+    Canvas(modifier = modifier) {
+        val stroke = 14.dp.toPx()
+        drawArc(
+            color = color,
+            startAngle = 60f,
+            sweepAngle = 300f,
+            useCenter = false,
+            style = Stroke(width = stroke, cap = StrokeCap.Round)
+        )
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val path = Path().apply {
+            moveTo(cx - size.width * 0.21f, cy + size.height * 0.01f)
+            lineTo(cx - size.width * 0.04f, cy + size.height * 0.17f)
+            lineTo(cx + size.width * 0.25f, cy - size.height * 0.17f)
+        }
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(
+                width = stroke,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round
+            )
         )
     }
 }
@@ -594,7 +864,7 @@ private fun displayVersionName(): String {
 @Composable
 private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
     val versionName = displayVersionName()
-    androidx.compose.material3.Card(
+    NeoCard(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
@@ -603,7 +873,9 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // 描边对勾图标，颜色跟随卡片的 onSecondaryContainer
@@ -620,7 +892,7 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(Modifier.height(6.dp))
-                StatusTag(label = activationLabel())
+                StatusBadges(includeActivation = true)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = stringResource(
@@ -631,20 +903,22 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
+            // 卡片被右侧两张小卡撑高时，多出的高度落在这里（下方留白），
+            // 内容保持靠上，底端与「运行时间」卡对齐。
+            Spacer(Modifier.weight(1f))
         }
     }
 }
 
 /**
  * 激活卡片上的身份标签，五种状态选一。
- *
  * 放在这里而不是另起一张卡：平板上首页右侧没有多余空间，
  * 单独加卡会导致平板与手机布局不一致。
  */
 @Composable
 private fun activationLabel(): String {
-    // 读取 DhizukuState.state 即订阅，身份变化会自动刷新
-    val state = DhizukuState.state
+    // 读取 displayState() 即订阅；调试覆盖打开时按伪装身份显示
+    val state = DebugUiOverrides.displayState()
     val temporary =
         com.neodhizuku.more.data.common.util.DpDirectActivation.isTemporaryCached()
 
@@ -677,9 +951,9 @@ private fun ServiceStatCard(
     value: String,
     stopped: Boolean = false
 ) {
-    // 停止时整卡纯红，且只显示「拒绝服务」，不再出现标签行
+    // 停止时整卡纯红，且只显示「拒绝服务」
     if (stopped) {
-        androidx.compose.material3.Card(
+        NeoCard(
             modifier = modifier,
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
@@ -688,7 +962,9 @@ private fun ServiceStatCard(
             )
         ) {
             Box(
-                modifier = Modifier.padding(14.dp),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(14.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
@@ -701,7 +977,7 @@ private fun ServiceStatCard(
     }
 
     // 正常运行：保持默认卡片配色（不额外着色）
-    androidx.compose.material3.Card(
+    NeoCard(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors()
@@ -725,12 +1001,43 @@ private fun ServiceStatCard(
     }
 }
 
+/**
+ * 状态卡上并排的纯色药丸：身份标签 + 模块框架。
+ * 模块框架只在真的有进程报到（或模块被加载过）时出现，
+ * 没有 LSPosed / LSPatch 的设备完全看不到它。
+ * TEST ONLY 与设备状态无关，不在此显示。
+ */
 @Composable
-private fun StatusTag(label: String) {
+private fun StatusBadges(includeActivation: Boolean) {
+    val framework = hookFrameworkLabel()
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (includeActivation) StatusTag(label = activationLabel())
+        if (framework != null) StatusTag(label = framework, color = Color(0xFF6A1B9A))
+    }
+}
+
+/** 每 2 秒读一次报到表；只存内存，重启即清空，与「启动后才生效」一致。 */
+@Composable
+private fun hookFrameworkLabel(): String? {
+    var label by remember { mutableStateOf(HookConfigStore.frameworkLabel()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            label = HookConfigStore.frameworkLabel()
+            delay(2000L)
+        }
+    }
+    return label
+}
+
+@Composable
+private fun StatusTag(label: String, color: Color? = null) {
     androidx.compose.foundation.layout.Box(
         modifier = androidx.compose.ui.Modifier
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.primary)
+            .background(color ?: MaterialTheme.colorScheme.primary)
             .padding(horizontal = 8.dp, vertical = 2.dp)
     ) {
         Text(
@@ -906,19 +1213,21 @@ private fun LazyItemScope.AdbWidget() {
                     )
                     Icon(imageVector = Icons.TwoTone.ArrowDropDown, contentDescription = null)
                 }
-                DropdownMenu(
+                NeoDropdownMenu(
                     expanded = ownerMenuExpanded,
                     onDismissRequest = { ownerMenuExpanded = false }
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.confirm_device_owner)) },
+                    NeoDropdownItem(
+                        text = stringResource(R.string.confirm_device_owner),
+                        selected = !useProfileOwner,
                         onClick = {
                             useProfileOwner = false
                             ownerMenuExpanded = false
                         }
                     )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.confirm_profile_owner)) },
+                    NeoDropdownItem(
+                        text = stringResource(R.string.confirm_profile_owner),
+                        selected = useProfileOwner,
                         onClick = {
                             ownerMenuExpanded = false
                             profileOwnerWarningShow = true
@@ -943,7 +1252,6 @@ private fun LazyItemScope.DeactivateWidget() {
 
     // 仅设备管理员（没有所有者身份）时，"取消激活"要移除的是设备管理员，
     // 而不是所有者。
-    //
     // clearProfileOwner / clearDeviceOwnerApp 只对所有者有效，在设备管理员
     // 下调用必然抛异常，界面上就表现为一直提示"移除所有者失败"。
     val adminOnly = !DhizukuState.state.isOwner && DhizukuState.state.isDeviceAdmin
@@ -978,7 +1286,7 @@ private fun LazyItemScope.DeactivateWidget() {
                 // 因此每一步各自吞掉异常，最后重新查询系统，用真实身份是否消失来判定。
                 val thrown = ArrayList<String>()
 
-                // 不再只跑第一个命中的分支：转移过来的权限可能同时残留
+                // 所有命中的分支都要跑：转移过来的权限可能同时残留
                 // 资料所有者与设备所有者两种身份，只清一种会留下另一种。
                 if (current.isProfileOwner) {
                     runCatching {
@@ -1092,7 +1400,7 @@ private fun LazyItemScope.CardWidget(
     text: (@Composable () -> Unit)? = null,
     content: (@Composable () -> Unit)? = null
 ) {
-    ElevatedCard(
+    NeoCard(
         modifier = modifier.animateItem(),
         colors = colors, onClick = onClick
     ) {

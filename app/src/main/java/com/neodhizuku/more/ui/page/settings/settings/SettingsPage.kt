@@ -18,9 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.automirrored.twotone.ArrowForward
 import androidx.compose.material.icons.twotone.ArrowDropDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoDropdownMenu
+import com.neodhizuku.more.ui.component.NeoDropdownItem
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,6 +47,7 @@ import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.LocaleHelper
 import com.neodhizuku.more.server.DhizukuState
+import com.neodhizuku.more.ui.page.settings.debug.DebugUiOverrides
 import com.neodhizuku.more.server.ServiceStatus
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
@@ -67,7 +68,7 @@ fun SettingsPage(
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     // 设备管理员也算已激活，管理分区（软件管理 / 黑名单 / 授权）同样可用
-    val isOwner = DhizukuState.state.isActive
+    val isOwner = DebugUiOverrides.displayState().isActive
 
     LaunchedEffect(Unit) {
         viewModel.collect()
@@ -114,7 +115,7 @@ fun SettingsPage(
             }
 
             if (isOwner) item("manage_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         ManageEntry(
                             title = stringResource(R.string.home_app_management_title),
@@ -148,7 +149,7 @@ fun SettingsPage(
             }
 
             item("security_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         ManageEntry(
                             title = stringResource(R.string.security_title),
@@ -167,6 +168,18 @@ fun SettingsPage(
                                 navController.navigate(SettingsRoute.ApiPolicy.route)
                             }
                         )
+                        // DAX 化 Xposed 模块：服务板块常驻入口。
+                        // 不管模块是否被框架激活，都能先进来配置作用域与行为；
+                        // 未激活时页内仅显示「未检测到框架」，不会误伤普通用户。
+                        HorizontalDividerSafe()
+                        ManageEntry(
+                            title = stringResource(R.string.hook_config_entry_title),
+                            desc = stringResource(R.string.hook_config_entry_desc),
+                            onClick = {
+                                NeoLog.d(NeoLog.NAV) { "settings -> hook_config" }
+                                navController.navigate(SettingsRoute.HookConfig.route)
+                            }
+                        )
                     }
                 }
             }
@@ -181,7 +194,7 @@ fun SettingsPage(
             }
 
             item("logs_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         ManageEntry(
                             title = stringResource(R.string.nav_call_log),
@@ -204,7 +217,7 @@ fun SettingsPage(
             }
 
             item("appearance_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         ManageEntry(
                             title = stringResource(R.string.theme_title),
@@ -228,7 +241,7 @@ fun SettingsPage(
             }
 
             item("gray_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         ManageEntry(
                             title = stringResource(R.string.experimental_title),
@@ -252,7 +265,7 @@ fun SettingsPage(
             }
 
             item("software_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         LanguageEntry()
                         HorizontalDividerSafe()
@@ -328,7 +341,6 @@ private fun ManageEntry(
 
 /**
  * 语言条目：右侧显示当前语言，点击弹出悬浮列表。
- *
  * 选中后写入 SharedPreferences 并重建 Activity —— 语言必须在
  * attachBaseContext 阶段套上，重建是让它立即生效的唯一方式。
  */
@@ -386,37 +398,24 @@ private fun LanguageEntry() {
                     )
                 }
 
-                DropdownMenu(
+                NeoDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
                     LocaleHelper.languages.forEach { language ->
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(language.displayName)
-                                    // 翻译不完整的语言给出提示，避免用户选中后
-                                    // 发现大片英文却不知道原因
-                                    if (!language.complete) {
-                                        Text(
-                                            stringResource(R.string.settings_language_partial),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            },
+                        NeoDropdownItem(
+                            text = language.displayName,
+                            selected = language.tag == selectedTag,
+                            badge = if (language.complete) null
+                                else stringResource(R.string.settings_language_partial),
                             onClick = {
                                 expanded = false
-                                if (language.tag == selectedTag) return@DropdownMenuItem
-                                selectedTag = language.tag
-                                LocaleHelper.save(context, language.tag)
-                                // 重建才能让新语言立即生效
-                                LocaleHelper.findActivity(context)?.recreate()
+                                if (language.tag != selectedTag) {
+                                    selectedTag = language.tag
+                                    LocaleHelper.save(context, language.tag)
+                                    // 重建才能让新语言立即生效
+                                    LocaleHelper.findActivity(context)?.recreate()
+                                }
                             }
                         )
                     }

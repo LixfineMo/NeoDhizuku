@@ -12,7 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,6 +38,7 @@ import androidx.navigation.NavController
 
 import com.neodhizuku.more.R
 import com.neodhizuku.more.server.OwnerIdentityTools
+import com.neodhizuku.more.ui.component.TransferTargetInfo
 import com.neodhizuku.more.ui.theme.combine
 
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +47,6 @@ import kotlinx.coroutines.withContext
 
 /**
  * 设备身份：对被改过包名的同项目实例做「移除 / 转移」。
- *
  * 只做这两件事，不猜当前 applicationId —— 候选全部来自系统实际声明的
  * 设备管理员组件，所以两个实例都显示「未激活」时也能列出来。
  */
@@ -62,6 +63,8 @@ fun OwnerIdentityPage(
     var raw by remember { mutableStateOf("") }
     // 待确认的不可逆动作：(组件, 动作名)
     var pending by remember { mutableStateOf<Pair<OwnerIdentityTools.Entry, String>?>(null) }
+    // 1 = 第一道确认，2 = 第二道确认
+    var pendingStage by remember { mutableIntStateOf(1) }
 
     fun reload() {
         scope.launch {
@@ -136,9 +139,9 @@ fun OwnerIdentityPage(
             items(entries, key = { it.component.flattenToShortString() }) { e ->
                 EntryCard(
                     entry = e,
-                    onRemove = { pending = e to "remove" },
-                    onShell = { pending = e to "shell" },
-                    onTransfer = { pending = e to "transfer" }
+                    onRemove = { pending = e to "remove"; pendingStage = 1 },
+                    onShell = { pending = e to "shell"; pendingStage = 1 },
+                    onTransfer = { pending = e to "transfer"; pendingStage = 1 }
                 )
             }
         }
@@ -161,23 +164,66 @@ fun OwnerIdentityPage(
     }
 
     pending?.let { (e, action) ->
+        val isTransfer = action == "transfer"
+        val title = if (pendingStage == 1) {
+            stringResource(
+                if (isTransfer) R.string.owner_identity_transfer_title
+                else R.string.owner_identity_confirm_title
+            )
+        } else {
+            stringResource(R.string.owner_identity_confirm_again_title)
+        }
+        val confirmText = if (pendingStage == 1) {
+            stringResource(R.string.owner_transfer_confirm1_continue)
+        } else {
+            stringResource(R.string.owner_identity_confirm_ok)
+        }
         AlertDialog(
-            onDismissRequest = { pending = null },
-            title = { Text(stringResource(R.string.owner_identity_confirm_title)) },
+            onDismissRequest = {
+                pending = null
+                pendingStage = 1
+            },
+            title = { Text(title) },
             text = {
-                Text(
-                    stringResource(R.string.owner_identity_confirm_desc) + "\n" +
-                        e.component.flattenToShortString()
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (isTransfer) {
+                        // 只显示包名，不带接收器名；名称与图标取自系统
+                        TransferTargetInfo(
+                            packageName = e.component.packageName,
+                            appLabel = e.label
+                        )
+                        Text(
+                            stringResource(
+                                if (pendingStage == 1) R.string.owner_identity_transfer_warning
+                                else R.string.owner_identity_transfer_final_warning
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    } else {
+                        Text(
+                            stringResource(R.string.owner_identity_confirm_desc) + "\n" +
+                                e.component.flattenToShortString()
+                        )
+                    }
+                }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    pending = null
-                    runAction(e, action)
-                }) { Text(stringResource(R.string.owner_identity_confirm_ok)) }
+                    if (pendingStage == 1) {
+                        pendingStage = 2
+                    } else {
+                        pending = null
+                        pendingStage = 1
+                        runAction(e, action)
+                    }
+                }) { Text(confirmText) }
             },
             dismissButton = {
-                TextButton(onClick = { pending = null }) {
+                TextButton(onClick = {
+                    pending = null
+                    pendingStage = 1
+                }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -192,7 +238,7 @@ private fun EntryCard(
     onShell: () -> Unit,
     onTransfer: () -> Unit
 ) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    NeoCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)

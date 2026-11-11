@@ -22,7 +22,6 @@ import java.util.ArrayDeque
 
 /**
  * 统一调试日志。
- *
  * 设计要点：
  * - 单一 TAG `NeoDhizuku`，用 `adb logcat -s NeoDhizuku:V` 可以只看本项目输出；
  * - 每个分类有独立子标签（如 `Nav`、`Perm`），便于过滤；
@@ -30,7 +29,6 @@ import java.util.ArrayDeque
  * - 受 `NeoDhizuku.DebugLog` 开关控制；总开关关闭则完全静默；
  * - 同时维护一个内存环形缓冲，供调用记录截取「日志片段」；
  * - W / E / I 级日志会批量落库，可在「调用记录 → 运行日志」中长期查看。
- *
  * 用法：
  * ```
  * NeoLog.d(NeoLog.NAV, "navigate to $route")
@@ -87,7 +85,6 @@ object NeoLog : KoinComponent {
 
     /**
      * 是否记录全部运行日志。
-     *
      * 由「实验性功能 → 完整运行日志」控制，默认关闭。
      * 关闭时只保留权限调用、权限变更与激活相关的日志，
      * 其余分类（导航、主题、界面、守护、首页、软件）一律不输出也不落库。
@@ -106,7 +103,6 @@ object NeoLog : KoinComponent {
 
     /**
      * 切换记录模式。
-     *
      * 这条提示走系统 Log 直写，不经过下面的过滤规则，
      * 保证开关是否生效一眼可见。
      */
@@ -117,7 +113,6 @@ object NeoLog : KoinComponent {
 
     /**
      * 订阅「完整运行日志」开关。
-     *
      * 由 App.onCreate 调用一次。订阅前先同步读一次当前值，
      * 否则启动阶段早于首次发射的日志会按精简模式丢掉。
      */
@@ -205,7 +200,6 @@ object NeoLog : KoinComponent {
 
     /**
      * 写入缓冲，并按级别决定是否落库。
-     *
      * 精简模式下 V / D 只进内存缓冲（量太大，落库会迅速撑爆表），
      * 只有 I / W / E 落库；完整模式下全部级别都落库，
      * 否则导航、主题一类以 V / D 输出的日志在「运行日志」里永远看不到。
@@ -238,7 +232,6 @@ object NeoLog : KoinComponent {
 
     /**
      * 取缓冲快照，最新的在最前面。
-     *
      * 供调用记录落库时截取「该次调用发生时的运行日志片段」。
      */
     suspend fun snapshot(limit: Int = 20): List<Line> = bufferMutex.withLock {

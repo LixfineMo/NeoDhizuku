@@ -11,13 +11,7 @@ import com.neodhizuku.hook.runtime.Handshake;
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-/**
- * 相对 DAX 原版的改动：
- *  - 不再自己 hook Application.attach（由 HookInit 统一做握手后调用 init）
- *  - getOwnerComponent() 判空，消除 DAX 里 getServerPackageName() 的 NPE
- *  - action.run() 全包 try/catch，模块异常绝不传播到宿主
- *  - 授权请求只发一次；未授权时本次调用原样放行（DAX 的温和降级语义保留）
- */
+/** 设备策略代理入口：握手成功后初始化，未授权时原样放行。 */
 public class DhizukuAPI extends Hook {
     private static volatile ComponentName serverComponentName;
     private static volatile boolean requesting;

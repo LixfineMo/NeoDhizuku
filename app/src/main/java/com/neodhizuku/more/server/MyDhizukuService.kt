@@ -60,10 +60,8 @@ private val HIGH_RISK_FUNCS = setOf(
 
 /**
  * 服务已停止时仍允许的操作：只做「查看」，不做任何实际动作。
- *
  * - `null` 对应 `isPermissionGranted()`，客户端靠它判断能不能用
  * - `get_delegated_scopes` 是只读查询
- *
  * 其余（remote_process / remote_transact / bind_user_service /
  * unbind_user_service / set_delegated_scopes）一律拒绝。
  */
@@ -86,25 +84,19 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 返回给客户端的版本名。
-     *
      * 默认返回上游 Dhizuku 的版本（[Variables.SERVICE_VERSION_NAME]）：部分客户端会
      * 校验版本，返回本项目的版本可能被判定为不兼容。用户可在「服务」页关闭该兼容模式，
      * 届时返回本项目自身的版本名。
-     *
      * `FixVersionName` 关闭时回退到上游行为（用版本码凑数），不读本开关。
      */
-    // ------------------------------------------------------------------
     // Dhizuku 自身的 AIDL 接口一律放行，不参与单项配置：
     // 能单独配置的是系统接口本身（见 DpmPolicyCatalog / enforceDpmPolicy）。
-    // ------------------------------------------------------------------
     override fun getVersionCode(): Int = super.getVersionCode()
 
     /**
      * 单项系统接口策略判定；被拒时抛 SecurityException。
-     *
      * 只作用于设备策略接口（[DpmPolicyCatalog] 收录的方法），
      * 未收录的方法一律放行 —— 不以"认不出"为由拦截正常调用。
-     *
      * 排除本应用自身，且首页停服时不介入（交给既有的拒绝模式处理）。
      */
     private fun enforceDpmPolicy(method: String?, uid: Int, pkg: String?, label: String) {
@@ -115,11 +107,15 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         val decision = apiPolicyRepo.decide(pkg, def.id, def.defaultAllowed)
         if (decision.allowed) return
         val from = if (decision.fromApp) "本应用配置" else "全局配置"
-        val shown = DpmPolicyCatalog.label(context, def.id)
-        NeoLog.w(NeoLog.PERM) { "单项策略: 拒绝 pkg=$pkg 接口=$shown 依据=$from" }
+        val shown = DpmPolicyStrings.name(context, def.id)
+        NeoLog.w(NeoLog.PERM) {
+            "单项策略: 拒绝 pkg=$pkg 接口=${DpmPolicyStrings.readable(context, def.id)} 依据=$from"
+        }
         runCatching { AlertNotifier.apiDenied(context, pkg, shown) }
             .onFailure { NeoLog.w(NeoLog.PERM) { "单项策略通知发送失败：${it.message}" } }
-        throw SecurityException("Device policy denied by user: ${def.id} uid=$uid")
+        throw SecurityException(
+            "Device policy denied by user: ${DpmPolicyStrings.readable(context, def.id)} uid=$uid"
+        )
     }
 
     override fun getVersionName(): String {
@@ -134,16 +130,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     private var signature: String? = null
 
-    // ------------------------------------------------------------------
     // 「静默拒绝并返回成功」：全接口不执行
-    //
     // 该模式下第三方能正常拿到 binder（init() 成功、isPermissionGranted() 为 true），
     // 但除版本号之外的所有接口都不真正执行，只回一个成功结果 ——
     // 与「拒绝危险服务并返回成功」的区别是：后者只拦危险操作，只读查询仍返回真实值。
-    //
     // 判定口径与 checkCallingPermission 里的拒绝分支保持一致：
     // 用户已停止服务，且调用方不是本应用自身。
-    // ------------------------------------------------------------------
     private fun isSilentSuccessMode(uid: Int): Boolean {
         if (!runCatching { settingsRepo.isServiceStoppedByUser }.getOrDefault(false)) return false
         if (uid == Process.myUid()) return false
@@ -153,7 +145,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 查询调用方对某个权限的持有情况，仅用于诊断日志。
-     *
      * 返回 PERMISSION_GRANTED / PERMISSION_DENIED 的数值，取不到时返回 -1。
      * 要指定 pid/uid 只能用 Context#checkPermission（checkCallingPermission
      * 只有单参数版本，取的是当前调用方）。
@@ -261,7 +252,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 两种静默模式下授权请求的直接结果；非静默场景返回 null（照常弹窗）。
-     *
      * 注意：静默的含义是**全程无界面**，所以连授权弹窗也不能拉起 ——
      * 否则"静默拒绝"实际上还是会弹一个框，只是点了拒绝。
      */
@@ -276,18 +266,14 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
     }
 
-    // ------------------------------------------------------------------
     // 拦截 requestPermission 事务（事务码 17）
-    //
     // 之所以用 onTransact 而不是 override requestPermission()：
     // app 可能运行在「本地 API 源码」或「Maven 官方包」两种模式下，
     // Maven 的 IDhizuku 没有该方法，直接 override 会导致编译失败。
     // 事务码 17 在两种模式下都是空闲的（官方接口最高只用到 16），
     // 因此这里拦截既能兼容两种模式，又能在两种模式下都提供"服务端校验身份"的加固。
-    //
     // 但只对本项目的接口布局成立：旧版客户端（原版 API）的 17 号事务未必是
     // requestPermission，参数里也未必有 listener，强行解析只会读出垃圾。
-    // ------------------------------------------------------------------
     override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
         if (NeoDhizuku.on(NeoDhizuku.HardenPermissionEntry)
             && code == RequestPermissionToken.TRANSACT_REQUEST_PERMISSION
@@ -308,11 +294,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             if (ok) return true
 
             // 加固路径没能处理时，必须**真正**把事务交回 AIDL 生成的 Stub 派发。
-            //
-            // 之前这里直接 return false —— 那不是回退，而是丢弃这次事务：
-            // 客户端 Proxy 在 transact 返回 false 时会抛 RemoteException，
-            // 授权结果既没回调也没弹出授权窗，于是服务端明明已经 allowApi=true，
-            // 客户端仍然提示无权限。
+            // 必须交回 Stub 派发：直接 return false 会被 Proxy 视为事务失败，
+            // 授权结果既没回调也不弹窗。
             if (start >= 0 && start <= data.dataSize()) {
                 data.setDataPosition(start)
             }
@@ -326,7 +309,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 把事务交给 AIDL 生成的 Stub 派发，并保证异常不会穿透回客户端。
-     *
      * 旧版客户端会把 SecurityException 一路抛到 Application.onCreate，
      * 表现为"应用一打开就崩"，比单纯的"无权限"更难定位，所以这里兜住。
      */
@@ -351,7 +333,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         // "Attempt to read object from Parcel ... not in the object list"，
         // 并返回一个永远回调不出去的代理。授权结果就此丢失 ——
         // 服务端这边的记录明明已经是 allowApi=true，客户端却始终提示无权限。
-        //
         // 因此读不到 listener 时直接返回 false，由 onTransact 还原读取位置并
         // 交回 AIDL 默认派发（会落到下面的 requestPermission(listener) 兜底），
         // 而不是签发一个 listener 为空的 token 然后假装成功。
@@ -377,7 +358,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
 
         // 「不做任何处理」模式：既不拉起授权页，也不回调结果。
-        //
         // 客户端的 listener 永远收不到回调，于是停在等待状态 ——
         // 表现为获取授权时一直转圈。这里刻意**不阻塞**当前线程：
         // 挂起靠"不回调"实现，而不是 sleep，因此不会影响服务处理其他调用。
@@ -414,12 +394,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
         NeoLog.i(NeoLog.PERM) { "requestPermission: startActivity=$started" }
 
-        // 不再在失败时立刻回调"拒绝"。
-        //
+        // 失败时不立刻回调"拒绝"。
         // 后台启动 Activity 限制（Android 10+）下，从后台 startActivity 可能
         // **静默失败**：既不弹窗也不抛异常。此时若回调 DENIED，客户端会认为
         // 用户拒绝了，之后不再重试 —— 表现为"永远无法授权"。
-        //
         // 改为：保留 token，延迟确认弹窗是否真的起来；没起来就发通知，
         // 由用户点击拉起（用户点击属于用户发起，不受后台启动限制）。
         if (!started) {
@@ -433,7 +411,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 兜底通知：startActivity 调用成功不代表弹窗真的出现了（BAL 静默拦截）。
-     *
      * 短暂延迟后检查 token 是否仍未被消费；未被消费说明用户根本没看到弹窗，
      * 此时补发通知。
      */
@@ -476,18 +453,16 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         // 用户已停止守护服务：按拒绝模式处理。
         // 注意 Provider 是 ContentProvider，随进程存活，停掉 DaemonService
         // 并不会让第三方断开，必须在这里显式拦截。
-        //
         // 【必须排除本应用自身】激活流程（ActivateViewModel#activateByDhizuku）
         // 会用 DhizukuBinderWrapper 包装 DevicePolicyManager 调 transferOwnership，
         // 走的正是 remote_transact —— 若不排除自身 uid，服务处于停止状态时
         // 本应用自己激活会被自己拦掉，表现为 NOT_DEVICE_ADMIN。
         // 用户停服 / 恢复服务时同步清理擦除放行标记。
-        //
         // 放行标记是一次性且有 5 分钟时效的"敞口"，服务既然已经停了，
         // 就不该继续留着。恢复服务时重置标记，下次停服仍会清一次。
         if (settingsRepo.isServiceStoppedByUser) {
             if (wipeGrantsRevoked.compareAndSet(false, true)) {
-                NeoLog.i(NeoLog.SERVER) { "check: 服务已停止，撤销全部擦除放行标记" }
+                NeoLog.i(NeoLog.SERVER) { "check: 服务已停止，撤销全部高危一次性放行标记" }
                 WipeGuard.revokeAll()
             }
         } else {
@@ -499,7 +474,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             val danger = func !in READ_ONLY_FUNCS_WHEN_STOPPED
             when (mode) {
                 DenyMode.DENY_ALL_FAIL -> {
-                    // 一律拒绝，不再区分"危险 / 只读"：只读查询也拿不到真实值
+                    // 一律拒绝，不区分"危险 / 只读"：只读查询也拿不到真实值
                     NeoLog.w(NeoLog.PERM) { "check: 拒绝（静默·返回失败）接口=${ApiPolicyCatalog.labelOf(func)} pkg=$pkg" }
                     return false
                 }
@@ -558,23 +533,18 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             return false
         }
 
-        // ------------------------------------------------------------------
         // 单项接口策略：逐个接口决定这个应用能用到哪一步。
-        //
         // 与拒绝服务相互独立 —— 拒绝服务是整体开关，这里是细项。
         // 但拒绝服务优先：首页停服时上面已按拒绝模式统一处理并返回，
         // 这里只在服务正常运行时生效，避免两套规则叠加出互相矛盾的结果。
-        //
         // 排除本应用自身：激活流程走 remote_transact 调 transferOwnership，
         // 若把自身也纳入单项策略，用户关闭「调用系统接口」后自己无法激活。
-        // ------------------------------------------------------------------
         // 说明：Dhizuku 自身的 AIDL 接口（读版本、执行命令、绑定用户服务…）
         // 一律放行、不参与单项配置 —— 它们由授权记录与拒绝服务管。
         // 可单独配置的是**被远程调用的系统接口本身**（禁用摄像头、锁屏…），
         // 判定在 onRemoteTransact 里做，见 enforceDpmPolicy。
 
         // 白名单模式：名单由用户在「共享服务 → 白名单」里手工维护。
-        //
         // 旧实现拿 entity.allowApi 当白名单 —— 那份名单完全由代码决定，
         // 用户无从干预。这里换成用户维护的名单；严格程度由实验性开关决定：
         // 关闭时只比对包名，开启时连加入时记录的签名一并比对。
@@ -611,12 +581,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
 
         // 「更严格的服务校验」：默认关闭。
-        //
         // 关闭时只按包名（授权记录）放行 —— 只认上游权限名
         // （com.rosan.dhizuku.permission.API）的硬编码客户端同样可用；
         // 开启后额外要求调用方持有本应用自身声明的权限，
         // 仅持有上游权限名的调用方会被拒绝。
-        //
         // 必须排除本应用自身：激活流程会用 DhizukuBinderWrapper 走 remote_transact
         // 调 transferOwnership，而本应用是权限的定义者、并未 uses-permission，
         // 不排除的话自己激活会被自己拦掉。
@@ -710,13 +678,11 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 让「已发起调用但尚未授权」的应用出现在软件管理页。
-     *
      * 有些客户端（例如 InstallerX）并不在清单里声明 Dhizuku API 权限，
      * 因此不会出现在 `getPackagesHoldingPermissions` 的候选集里；
      * 它又从未弹过授权窗（查询 `isPermissionGranted()` 被拒就走了），
      * 数据库里也就没有记录。结果是软件管理页完全没有它的卡片，
      * 用户想授权都找不到入口。
-     *
      * 这里在首次被拒时补一条 `allowApi=false` 的记录，
      * 页面上就会显示一张开关为关的「未授权」卡片。
      */
@@ -735,7 +701,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 )
                 NeoLog.i(NeoLog.PERM) { "caller entry: 已登记未授权应用 uid=$callingUid ($pkg)" }
 
-                // 老版本客户端（Maven 上的官方 API）压根不会发起授权弹窗，
+                // Maven 上的官方 API 客户端不会发起授权弹窗，
                 // 只是查一下 isPermissionGranted() 就走了 —— 既没弹窗也没入口。
                 // 首次登记时补一条通知，让用户有办法点进去授权。
                 if (NeoDhizuku.on(NeoDhizuku.HardenPermissionEntry)) {
@@ -749,7 +715,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * remote_transact 的审计。
-     *
      * 基类只给 remote_process 回调 onAudit，remote_transact 没有。
      * 这条路径能操作 DevicePolicyManager，是最需要留痕的，因此单独记一份。
      */
@@ -763,7 +728,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     ) {
         if (!NeoDhizuku.on(NeoDhizuku.UseCallLogPage)) return
         // 调用方已解析过就直接用（带实参），否则这里再解析一次
-        val resolved = human ?: DpmApiCatalog.describe(descriptor, code)
+        val resolved = human ?: DpmApiCatalog.describe(descriptor, code, context = context)
         val detail = extraDetail ?: "以设备所有者身份调用：$resolved"
         AuditLogStore.record(uid, label, "remote_transact", detail)
 
@@ -789,7 +754,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 审计回调。
-     *
      * DhizukuService 中已存在该方法，必须加 override
      * （否则 Kotlin 报 VIRTUAL_MEMBER_HIDDEN）。
      */
@@ -826,7 +790,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
     /**
      * 拦截设备所有者转移。
-     *
      * 第三方拿到授权后可以用 binderWrapper 包装 DevicePolicyManager，
      * 以本应用的设备所有者身份调用其任意方法。这里只拦"改变归属"的几类，
      * 查询类操作照常放行。
@@ -838,6 +801,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         reply: Parcel?,
         flags: Int
     ): Boolean {
+        val descriptor = runCatching { binder?.interfaceDescriptor }.getOrNull()
         // 双保险：即便调用方绕过了 checkCallingPermission，这里再拦一次。
         // 同样排除本应用自身 uid —— 激活流程要用这条路把所有者转移给自己。
         if (settingsRepo.isServiceStoppedByUser) {
@@ -847,7 +811,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 if (mode == DenyMode.DENY_DANGEROUS_SUCCESS || mode == DenyMode.DENY_ALL_SUCCESS) {
                     // 假装执行成功：不真正 transact，只回一个没有异常的空结果
                     NeoLog.w(NeoLog.SERVER) {
-                        "remote_transact: 放行但不执行（返回成功）uid=$uid code=$code"
+                        "remote_transact: 放行但不执行（返回成功）uid=$uid " +
+                            "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)}"
                     }
                     reply?.writeNoException()
                     return true
@@ -856,32 +821,35 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                     context.packageManager.getNameForUid(uid)
                 }.getOrNull() ?: uid.toString()
                 NeoLog.w(NeoLog.SERVER) {
-                    "remote_transact: 拒绝（服务已停止）uid=$uid ($label) code=$code"
+                    "remote_transact: 拒绝（服务已停止）uid=$uid ($label) " +
+                        "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)}"
                 }
                 throw SecurityException("Dhizuku service is stopped by user: uid=$uid")
             }
             NeoLog.i(NeoLog.SERVER) {
-                "remote_transact: 本应用自身调用，服务停止状态下放行 code=$code"
+                "remote_transact: 本应用自身调用，服务停止状态下放行 " +
+                "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)}"
             }
         }
 
         // remote_transact 是最危险的一条路径：第三方可用 binderWrapper 包装任意
         // binder（含 DevicePolicyManager）以本应用的设备所有者身份执行。
         // 基类只在 remote_process 时回调 onAudit，这条路径需要在这里补审计。
-        val descriptor = runCatching { binder?.interfaceDescriptor }.getOrNull()
         val callerUid = Binder.getCallingUid()
         val callerLabel = runCatching {
             context.packageManager.getNameForUid(callerUid)
         }.getOrNull() ?: callerUid.toString()
         NeoLog.i(NeoLog.SERVER) {
             "remote_transact: uid=$callerUid ($callerLabel) " +
-                "target=${descriptor ?: "unknown"} code=$code"
+                "目标=${DpmApiCatalog.targetLabel(descriptor)} " +
+                "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)}"
         }
         // 解析方法名与一句人话描述，同时供审计、能力判定、高危拦截使用
         val method = DpmApiCatalog.methodName(code)
-        val human = DpmApiCatalog.describe(descriptor, code, data)
+        val human = DpmApiCatalog.describe(descriptor, code, data, context)
         NeoLog.d(NeoLog.SERVER) {
-            "remote_transact: 识别 method=${method ?: "未知"} 描述=$human"
+            "remote_transact: 识别 " +
+                "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)} 描述=$human"
         }
 
         // 单项系统接口策略：用户在「设置 - 服务 - 单项接口配置」里的选择。
@@ -895,7 +863,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
 
         // 守卫降级提示（只提示一次）。
-        //
         // 反射失效时 isWipe / isOwnerTransfer 都会 fail-closed，表现为
         // 设备策略调用**全部**被拦。这个行为是对的，但如果不说明原因，
         // 用户只会以为应用坏了，最后往往是关掉加固 —— 反而退回无保护状态。
@@ -949,7 +916,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 val mode = InsufficientMode.from(settingsRepo.insufficientMode)
                 val required = CapabilityLevel.requiredLevel(method)
                 NeoLog.w(NeoLog.SERVER) {
-                    "能力不足: uid=$callerUid ($callerLabel) method=$method " +
+                    "能力不足: uid=$callerUid ($callerLabel) " +
+                        "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)} " +
                         "当前=${level} 需要=${required} 处理=${mode} 描述=$human"
                 }
                 // 无论放行还是拒绝，意图都完整入账
@@ -960,7 +928,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 when (mode) {
                     InsufficientMode.RETURN_FAIL -> throw SecurityException(
                         "Insufficient capability: ${level.name} cannot execute " +
-                            "${method ?: "unknown"} (requires ${required.name})"
+                            "${DpmApiCatalog.interfaceLabel(context, descriptor, code)} " +
+                                "(requires ${required.name})"
                     )
                     InsufficientMode.RETURN_SUCCESS -> {
                         // 假装执行成功：不真正 transact，只回一个没有异常的空结果
@@ -984,31 +953,41 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             val label = runCatching {
                 context.packageManager.getNameForUid(uid)
             }.getOrNull() ?: uid.toString()
-            val allowed = settingsRepo.isAllowOwnerTransfer
-            NeoLog.w(NeoLog.SERVER) {
-                "owner transfer: uid=$uid ($label) allowed=$allowed"
-            }
-            if (!allowed) {
-                // 通知只是提示，失败绝不能影响拦截本身
+
+            // 本应用自身的激活流程与设备身份页转移都在这里放行：
+            // 用户在应用内主动发起的转移走二次确认弹窗，不受第三方开关影响。
+            if (uid == Process.myUid()) {
+                NeoLog.i(NeoLog.SERVER) {
+                    "owner transfer: 应用内转移，直接放行 uid=$uid"
+                }
+            } else if (!settingsRepo.isAllowOwnerTransfer) {
+                // 关闭即阻止：只审计并提示去开开关，没有任何确认可以绕过。
+                NeoLog.w(NeoLog.SERVER) {
+                    "owner transfer: 第三方转移开关未开启，拦截 uid=$uid ($label)"
+                }
+                auditRemoteTransact(
+                    callerUid, callerLabel, descriptor, code,
+                    extraDetail = "【已拦截：第三方转移开关未开启】$human"
+                )
                 runCatching { AlertNotifier.transferBlocked(context, label) }
                     .onFailure {
                         NeoLog.w(NeoLog.SERVER) { "拦截通知发送失败：${it.message}" }
                     }
                 throw SecurityException(
-                    "Owner transfer is disabled by user: uid=$uid"
+                    "Third-party owner transfer is disabled: uid=$uid"
                 )
-            }
-            runCatching { AlertNotifier.transferAllowed(context, label) }
-                .onFailure {
-                    NeoLog.w(NeoLog.SERVER) { "放行通知发送失败：${it.message}" }
+            } else {
+                // 开关本身就是用户的确认：开启后第三方转移直接执行，
+                // 不再弹确认、不再发警示，也不写任何一次性放行标记。
+                NeoLog.i(NeoLog.SERVER) {
+                    "owner transfer: 开关已开启，直接放行 uid=$uid ($label)"
                 }
+            }
         }
 
         // 正常放行同样要入账。
-        //
         // 「擦除拦截」和「能力不足」之外，正常调用同样要入账：
         // 它是最高频、也最该被看到的路径（第三方以本应用身份调用 DevicePolicyManager）。
-        //
         // 复用上面已解析好的 human：它带实参（例如"把密码最小长度改为 6"），
         // 重新解析会丢参数。
         auditRemoteTransact(
@@ -1029,7 +1008,6 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
         /**
          * 守卫降级通知是否已发过。
-         *
          * 进程级一次性：一次启动只提示一次，避免每次设备策略调用都弹通知。
          */
         val degradeNotified = java.util.concurrent.atomic.AtomicBoolean(false)
@@ -1044,12 +1022,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
 /**
  * 静默模式下返回给调用方的空进程句柄。
- *
  * 表现为"命令执行成功、没有任何输出、已正常退出"：
  * - 输入流 / 错误流的写端在构造时即关闭，客户端读到 EOF（空输出）
  * - 输出流的读端由后台线程丢弃，避免客户端大量写入时管道写满而阻塞
  * - exitValue / waitFor 一律返回 0，alive 为 false
- *
  * 已知代价：客户端若不调用 destroy() 且一直持有写端，读端线程会一直阻塞。
  * 线程设为守护线程、且句柄位于本应用进程内，不会拖垮服务，仅占用少量资源。
  */
@@ -1101,7 +1077,6 @@ private class NoOpRemoteProcess : IDhizukuRemoteProcess.Stub() {
     companion object {
         /**
          * 同时存在的空句柄上限。
-         *
          * 客户端不调用 destroy() 时句柄不会释放（每个 3 对管道 + 1 个读线程），
          * 未授权的调用方反复请求就能耗尽本应用的 fd。这里设上限：
          * 达到上限时拒绝新建，宁可让这一次调用失败，也不让整个进程被拖垮。

@@ -16,7 +16,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -98,7 +98,7 @@ fun UpdateSettingsPage(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item("source_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         EntryRow(
                             title = stringResource(R.string.update_settings_source),
@@ -131,7 +131,7 @@ fun UpdateSettingsPage(
 
             if (state.source == UpdateSource.Custom) {
                 item("custom_card") {
-                    ElevatedCard {
+                    NeoCard {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -163,7 +163,7 @@ fun UpdateSettingsPage(
             }
 
             item("official_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         EntryRow(
                             title = stringResource(R.string.update_settings_official_base),

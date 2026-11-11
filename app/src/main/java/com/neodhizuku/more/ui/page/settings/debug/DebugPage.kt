@@ -26,7 +26,6 @@ import com.neodhizuku.more.ui.theme.combine
 
 /**
  * 调试主入口：把原来的单页拆成若干二级页面。
- *
  * 「重置 NeoDhizuku」是唯一在本页直接执行的动作，且必须过两道确认。
  */
 @Composable
@@ -82,6 +81,14 @@ fun DebugPage(
                     title = stringResource(R.string.debug_menu_service_files),
                     desc = stringResource(R.string.debug_menu_service_files_desc),
                     onClick = { navController.navigate(SettingsRoute.DebugServiceFiles.route) }
+                )
+            }
+            // 设置-服务里已有同一入口；调试页保留一个直达入口便于排障。
+            item("debug_entry_hook") {
+                DebugMenuCard(
+                    title = stringResource(R.string.hook_config_title),
+                    desc = stringResource(R.string.hook_config_entry_desc),
+                    onClick = { navController.navigate(SettingsRoute.HookConfig.route) }
                 )
             }
             item("debug_entry_reset") {

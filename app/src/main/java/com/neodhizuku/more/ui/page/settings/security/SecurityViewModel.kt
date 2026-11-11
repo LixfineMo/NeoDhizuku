@@ -55,6 +55,7 @@ class SecurityViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /** 是否允许第三方应用不经确认直接转移设备所有者，默认关闭。 */
     fun setAllowOwnerTransfer(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isAllowOwnerTransfer = enabled
@@ -75,7 +76,6 @@ class SecurityViewModel : ViewModel(), KoinComponent {
 
     /**
      * 能力不足时的处理方式。
-     *
      * 注意：本模式只在**非设备所有者**身份下才有意义 ——
      * 设备所有者可以执行全部方法，不存在能力不足。
      */
@@ -93,7 +93,6 @@ class SecurityViewModel : ViewModel(), KoinComponent {
 
     /**
      * 向客户端返回的版本号来源。
-     *
      * 开启时返回上游 Dhizuku 的版本，关闭时返回本项目自身的版本。
      * 默认开启：部分客户端会校验版本，返回本项目的版本可能被判定为不兼容。
      */
@@ -105,7 +104,6 @@ class SecurityViewModel : ViewModel(), KoinComponent {
 
     /**
      * 更严格的服务校验。
-     *
      * 关闭（默认）时只按包名放行，只认上游权限名的硬编码客户端同样可用；
      * 开启后额外要求调用方持有本应用自身声明的权限。
      */
@@ -117,7 +115,7 @@ class SecurityViewModel : ViewModel(), KoinComponent {
 }
 
 data class SecurityViewState(
-    /** 允许第三方应用主动转移设备所有者，默认关闭 */
+    /** 允许第三方主动转移设备所有者，默认关闭 */
     val allowOwnerTransfer: Boolean = false,
     val denyMode: DenyMode = DenyMode.DEFAULT,
     /** API 服务总开关：关闭时第三方一律无法使用 */

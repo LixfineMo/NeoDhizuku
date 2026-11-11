@@ -27,22 +27,9 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
- * DAX 原版 AndroidM 的加固 + 扩展版。
- *
- * 真实机制（务必理解，不要再当成"结构化调用转发"）：
- *   proxyDevicePolicyManager() 把 DPM.mService 的 IBinder 换成 Dhizuku.binderWrapper(binder)。
- *   wrapper.transact() -> Dhizuku.remoteTransact() -> IDhizuku 事务 TRANSACT_CODE_REMOTE_BINDER
- *   -> 服务端 onTransact 解包 -> MyDhizukuService.onRemoteTransact -> 以真 DO 身份把
- *      **原始 Parcel 原样重放**到系统 binder。参数里的 Binder / FD / Parcelable 全部保留。
- *
- * 相对 DAX 的改动：
- *  1. 每个 hook 独立 try/catch；找不到方法/字段就跳过，绝不让宿主启动崩
- *  2. hookDeviceOwnerComponentName 判 param.thisObject == null（DAX 对 static 方法会 NPE）
- *  3. hookOwnerPermission 也走 whenGranted（DAX 无条件撒谎，与其余门控不一致）
- *  4. 新增查询面：isAdminActive / getActiveAdmins 追加 / 隐藏无参 isDeviceOwner 等
- *  5. forceOwnerTrue：查询 after 兜底 true（用户要的"始终返回 true"）
- *  6. hijackQuery / hijackCall / allowPackageInstaller / appendActiveAdmins 全部配置化
- *  7. 栈帧判断保留（防把 Dhizuku 自身包名也改掉），但只在确实需要时执行
+ * 把 DPM.mService 换成 Dhizuku.binderWrapper(binder)，服务端以真 DO 身份把
+ * 原始 Parcel 原样重放到系统 binder；Binder / FD / Parcelable 参数全部保留。
+ * 每个 hook 独立 try/catch，找不到方法或字段就跳过，不让宿主启动崩溃。
  */
 public class AndroidM extends Hook {
     private final HookConfig config;
@@ -69,7 +56,7 @@ public class AndroidM extends Hook {
         try { r.run(); } catch (Throwable t) { HookLog.e(name, t); }
     }
 
-    // ---------- 查询面 ----------
+    // 查询面
 
     private void hookIsOwner() {
         XC_MethodHook hook = new XC_MethodHook() {
@@ -192,7 +179,7 @@ public class AndroidM extends Hook {
                 });
     }
 
-    // ---------- 调用面：binder 透明代理 ----------
+    // 调用面：binder 透明代理
 
     private void hookDeviceOwnerComponentName() {
         for (final Method method : DevicePolicyManager.class.getDeclaredMethods()) {

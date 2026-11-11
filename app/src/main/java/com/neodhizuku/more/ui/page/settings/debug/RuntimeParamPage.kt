@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,7 +30,6 @@ import org.koin.androidx.compose.koinViewModel
 
 /**
  * 「实时参数修改」：列出进程里所有可写变量，点任意一项弹出输入框改值。
- *
  * 变量名与取值保持代码原样，不翻译；不做危险项屏蔽 —— 关掉守护服务、
  * 覆盖身份状态、清空 token 表都会立刻生效，下一次 sync 或重启才会恢复。
  */
@@ -98,7 +97,7 @@ fun RuntimeParamPage(
 
 @Composable
 private fun ParamCard(param: RuntimeParam, onClick: () -> Unit) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    NeoCard(modifier = Modifier.fillMaxWidth()) {
         Surface(
             onClick = onClick,
             color = Color.Transparent,

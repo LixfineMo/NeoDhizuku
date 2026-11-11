@@ -52,7 +52,7 @@ class DaemonService : Service(), KoinComponent {
                 val entity = repo.findByUID(uid) ?: return@launch
                 if (NeoDhizuku.on(NeoDhizuku.FixBlacklistPurge)) {
                     // 只在"包真的没了 / 签名变了"时才清理记录。
-                    // 不再因为 blocked 或 allowApi=false 而删除——那是用户的策略，必须保留。
+                    // 不能因为 blocked 或 allowApi=false 而删除——那是用户的策略，必须保留。
                     if (!isStale(entity)) {
                         PermissionCache.put(entity)
                         return@launch
@@ -81,7 +81,6 @@ class DaemonService : Service(), KoinComponent {
         // 通过 startForegroundService() 启动后，必须在超时前调用 startForeground()，
         // 否则系统抛出 RemoteServiceException 并直接杀掉进程。
         // 这里先无条件满足前台服务契约，之后再由策略决定是否继续保持前台。
-        //
         // 判据用 isActive 而不是 isOwner：仅拥有设备管理员时 isOwner 为 false，
         // 若据此不调用 startForeground()，服务会被系统判定为违规并杀进程。
         foreground(DhizukuState.state.isActive)
@@ -119,7 +118,7 @@ class DaemonService : Service(), KoinComponent {
             "状态: deviceOwner=${state.isDeviceOwner} profileOwner=${state.isProfileOwner} " +
                 "enabled=${settingsRepo.isDhizukuEnabled} " +
                 "whitelist=${settingsRepo.isWhitelistMode} " +
-                "allowTransfer=${settingsRepo.isAllowOwnerTransfer}"
+                "allowThirdPartyOwnerTransfer=${settingsRepo.isAllowOwnerTransfer}"
         }
         scope.launch {
             val all = runCatching { repo.all() }.getOrNull() ?: return@launch
@@ -151,11 +150,9 @@ class DaemonService : Service(), KoinComponent {
 
     /**
      * 用户从多任务划掉本应用的任务时回调。
-     *
      * 守护服务和界面在同一个进程，划卡会连带杀掉服务；MIUI 等定制系统的划卡
      * 接近强制停止，START_STICKY 的重建会被压制或明显延迟，期间第三方（如雹）
      * 拿不到 binder。这里抢在进程被杀前补一次启动，缩短空窗。
-     *
      * 未激活时不能走 startForegroundService：onCreate 里 foreground(false)
      * 会不调 startForeground()，反而触发 RemoteServiceException 直接杀进程。
      */
@@ -226,7 +223,7 @@ class DaemonService : Service(), KoinComponent {
 
     /**
      * 只有"包已卸载"或"签名已变化"才算失效。
-     * 与旧的 [verify] 的差别是：不再把 blocked / allowApi=false 视作可删除。
+     * 与 [verify] 的差别是：blocked / allowApi=false 不作为可删除条件。
      */
     private fun isStale(entity: AppEntity): Boolean {
         val packageInfo = packageManager.getPackageInfoForUid(entity.uid) ?: return true

@@ -40,10 +40,11 @@ val releaseKeystoreProps: Properties? = loadKeystoreProps("release.properties", 
 /**
  * TEST ONLY 标签总开关（默认关闭）。
  * 打开：gradle.properties 里设 neoTestOnly=true 后重新编译。
- * 一处同时驱动 AndroidManifest 的 android:testOnly 与首页的 TEST ONLY 药丸
- * （药丸还能在 调试 → 实时参数修改 → UiFlags.testOnlyLabel 单独关）。
- * 注意：android:testOnly=true 的 APK 只能用 adb install -t 或 Android Studio 安装，
- * 直接点 APK 会提示"应用未安装"，正式发布前务必改回 false。
+ * 一处同时驱动 AndroidManifest 的 android:testOnly 与 BuildConfig.TEST_ONLY。
+ * 界面上的 TEST ONLY 药丸已移除，此开关现在只影响 manifest 与安装方式。
+ * 注意：android:testOnly=true 的 APK 只能用 adb install -t（覆盖安装 -r -t）
+ * 或 Android Studio 安装；应用内「下载 APK → 点开安装」会因普通安装器
+ * 不带 INSTALL_ALLOW_TEST 而失败。正式发布前务必改回 false。
  */
 val testOnlyFlag: Boolean = (project.findProperty("neoTestOnly") as? String)?.toBoolean() ?: false
 
@@ -196,12 +197,20 @@ ksp {
 dependencies {
     compileOnly(project(":hidden-api"))
 
+    // DAX 化 Xposed 模块：只编译、不打包。
+    // de.robv.android.xposed.* 由 LSPosed / LSPatch 框架在运行时提供；
+    // 主 APK 里没有这些类，普通设备永远加载不到 HookInit，因此完全无感。
+    // 优先用随仓库附带的编译桩：完全离线，不依赖 version catalog / Maven 仓库。
+    // 桩类只在编译期可见，运行时由 LSPosed / LSPatch 框架提供真实实现。
     val xposedStub = file("libs/xposed-api-82-stub.jar")
     if (xposedStub.exists()) {
         compileOnly(files(xposedStub))
     } else {
+        // 兜底：官方 API 82（仓库在 settings.gradle.kts 的 api.xposed.info）
         compileOnly("de.robv.android.xposed:api:82")
     }
+    // com.rosan.dhizuku.api.Dhizuku 等客户端类已经通过
+    // :Dhizuku-SERVER_API -> api project(":Dhizuku-API") 间接提供，无需重复依赖。
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
@@ -216,6 +225,7 @@ dependencies {
 
     // 液态玻璃底栏：真实背景采样 + 折射
     implementation(libs.miuix.blur)
+    implementation(libs.miuix.ui)
 
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)

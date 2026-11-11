@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.neodhizuku.more.R
 import com.neodhizuku.more.server.HookConfigStore
+import com.neodhizuku.more.ui.component.NeoCard
 import com.neodhizuku.more.ui.theme.exclude
 import kotlinx.coroutines.delay
 
@@ -54,15 +54,11 @@ private val QUERIES_SNIPPET = """<queries>
 </queries>"""
 
 /**
- * 模块配置：作用域完全跟随 LSPosed / LSPatch 里勾选的应用。
- *
- * 这里不再列「可选的应用」—— 模块被加载到哪个进程是框架在进程启动时决定的，
- * 应用内再勾选一遍既重复又容易和框架状态打架。本页只负责：
- *   - 总开关与行为开关（心跳热更新，已运行的进程无需重启）
- *   - 展示框架类型和 hook 到的应用 / 进程数量
- *   - 明确提醒：改了框架作用域、或刚打开总开关，必须重启目标应用
- *
- * 不注册 Koin：直接读写 [HookConfigStore] 单例，Provider 才是唯一执行入口。
+ * 模块设置。
+ * 作用范围完全由框架决定：LSPosed 里勾选哪些应用、LSPatch 修补哪些应用，
+ * 模块就只在这些进程里生效。框架本身就是作用域选择器。
+ * 本页只做两件事：显示当前接管状态，以及调整「接管之后做哪些事」。
+ * 行为开关走 configVersion 心跳，已运行的应用不需要重启。
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,6 +70,7 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
     var forceTrue by remember { mutableStateOf(HookConfigStore.flag("forceOwnerTrue", false)) }
     var installer by remember { mutableStateOf(HookConfigStore.flag("allowPackageInstaller", true)) }
     var appendAdmins by remember { mutableStateOf(HookConfigStore.flag("appendActiveAdmins", true)) }
+    var hiddenOwner by remember { mutableStateOf(HookConfigStore.flag("allowHiddenOwnerMethods", true)) }
     var reported by remember { mutableStateOf(HookConfigStore.snapshot()) }
     var framework by remember { mutableStateOf<String?>(null) }
     var hookedApps by remember { mutableStateOf(0) }
@@ -82,18 +79,15 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
 
     LaunchedEffect(Unit) {
         HookConfigStore.init(context.applicationContext)
-        // 历史版本可能存过应用内 scope；现在一律清空，跟随框架勾选。
-        // 清空会让已在运行的进程与框架状态不一致，提示用户重启目标应用。
-        if (HookConfigStore.scope.isNotEmpty()) {
-            HookConfigStore.scope = emptySet()
-            restartNotice = true
-        }
+        // 清除历史的应用内允许名单，保证框架勾选是唯一作用域。
+        if (HookConfigStore.scope.isNotEmpty()) HookConfigStore.scope = emptySet()
         enabled = HookConfigStore.enabled
         query = HookConfigStore.flag("hijackQuery", true)
         call = HookConfigStore.flag("hijackCall", true)
         forceTrue = HookConfigStore.flag("forceOwnerTrue", false)
         installer = HookConfigStore.flag("allowPackageInstaller", true)
         appendAdmins = HookConfigStore.flag("appendActiveAdmins", true)
+        hiddenOwner = HookConfigStore.flag("allowHiddenOwnerMethods", true)
         while (true) {
             reported = HookConfigStore.snapshot()
             framework = HookConfigStore.frameworkLabel()
@@ -133,9 +127,9 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
                 )
             }
 
-            // 作用域：只跟随框架，不列应用
+            // 作用域：只读，始终跟随框架勾选
             item("scope") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -164,9 +158,8 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
                 }
             }
 
-            // 重启提醒：作用域是进程启动时决定的，改了必须重开目标应用
             item("restart") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -195,7 +188,7 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
             }
 
             item("master") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -209,7 +202,6 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
                             )
                         }
                         Switch(checked = enabled, onCheckedChange = {
-                            // 从关到开时，已经运行的目标进程不会重新加载模块
                             if (!enabled && it) restartNotice = true
                             enabled = it
                             HookConfigStore.enabled = it
@@ -218,27 +210,56 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
                 }
             }
 
-            item("behavior_title") {
-                Text(stringResource(R.string.hook_config_behavior), style = MaterialTheme.typography.titleSmall,
+            // 接管之后做哪些事
+            item("group_query") {
+                Text(stringResource(R.string.hook_config_group_query),
+                    style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary)
             }
-            item("behavior") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            item("behavior_query") {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                        FlagRow(R.string.hook_config_query, query) {
+                        FlagRow(R.string.hook_config_query, R.string.hook_config_query_desc, query) {
                             query = it; HookConfigStore.setFlag("hijackQuery", it)
                         }
-                        FlagRow(R.string.hook_config_call, call) {
+                        FlagRow(R.string.hook_config_hidden_owner, R.string.hook_config_hidden_owner_desc, hiddenOwner) {
+                            hiddenOwner = it; HookConfigStore.setFlag("allowHiddenOwnerMethods", it)
+                        }
+                        FlagRow(R.string.hook_config_append_admins, R.string.hook_config_append_admins_desc, appendAdmins) {
+                            appendAdmins = it; HookConfigStore.setFlag("appendActiveAdmins", it)
+                        }
+                    }
+                }
+            }
+
+            item("group_call") {
+                Text(stringResource(R.string.hook_config_group_call),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary)
+            }
+            item("behavior_call") {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                        FlagRow(R.string.hook_config_call, R.string.hook_config_call_desc, call) {
                             call = it; HookConfigStore.setFlag("hijackCall", it)
                         }
-                        FlagRow(R.string.hook_config_force_true, forceTrue) {
-                            forceTrue = it; HookConfigStore.setFlag("forceOwnerTrue", it)
-                        }
-                        FlagRow(R.string.hook_config_installer, installer) {
+                        FlagRow(R.string.hook_config_installer, R.string.hook_config_installer_desc, installer) {
                             installer = it; HookConfigStore.setFlag("allowPackageInstaller", it)
                         }
-                        FlagRow(R.string.hook_config_append_admins, appendAdmins) {
-                            appendAdmins = it; HookConfigStore.setFlag("appendActiveAdmins", it)
+                    }
+                }
+            }
+
+            item("group_fallback") {
+                Text(stringResource(R.string.hook_config_group_fallback),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary)
+            }
+            item("behavior_fallback") {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                        FlagRow(R.string.hook_config_force_true, R.string.hook_config_force_true_desc, forceTrue) {
+                            forceTrue = it; HookConfigStore.setFlag("forceOwnerTrue", it)
                         }
                     }
                 }
@@ -256,11 +277,11 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
                 }
             } else {
                 items(reported, key = { "${it.pkg}:${it.pid}" }) { r ->
-                    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    NeoCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Text(r.pkg, style = MaterialTheme.typography.bodyMedium)
                             Text(
-                                "${r.processName}  pid=${r.pid} uid=${r.uid} ${r.framework} sdk=${r.sdk}",
+                                r.framework,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -270,7 +291,7 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
             }
 
             item("lspatch") {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text(stringResource(R.string.hook_config_lspatch), style = MaterialTheme.typography.titleMedium)
                         Text(
@@ -281,7 +302,11 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
                         TextButton(onClick = {
                             val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             cm.setPrimaryClip(ClipData.newPlainText("queries", QUERIES_SNIPPET))
-                            Toast.makeText(context, "copied", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.hook_config_copy_done),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }) { Text(stringResource(R.string.hook_config_copy_queries)) }
                     }
                 }
@@ -291,15 +316,21 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
 }
 
 @Composable
-private fun FlagRow(labelRes: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun FlagRow(labelRes: Int, descRes: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth()
             .clickable { onChange(!checked) }
             .padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(stringResource(labelRes), modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(stringResource(labelRes), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(descRes),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         Checkbox(checked = checked, onCheckedChange = { onChange(it) })
     }
 }

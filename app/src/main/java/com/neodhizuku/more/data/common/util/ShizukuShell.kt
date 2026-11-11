@@ -11,7 +11,6 @@ import java.io.InputStream
 
 /**
  * 经 Shizuku 以 shell / root 身份执行一条 shell 命令。
- *
  * 之所以需要它：`Settings.Secure` 的写入受 `WRITE_SECURE_SETTINGS` 保护
  * （protectionLevel 含 signature|privileged|development），
  * 普通应用（untrusted_app）拿不到；而 `cmd role` 系列同样需要 shell 身份。
@@ -32,12 +31,9 @@ object ShizukuShell {
 
     /**
      * 执行 [script]，并等待结束。
-     *
      * 必须在非主线程调用（内部已切到 IO）。
-     *
      * stdout / stderr 分两个线程并发读取，避免任一缓冲区写满后阻塞子进程 ——
      * 只读取其中一个流是常见死锁来源。
-     *
      * @param waitTimeoutMillis 等待子进程结束的超时；**0 表示不限制**（原有行为）。
      *   进程卡住时 `waitFor()` 本身不会返回，20 秒的 `join` 救不了它，
      *   所以需要在单独线程里等并带超时，超时后主动 destroy。
@@ -99,7 +95,6 @@ object ShizukuShell {
 
     /**
      * 带超时地等待进程结束。
-     *
      * `RemoteProcess.waitFor()` 内部是 `Process.waitFor()`，进程卡住时会一直阻塞。
      * 这里把它放到单独线程里等，超时后 destroy 让对端退出，避免整条链路挂死。
      */
@@ -121,7 +116,6 @@ object ShizukuShell {
 
     /**
      * 创建远程进程。
-     *
      * `Shizuku.newProcess` 在 API 13.x 里是 **private static**，直接调用编译不过，
      * 因此这里用反射取。返回的是 `ShizukuRemoteProcess`，
      * 不一定能直接转型为 `java.lang.Process`，所以统一走反射访问流与方法。
@@ -143,7 +137,6 @@ object ShizukuShell {
 
     /**
      * 对远程进程对象的反射封装。
-     *
      * 反射调用 `getInputStream` / `getErrorStream` / `waitFor` / `destroy` ——
      * 这些方法无论是 `ShizukuRemoteProcess` 自带的，还是从 `java.lang.Process`
      * 继承来的，`getMethod` 都能取到，因此不必关心它到底继承关系如何。

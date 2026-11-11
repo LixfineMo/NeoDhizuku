@@ -9,11 +9,9 @@ import top.yukonga.miuix.kmp.blur.runtimeShaderEffect
 
 /**
  * 玻璃折射效果。
- *
  * 必须配合 miuix-blur 的 [top.yukonga.miuix.kmp.blur.drawBackdrop] 使用：
  * 折射本质上是对「背景层」做采样 + 位移，没有真实背景层就没有可折射的内容，
  * 直接挂在自绘层上会采样恒为空。
- *
  * 两道自身保护：
  *  - 不支持 RuntimeShader（Android 13 以下）时直接返回，不做无效计算；
  *  - size 未测量时 radius 取不到，直接返回，避免零向量归一化出 NaN。

@@ -60,7 +60,6 @@ class AppRepoImpl(
 
     /**
      * 取消授权 / 删除记录时清掉已委派的作用域。
-     *
      * @param restore 是否先还原已生效的状态，由实验性开关决定。
      */
     private fun clearDelegatedScopes(entity: AppEntity) {

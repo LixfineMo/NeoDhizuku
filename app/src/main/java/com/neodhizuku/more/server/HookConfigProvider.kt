@@ -9,10 +9,8 @@ import android.os.Bundle
 /**
  * 模块 -> 主进程的唯一 IPC 入口，authority 固定为
  * `com.neodhizuku.more.hook.config`（与 HookConfigClient 里的常量一致）。
- *
  * 只实现 call()，不提供任何 query/insert/openFile —— 报到与配置都走 Bundle，
  * 没有可读的文件或 Cursor，也不对外暴露内部状态。
- *
  * 未放行时 scope 返回 empty=true，模块加载后保持完全 no-op：
  * 没有 LSPosed / LSPatch 的设备上没人调用它，普通用户完全无感。
  */

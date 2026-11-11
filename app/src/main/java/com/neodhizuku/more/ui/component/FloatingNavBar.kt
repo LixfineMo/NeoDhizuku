@@ -85,17 +85,10 @@ private const val PILL_VELOCITY_GAIN = 2.2f
 
 /**
  * 药丸与 Pager 位置相差多少页以内，才允许切到「逐帧跟随」。
- *
  * 取得小是为了避免跳变：刚拖完底栏时药丸在弹簧收敛中，与 Pager 差着好几页，
  * 此时直接跟随会让药丸瞬间跳到 Pager 的位置。
  */
 private const val FOLLOW_ENTER_TOLERANCE = 0.06f
-
-/**
- * 「暂停跟随」的最长时长。超过它说明页面那边没有如期滑动，此时强制接手，
- * 让药丸回到页面所在位置，保证两者最终一致。
- */
-private const val FOLLOW_BLOCK_TIMEOUT_MS = 1_200L
 
 /** 底部悬浮导航栏的四个目标页。 */
 enum class NavDestination(
@@ -135,13 +128,10 @@ enum class NavDestination(
 
 /**
  * 悬浮底栏：整条是胶囊形玻璃，选中项由一个**完整包住图标和文字**的药丸指示。
- *
  * 药丸里放的是**整条页签**，按药丸自身的位移反向平移，因此药丸里的每一项
  * 与底栏里同一项逐像素对齐；底栏那一份按「被药丸覆盖的比例」连续淡出，
  * 两者叠加的总墨量恒定，拖动/翻页途中不会出现空位或重影。
- *
  * 药丸表面先铺一层不透明的容器色再叠主色，底栏内容不会从玻璃里透出来。
- *
  * 手势：在底栏任意位置按下即预览，横向拖动连续跟手，松手落到最近的一页。
  * 位移与缩放全部走 `offset {}` / `graphicsLayer {}` 延迟读取，拖动中不产生重组。
  */
@@ -152,7 +142,6 @@ fun FloatingNavBar(
     onNavigate: (String) -> Unit,
     /**
      * 连续页码（含小数），通常是 Pager 的 `currentPage + currentPageOffsetFraction`。
-     *
      * 药丸逐帧跟随这个值，而不是对每个整数页重启动画 —— 后者在跨多页翻页时
      * 会依次经过中间页、每次都打断上一次动画，看起来就是一顿一顿的「卡」。
      */
@@ -165,7 +154,8 @@ fun FloatingNavBar(
     if (tabs.isEmpty()) return
 
     val scheme = MaterialTheme.colorScheme
-    val surface = scheme.surface
+    // 背景图模式下 surface 是透明的（RGB 全 0），改用不透明容器色判断
+    val surface = scheme.surfaceContainerHigh
     // 用背景亮度判断深浅，避免把 isSystemInDarkTheme 一路传进来
     val dark = (surface.red + surface.green + surface.blue) < 1.5f
     val density = LocalDensity.current
@@ -196,25 +186,15 @@ fun FloatingNavBar(
 
     // 按下位置落在第几页。只在松手瞬间读一次，用数组装避免触发重组。
     val pressIndexBox = remember { intArrayOf(0) }
-    // 纯点击松手后，让跟随循环无条件恢复：不靠「偏差足够小」去猜，
-    // 否则药丸停在目标页、页面还在滑，看着就是不同步。
-    // 纯点击松手后暂停「逐帧跟随 Pager」：药丸已因按下预览而领先，
-    // 立刻接管会把它拽回旧位置重滑。等页面追上来再无缝接手。
-    val followBlock = remember { booleanArrayOf(false) }
-    /** [followBlock] 的起始时刻，超时后无条件解除，避免跟随被永久阻塞。 */
-    val followBlockAt = remember { longArrayOf(0L) }
+    // 拖动落点用本地累计值，不读异步写入的 Animatable.targetValue。
+    val dragPosBox = remember { floatArrayOf(0f) }
 
     val selectedPositionState by rememberUpdatedState(selectedPosition)
     val onNavigateState by rememberUpdatedState(onNavigate)
     val onSettleTabState by rememberUpdatedState(onSettleTab)
     var currentIndex by remember { mutableIntStateOf(selectedIndex().coerceIn(0, count - 1)) }
 
-    // 逐帧跟随 Pager 的连续位置。
-    //
-    // 之前是「页码变整数了才自己跑一段动画」，从首页点设置会依次经过
-    // 中间两页、每段动画都打断上一段，药丸一顿一顿地跳，而且它跑在 Pager
-    // 前面（按下就抢跑），看起来就是药丸瞬移、页面慢半拍。
-    // 改成跟随连续位置后两者同一个驱动源，永远同步。
+    // 逐帧跟随 Pager 的连续位置，页面与药丸共用同一个驱动源。
     LaunchedEffect(drag, count) {
         // 首帧必须无条件对齐一次：下面只在「位置与已知位置不同」时才动，
         // 而组合重建时 currentIndex 的初值已经等于当前页，会被直接跳过。
@@ -235,18 +215,6 @@ fun FloatingNavBar(
                     drag.snapTo(pos)
                     return@collectLatest
                 }
-                // 纯点击松手后药丸领先于页面（按下即预览），此时接管会把药丸
-                // 拽回页面所在位置重滑。等页面追到几乎同位再接手，中间无跳变。
-                if (followBlock[0]) {
-                    // 页面若始终没动，超时后强制接手，避免 followBlock 一直挡着
-                    val expired =
-                        System.currentTimeMillis() - followBlockAt[0] > FOLLOW_BLOCK_TIMEOUT_MS
-                    if (!expired && abs(drag.value.value - pos) > FOLLOW_ENTER_TOLERANCE) {
-                        return@collectLatest
-                    }
-                    followBlock[0] = false
-                    following = true
-                }
                 if (!following && abs(drag.value.value - pos) > FOLLOW_ENTER_TOLERANCE) {
                     // 药丸还差得远（刚拖完在收敛），先让它自己追上来
                     return@collectLatest
@@ -261,51 +229,39 @@ fun FloatingNavBar(
     // 手势回调依赖会变的量，依赖变化时重装即可
     LaunchedEffect(drag, tabWidthPx, isLtr, count, tabs) {
         drag.onPress = { position ->
-            // 按下即预览：手指一落药丸就开始移动，点击才"跟手"。
-            // 用与 Pager 翻页同规格的慢弹簧（stiffness 200），不能用高刚度那根
-            // （900，约 150ms 到位）—— 后者药丸先到、页面才开始滑，就是瞬移。
+            // 页面瞬时切换，药丸由 Pager 位置驱动。
+            // 慢弹簧预览是「切页要等半秒」的观感来源之一。
             pressIndexBox[0] = indexAt(
                 position.x, tabWidthPx, count, isLtr, totalWidthPx,
                 with(density) { NavBarInset.toPx() }
             )
-            drag.glideTo(pressIndexBox[0].toFloat())
+            dragPosBox[0] = currentIndex.toFloat()
         }
         drag.onMove = { amount ->
             if (tabWidthPx > 0f && amount.x != 0f) {
                 val delta = amount.x / tabWidthPx * if (isLtr) 1f else -1f
-                drag.updateValue((drag.value.targetValue + delta).coerceIn(0f, maxIndex))
-                drag.addShift(amount.x)
-                drag.addVelocity(delta)
+                dragPosBox[0] = (dragPosBox[0] + delta).coerceIn(0f, maxIndex)
+                // snapTo 直接落位，避免每帧重启弹簧或起 velocity 协程。
+                drag.dragTo(dragPosBox[0])
             }
         }
         drag.onRelease = { cancelled ->
+            val current = currentIndex.coerceIn(0, count - 1)
             val target = when {
-                cancelled -> currentIndex
-                // 纯点击没有移动过药丸，落点就是按下位置对应的那一页
+                cancelled -> current
                 !drag.didDrag -> pressIndexBox[0]
-                else -> drag.value.targetValue.roundToInt()
+                else -> dragPosBox[0].roundToInt()
             }.coerceIn(0, count - 1)
-            if (!cancelled && target != currentIndex) {
+            if (!cancelled && target != current) {
                 currentIndex = target
-                NeoLog.d(NeoLog.NAV) { "底栏拖动 -> ${tabs[target].route} ($target)" }
+                NeoLog.d(NeoLog.NAV) { "底栏选择 -> ${tabs[target].route} ($target)" }
+                // 页面与药丸都瞬时对齐。
+                drag.land(target.toFloat())
                 val settle = onSettleTabState
-                if (settle != null && drag.didDrag) {
-                    // 拖动过：页面没跟着动，药丸自己落位、页面直接对齐，
-                    // 不再滑一次——否则 Pager 会从旧页一路滑过中间页，与药丸对不上
-                    drag.settle(target.toFloat())
-                    settle(target)
-                } else {
-                    // 纯点击：药丸在按下时已用同规格慢弹簧起步，页面从现在开始滑。
-                    // 中途不让 Pager 的逐帧回传接管 —— 那会把已跑到目标页的药丸
-                    // 拽回旧位置重滑。由跟随循环等页面追上后再接手。
-                    followBlock[0] = true
-                    followBlockAt[0] = System.currentTimeMillis()
-                    drag.releaseOnly()
-                    onNavigateState(tabs[target].route)
-                }
+                if (settle != null) settle(target)
+                else onNavigateState(tabs[target].route)
             } else {
-                // 取消、或拖出去又拖回原页：药丸回到原位置
-                drag.settle(target.toFloat())
+                drag.land(current.toFloat())
             }
         }
     }
@@ -357,7 +313,8 @@ fun FloatingNavBar(
 
     val inactiveContent = scheme.onSurfaceVariant
     val activeContent = scheme.primary
-    val tabScale: () -> Float = { 1f + 0.14f * drag.press.value }
+    // 不做图标放大：与玻璃底栏一致，只保留边缘效果。
+    val tabScale: () -> Float = { 1f }
 
     Box(
         modifier = modifier
@@ -494,7 +451,6 @@ private fun indexAt(
 /**
  * 单个页签。底栏与药丸里各渲染一份，都用 `weight(1f)` 均分，宽度完全一致。
  * `onSelect` 为空表示这是药丸内的镜像内容，不参与无障碍语义。
- *
  * 图标只由 [activeLook] 决定：底栏一份恒用描边图标，药丸一份恒用填充图标，
  * 中途半覆盖时不会出现同一项两种描边混在一起。
  */

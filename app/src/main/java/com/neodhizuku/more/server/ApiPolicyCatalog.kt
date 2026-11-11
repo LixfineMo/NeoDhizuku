@@ -2,17 +2,14 @@ package com.neodhizuku.more.server
 
 /**
  * 第三方能调用的全部接口清单。
- *
  * 清单来源是 IDhizuku.aidl（事务码 0/1/2/11/12/13/14/15/16/17）与
  * DhizukuService 里 `enforceCallingPermission(...)` 实际传入的 func 字符串 ——
  * 后者才是服务端真正能看见的东西，两者并不一一对应：
- *
  * - `getVersionCode` / `getVersionName` / `requestPermission` 三个方法
  *   上游**没有**调用 enforceCallingPermission，因此不会走到权限判定；
  *   要纳管必须在各自的 override 里单独判一次。
  * - `unbindUserService`（13）与 `unbindUserServiceByConnection`（14）
  *   传的是同一个 func 字符串，服务端无从区分，只能作为一项处理。
- *
  * 这里同时承担日志可读性：[labelOf] 把 func 翻译成人话，
  * 替换掉日志里原有的 `func=remote_transact` 这类内部名。
  */
@@ -28,7 +25,6 @@ object ApiPolicyCatalog {
 
     /**
      * 一个可单独配置的接口项。
-     *
      * @param id 配置键，持久化与界面都用它
      * @param func 服务端判定函数收到的 func 字符串；
      *             [gated] 为 false 时这里是补上的占位值，不会自然出现
@@ -123,7 +119,6 @@ object ApiPolicyCatalog {
 
     /**
      * func -> 定义。
-     *
      * key 可为 null（对应 is_permission_granted），HashMap 支持 null 键。
      */
     private val BY_FUNC: Map<String?, ApiDef> = HashMap<String?, ApiDef>().apply {
@@ -144,7 +139,6 @@ object ApiPolicyCatalog {
 
     /**
      * 日志用的人话名。
-     *
      * 认不出时原样返回 func，保证日志里总能看出在调什么。
      */
     fun labelOf(func: String?): String = BY_FUNC[func]?.label ?: (func ?: "查询授权状态")

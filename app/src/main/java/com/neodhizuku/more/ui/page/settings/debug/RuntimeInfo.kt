@@ -48,7 +48,6 @@ data class InfoSection(
 
 /**
  * 「详细运行信息」的数据源。
- *
  * 分板块展出进程、身份、服务、授权 token、接口状态、更新状态、
  * 全部设置值、编译期开关、内存、私有文件与最近日志。
  * 所有变量名保持代码原样，不做翻译。
@@ -114,6 +113,9 @@ object RuntimeInfoCollector : KoinComponent {
             "state.isDeviceAdmin" to st.isDeviceAdmin.toString(),
             "state.isOwner" to st.isOwner.toString(),
             "state.isActive" to st.isActive.toString(),
+            "DebugUiOverrides.forceActivatedDisplay" to DebugUiOverrides.forceActivatedDisplay.toString(),
+            "DebugUiOverrides.forceActivationKind" to DebugUiOverrides.forceActivationKind,
+            "DebugUiOverrides.displayState" to DebugUiOverrides.displayState().toString(),
             "state.level" to st.level.toString(),
             "admin" to admin.flattenToString(),
             "dpm.isDeviceOwnerApp" to safe { dpm.isDeviceOwnerApp(app.packageName).toString() },
@@ -297,10 +299,14 @@ object RuntimeInfoCollector : KoinComponent {
             @Suppress("DEPRECATION")
             info.signatures
         }
-        val first = sigs?.firstOrNull() ?: return "-"
-        val md = java.security.MessageDigest.getInstance("SHA-256")
-        md.update(first.toByteArray())
-        md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }.take(32)
+        val first = sigs?.firstOrNull()
+        if (first == null) {
+            "-"
+        } else {
+            val md = java.security.MessageDigest.getInstance("SHA-256")
+            md.update(first.toByteArray())
+            md.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }.take(32)
+        }
     }
 }
 

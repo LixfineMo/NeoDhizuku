@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 
 /**
  * 调用记录（授权审计）。
- *
  * 每条记录对应一次第三方应用通过 Dhizuku 调用受保护能力的请求。
  * [logExcerpt] 是该次调用发生时截取的服务端运行日志片段，便于事后追溯。
  */

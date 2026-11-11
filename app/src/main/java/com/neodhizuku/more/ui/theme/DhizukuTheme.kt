@@ -21,7 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.NeoLog
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.theme.lightColorScheme as miuixLightColorScheme
+import top.yukonga.miuix.kmp.theme.darkColorScheme as miuixDarkColorScheme
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -31,11 +35,9 @@ private val DarkColorScheme = darkColorScheme(
 
 /**
  * 把任意深色配色压成 AMOLED 纯黑。
- *
  * 大面积（background / surface / surfaceDim / surfaceContainerLowest）压到纯黑，
  * 其余容器只保留极细微的递增差异——完全抹平会让卡片和内容分不出来，
  * 但这些差值小到在 OLED 上几乎不发光，仍是省电的。
- *
  * surfaceTint 一并压黑：Material3 用它在深色下做 elevation 混色，
  * 留着主色会让每张卡片都浮出一层深紫，纯黑就毁了。
  */
@@ -74,10 +76,9 @@ private val LightColorScheme = lightColorScheme(
 
 /**
  * Removing the warning is not possible for compatibility reasons.
- *
  * 新增 [themeSettings] 参数。
  * - 传入非 null 时会按其 `themeMode` / `useMonet` 决定配色，并支持 AMOLED 纯黑；
- * - 传 null（或开关关闭）时行为与原始实现一致。
+ * - 传 null（或开关关闭）时行为与默认实现一致。
  */
 @Composable
 fun DhizukuTheme(
@@ -87,6 +88,7 @@ fun DhizukuTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+    val uiEngine = LocalUiEngine.current
 
     // 未显式传入且开关打开时，从配置流读取
     val flowSettings = if (themeSettings == null && NeoDhizuku.on(NeoDhizuku.UseThemePage)) {
@@ -137,26 +139,75 @@ fun DhizukuTheme(
         }
     }
 
-    // 设了自定义背景图时把各层底色改成半透明，让底下的图透上来。
+    // 设了自定义背景图时把各层底色设为半透明，让底下的图透上来。
     // 卡片、列表、对话框都用这几个颜色，改在主题层就能一次生效。
     val finalScheme =
         if (settings?.backgroundImageSet == true) translucentScheme(colorScheme)
         else colorScheme
 
+    // miuix 引擎不再改写 MaterialTheme 的配色：组件库自己有 MiuixTheme，
+    // 主色从当前配色注入那里即可，避免切引擎强制变蓝。
+    val engineScheme = finalScheme
+    val engineTypography = if (uiEngine == UiEngine.MIUIX) miuixTypography(Typography)
+    else Typography
+
     MaterialTheme(
-        colorScheme = finalScheme,
-        typography = Typography,
-        content = content
-    )
+        colorScheme = engineScheme,
+        typography = engineTypography
+    ) {
+        if (uiEngine == UiEngine.MIUIX) {
+            // miuix 的 Card / 下拉 / 按钮读的是 MiuixTheme.colorScheme；
+            // 不注入就会回落到组件库默认蓝，用户自定义主题色会被盖掉。
+            MiuixTheme(colors = miuixEngineColors(colorScheme, effectiveDark)) {
+                content()
+            }
+        } else {
+            content()
+        }
+    }
 }
 
+/**
+ * 把当前 Material 配色注入 miuix 组件库。只覆盖主色相关角色，
+ * 背景/表面取自未透明化的 [colorScheme]，背景图模式下 miuix 卡片也不会变透明。
+ */
+private fun miuixEngineColors(scheme: ColorScheme, dark: Boolean) =
+    if (dark) miuixDarkColorScheme(
+        primary = scheme.primary,
+        onPrimary = scheme.onPrimary,
+        primaryVariant = scheme.primary,
+        primaryContainer = scheme.primaryContainer,
+        onPrimaryContainer = scheme.onPrimaryContainer,
+        background = scheme.background,
+        surface = scheme.surface
+    ) else miuixLightColorScheme(
+        primary = scheme.primary,
+        onPrimary = scheme.onPrimary,
+        primaryVariant = scheme.primary,
+        primaryContainer = scheme.primaryContainer,
+        onPrimaryContainer = scheme.onPrimaryContainer,
+        background = scheme.background,
+        surface = scheme.surface
+    )
+
+/** miuix 风格是折叠大标题：把 titleLarge 放大即可让所有 TopAppBar 跟着变。 */
+private fun miuixTypography(base: androidx.compose.material3.Typography) =
+    base.copy(
+        titleLarge = base.titleLarge.copy(fontSize = 26.sp, lineHeight = 32.sp),
+        headlineMedium = base.headlineMedium.copy(fontSize = 30.sp)
+    )
+
 private fun translucentScheme(scheme: ColorScheme): ColorScheme = scheme.copy(
-    background = scheme.background.copy(alpha = 0.45f),
-    surface = scheme.surface.copy(alpha = 0.50f),
-    surfaceVariant = scheme.surfaceVariant.copy(alpha = 0.50f),
-    surfaceContainerLowest = scheme.surfaceContainerLowest.copy(alpha = 0.42f),
-    surfaceContainerLow = scheme.surfaceContainerLow.copy(alpha = 0.55f),
-    surfaceContainer = scheme.surfaceContainer.copy(alpha = 0.58f),
-    surfaceContainerHigh = scheme.surfaceContainerHigh.copy(alpha = 0.64f),
-    surfaceContainerHighest = scheme.surfaceContainerHighest.copy(alpha = 0.70f)
+    // Scaffold / Surface / TopAppBar 都要完全透明，否则浅色主题下那层白会把
+    // 背景图整片盖掉，只剩卡片里看得出模糊（截图里「四周是白色」的根因）。
+    // 暗化统一交给 AppBackground 的中性黑遮罩，四周因此仍比卡片略深。
+    background = scheme.background.copy(alpha = 0f),
+    surface = scheme.surface.copy(alpha = 0f),
+    surfaceVariant = scheme.surfaceVariant.copy(alpha = 0.32f),
+    surfaceContainerLowest = scheme.surfaceContainerLowest.copy(alpha = 0.32f),
+    surfaceContainerLow = scheme.surfaceContainerLow.copy(alpha = 0.40f),
+    // TopAppBar 滚动后取 surfaceContainer：压低它，避免顶栏又浮出一条白横带。
+    surfaceContainer = scheme.surfaceContainer.copy(alpha = 0.22f),
+    surfaceContainerHigh = scheme.surfaceContainerHigh.copy(alpha = 0.58f),
+    surfaceContainerHighest = scheme.surfaceContainerHighest.copy(alpha = 0.66f)
 )

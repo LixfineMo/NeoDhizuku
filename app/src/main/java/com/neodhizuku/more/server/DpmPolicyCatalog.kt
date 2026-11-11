@@ -4,19 +4,16 @@ import android.content.Context
 
 /**
  * 可被第三方调用的系统接口（设备策略接口）清单。
- *
  * 与 [ApiPolicyCatalog] 的分工：
  * - [ApiPolicyCatalog] 是 Dhizuku 自身的 17 个 AIDL 事务（读版本、执行命令…），
  *   这些一律放行、不暴露给用户配置，只由授权与拒绝服务管；
  * - 这里是被远程调用的系统接口本身 —— 也就是第三方拿到授权后**实际能做的事**
  *   （禁用摄像头、锁屏、隐藏应用、清除数据、擦除设备…）。
- *
  * 清单来源：设备策略接口的 AIDL 定义，方法名与运行时反射出的
  * [DpmApiCatalog] 事务码对照表**同名**，因此服务端在
  * `onRemoteTransact` 里解析出方法名后可直接命中这里的配置项。
- *
  * 名称与说明走 strings（key 为 `dpm_<方法名>` / `dpm_<方法名>_d`），
- * 便于跟随界面语言；取不到时回退到方法名本身，保证日志里总能看出在调什么。
+ * 由 [DpmPolicyStrings] 静态直引；取不到时回退方法名，绝不会把资源键显示给用户。
  */
 object DpmPolicyCatalog {
 
@@ -33,7 +30,6 @@ object DpmPolicyCatalog {
 
     /**
      * 一个可单独配置的系统接口。
-     *
      * @param id 设备策略接口的方法名，同时是配置键
      * @param group 分组
      * @param dangerous 高危：默认不勾选
@@ -163,17 +159,13 @@ object DpmPolicyCatalog {
     fun byGroup(group: Group): List<DpmDef> =
         ALL.filter { it.group == group }.sortedBy { if (it.dangerous) 1 else 0 }
 
-    /** 取本地化名称；取不到回退方法名 */
-    fun label(context: Context, id: String): String =
-        string(context, "dpm_$id") ?: id
+    /** 取本地化名称；取不到回退方法名（资源静态直引，release 不会被裁剪） */
+    fun label(context: Context, id: String): String = DpmPolicyStrings.name(context, id)
 
     /** 取本地化说明；取不到回退空串 */
-    fun desc(context: Context, id: String): String =
-        string(context, "dpm_${id}_d") ?: ""
+    fun desc(context: Context, id: String): String = DpmPolicyStrings.desc(context, id)
 
-    private fun string(context: Context, name: String): String? {
-        val resId = context.resources.getIdentifier(name, "string", context.packageName)
-        if (resId == 0) return null
-        return runCatching { context.getString(resId) }.getOrNull()
-    }
+    /** 分组标题。group.key 本身已是 dpm_group_*，不能再加前缀 */
+    fun groupLabel(context: Context, group: Group): String =
+        DpmPolicyStrings.group(context, group.key)
 }

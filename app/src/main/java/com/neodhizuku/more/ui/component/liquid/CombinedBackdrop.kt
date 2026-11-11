@@ -11,7 +11,6 @@ import top.yukonga.miuix.kmp.blur.Backdrop
 
 /**
  * 把两个背景层叠成一个。
- *
  * 药丸要透出两层东西，先画的在下、后画的在上：
  *   first  —— 页面内容（由页面级 rememberLayerBackdrop 提供）。
  *             它带一张不透明的 surface 兜底矩形，所以必须垫在最底下。

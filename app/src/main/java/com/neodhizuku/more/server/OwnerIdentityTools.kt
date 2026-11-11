@@ -12,8 +12,7 @@ import com.neodhizuku.more.data.common.util.ShizukuShell
 
 /**
  * 设备身份的「移除 / 转移」工具，支持被改过包名的同项目实例。
- *
- * 背景：有人把 applicationId 改成别的（例如 com.neodhizuku.morf）后重新编译，
+ * 背景：修改 applicationId 后重新编译（例如 com.neodhizuku.morf），
  * 但 receiver 的 android:name 仍是完整类名
  * `com.neodhizuku.more.server.DhizukuDAReceiver`（清单里写的是 `.server.`
  * 缩写，改包名的工具通常只动 manifest 的 package，不动类名）。
@@ -21,10 +20,8 @@ import com.neodhizuku.more.data.common.util.ShizukuShell
  * 拼出来的那一个既不是设备所有者、也查不到残留记录 —— 表现为
  * `Insufficient capability: DEVICE_ADMIN cannot execute transferOwnership
  * (requires DEVICE_OWNER)` 且两个实例都显示「未激活」。
- *
  * 这里不假设包名：从系统实际声明的设备管理员组件里枚举，按 receiver
  * 类名识别同项目实例，再对任意 ComponentName 执行移除或转移。
- *
  * 只做移除与转移。其它能力不因改包名做特殊处理 —— 改包名的人自己承担。
  */
 object OwnerIdentityTools {
@@ -56,7 +53,6 @@ object OwnerIdentityTools {
 
     /**
      * 枚举可作为操作对象的管理员组件。
-     *
      * 主来源是 PackageManager 的 receiver 查询：它不要求调用方是 DO，
      * 因此「两个都未激活」时也能列出来。activeAdmins 只用来补充
      * 「已激活」标记，拿不到（无权限）也不影响列表完整性。
@@ -117,11 +113,11 @@ object OwnerIdentityTools {
 
     /**
      * 移除一个设备管理员组件（含被改过包名的实例）。
-     *
      * 优先走 DPM：调用方是 DO、或目标就是自己的 admin 组件时可用。
      * 若目标包名本身仍是 device owner，再试一次 clearDeviceOwnerApp
      * （只有 DO 自己能调，参数不符时系统会抛异常，这里吞掉即可）。
      */
+    @Suppress("DEPRECATION")
     fun remove(context: Context, target: ComponentName): ActionResult {
         val manager = dpm(context)
         val direct = runCatching {
@@ -152,7 +148,6 @@ object OwnerIdentityTools {
     /**
      * 用 shell 身份强清残留。adb shell dpm 允许 remove-active-admin，
      * 这是「系统显示未激活、卸载却报设备管理器」这种错位状态最有效的解法。
-     *
      * 组件名先用 unflattenFromString 规范化，避免把用户输入直接拼进命令。
      */
     suspend fun removeViaShell(context: Context, target: ComponentName): ActionResult {
@@ -167,7 +162,6 @@ object OwnerIdentityTools {
 
     /**
      * 把设备所有者转移给目标组件。
-     *
      * 硬性前提：**调用方必须是当前 device owner**。这不是本项目能绕过的限制 ——
      * 截图里 `DEVICE_ADMIN cannot execute transferOwnership (requires DEVICE_OWNER)`
      * 说的正是这件事，与目标组件是否声明了管理员无关。

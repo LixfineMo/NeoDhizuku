@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +34,6 @@ import org.koin.androidx.compose.koinViewModel
 
 /**
  * 「更新配置」：原来调试页的全部内容。
- *
  * 官方地址、自定义清单地址、超时、允许不安全链接、最新 Build 拉取、
  * 当前生效地址，都留在这里，行为与旧版完全一致。
  */
@@ -58,7 +57,7 @@ fun DebugUpdateConfigPage(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item("debug_insecure") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SwitchEntry(
                             title = stringResource(R.string.update_settings_insecure),
@@ -81,7 +80,7 @@ fun DebugUpdateConfigPage(
             }
 
             item("debug_urls") {
-                ElevatedCard {
+                NeoCard {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -123,7 +122,7 @@ fun DebugUpdateConfigPage(
             }
 
             item("debug_build") {
-                ElevatedCard {
+                NeoCard {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -153,7 +152,7 @@ fun DebugUpdateConfigPage(
             }
 
             item("debug_current") {
-                ElevatedCard {
+                NeoCard {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)

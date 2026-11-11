@@ -23,10 +23,8 @@ import java.io.File
 
 /**
  * 白名单：存放在应用私有目录的 [FILE_NAME] 里。
- *
  * 选择文件而不是 SharedPreferences / Room，理由见 [WhitelistRepo] 的说明 ——
  * 这份数据要独立于授权库，且便于整体导出。
- *
  * 读写策略：
  * - 读取走内存镜像（[state]），服务端在 binder 线程上同步调用 [snapshot] 不会阻塞；
  * - 写入先更新内存镜像再落盘，落盘用「临时文件 + rename」保证断电不会留下半截文件。
@@ -116,8 +114,6 @@ class WhitelistRepoImpl : WhitelistRepo, KoinComponent {
         NeoLog.d(NeoLog.PERM) { "白名单 -$packageName" }
     }
 
-    // ------------------------------------------------------------------
-    // ------------------------------------------------------------------
 
     // 显式标注类型：lambda 内的 return@runCatching 会让编译器无法推断 R
     private fun loadFromDisk(): List<WhitelistEntry> = runCatching<List<WhitelistEntry>> {

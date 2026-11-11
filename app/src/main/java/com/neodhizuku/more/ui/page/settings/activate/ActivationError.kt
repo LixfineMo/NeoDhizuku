@@ -7,7 +7,6 @@ import com.neodhizuku.more.R
 
 /**
  * 把激活过程中的异常映射成"中文原因 + 处理建议"。
- *
  * 直接显示 `exception.toString()` 的话，用户看到的是
  * `java.lang.SecurityException: ...` 之类的英文堆栈首行，既不知道原因也不知道该怎么办。
  */

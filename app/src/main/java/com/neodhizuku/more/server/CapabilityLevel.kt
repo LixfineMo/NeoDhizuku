@@ -6,13 +6,10 @@ import android.content.Context
 
 /**
  * 能力等级。
- *
  * 本应用有三种"被系统授予"的身份，能力依次递增：
- *
  * - **设备管理员**（Device Admin）：系统设置里点一下即可授予，全版本可用，能力最少
  * - **资料管理员**（Profile Owner）：受管资料内拥有完整控制权
  * - **设备所有者**（Device Owner）：整机最高控制权
- *
  * [DhizukuState.State.isOwner] 只涵盖后两者，设备管理员另由
  * [DhizukuState.State.isActive] 判断。只拥有设备管理员的用户也能开启服务
  * 并使用其中一部分能力 ——
@@ -46,11 +43,9 @@ enum class CapabilityLevel(
 
         /**
          * 设备管理员可用的设备策略方法白名单。
-         *
          * Device Admin 被激活后，DPM 允许调用的方法是有限且明确的，
          * 因此用白名单而不是黑名单。**未收录的方法一律按所有者要求处理** ——
          * 宁可误拒，也不能因为漏判造成权限提升。
-         *
          * 注意：这里列出的是"管理员身份下系统本就允许"的方法。
          * [DevicePolicyManager.wipeData] 虽然管理员也能执行，但因不可逆
          * 且后果严重，故意不列入 —— 始终按所有者要求处理，并走二次确认。
@@ -114,7 +109,6 @@ enum class CapabilityLevel(
 
         /**
          * 某方法所需的最低等级。
-         *
          * @param method 方法名；为 null（无法识别）时按最严格要求处理
          */
         fun requiredLevel(method: String?): CapabilityLevel {

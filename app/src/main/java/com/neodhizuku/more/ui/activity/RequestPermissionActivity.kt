@@ -147,7 +147,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
     @Volatile
     private var userDecided: Boolean = false
 
-    /** 用户是否点了「加入黑名单」（拉黑后不再处理该应用的授权请求） */
+    /** 用户是否点了「加入黑名单」（拉黑后不处理该应用的授权请求） */
     @Volatile
     private var blockCaller: Boolean = false
 
@@ -216,7 +216,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
             }
 
             // 连击判定：该应用此前已连续 LIMIT 次「弹了但没人管」，
-            // 本次倒计时结束时不再只是拒绝，而是直接拉黑。
+            // 本次倒计时结束时直接拉黑。
             val pkgName = runCatching {
                 packageManager.getPackageInfoForUid(state.uid)?.packageName
             }.getOrNull()
@@ -347,7 +347,6 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
 
     /**
      * 本次请求是否来自服务端签发的一次性 token。
-     *
      * 只有这种请求的 uid 才是 Binder 侧真实调用方；兼容路径与通知拉起都算不可信，
      * 涉及"惩罚性"的操作（连击拉黑）一律不生效。
      */
@@ -367,7 +366,6 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         }
 
         // 连击计数：只有「弹了但没人管」才累加；用户明确表态或已拉黑就清零。
-        //
         // 【只在可信路径累加】授权 Activity 是 exported 的，第三方可以不经服务端
         // 直接 startActivity 并带一个伪造的 uid。若这种请求也计入连击，
         // 攻击者就能靠反复拉起弹窗把受害者应用刷进黑名单（DoS）。
@@ -506,7 +504,6 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         val binder = bundle.getBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER)
         if (binder == null) {
             // 拿不到回调 binder 也要弹窗：结果只落库、不回调。
-            //
             // 直接 return false 会让这类客户端永远拿不到授权 ——
             // 弹窗没有、回调也没有，下一次 isPermissionGranted() 依旧是 false，
             // 用户看到的就是"已授权却始终提示无权限"。
@@ -534,20 +531,15 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         return true
     }
 
-    // ------------------------------------------------------------------
     // 授权弹窗（底部抽屉）
-    //
     // 从底部升起、占半个屏幕；上方空白为半透明灰遮罩，点击等同于拒绝。
     // 顶部的小横条既是"可拖动"的暗示，也是真正的把手：向下拖过阈值松手即收起，
     // 收起按「拒绝」处理。
-    //
     // 布局自上而下：图标 → 应用名 → 包名（灰）→ 倒计时进度条 → 两个等宽按钮。
     // 「加入黑名单」降级为右上角灰色文字入口 —— 低频且后果重，
     // 与日常两个按钮平级摆在一起误触代价太高。
-    //
     // 包名单独列出是刻意的安全设计：图标和应用名都能伪造，包名不能，
     // 它是判断"到底是谁在申请"的唯一可靠信息。
-    // ------------------------------------------------------------------
     @Composable
     private fun showDialog(): Boolean {
         val packageInfo = packageManager.getPackageInfoForUid(state.uid) ?: return false
@@ -582,7 +574,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
 
         // 灰阶随日/夜切换：深色背景用浅灰，浅色背景用深灰。
         // 用 surface 的感知亮度判断，不依赖具体主题实现。
-        val surface = MaterialTheme.colorScheme.surface
+        val surface = MaterialTheme.colorScheme.surfaceContainerHigh
         val darkBackground =
             surface.red * 0.299f + surface.green * 0.587f + surface.blue * 0.114f < 0.5f
         val gray = if (darkBackground) Color(0xFFB5B5B5) else Color(0xFF6E6E6E)

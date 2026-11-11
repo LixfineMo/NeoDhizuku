@@ -1,29 +1,14 @@
 package com.neodhizuku.more
 
 /**
- * NeoDhizuku —— 优化开关中心。
- *
- * 设计约定（后续所有修改都遵循这套约定）：
- * 1. [UseNeoDhizuku] 是总开关，置为 false 时所有改动点一律回退到原始实现，
- *    行为与上游 Dhizuku 完全一致（原有逻辑被完整保留在 else 分支中）。
- * 2. 每个改动点另有独立的分项开关（FixXxx / HardenXxx），默认全部为 true。
- *    当总开关为 false 时，分项开关不再生效（见 [on]）；
- *    当总开关为 true 时，可以单独把某一项置为 false 来做对照调试。
- * 3. 改动点的写法统一为：
- *      if (NeoDhizuku.on(NeoDhizuku.FixXxx)) {
- *          // 优化后的实现
- *      } else {
- *          // 原始实现（保持逐字不变）
- *      }
- * 4. 需要跨进程 / 跨模块（server_api，Java 侧）使用的开关，
- *    由 com.rosan.dhizuku.server_api.Variables.UseNeoDhizuku 承载，
- *    并在 App.onCreate 中与本类的值同步。
+ * 功能开关中心。[UseNeoDhizuku] 关闭时全部分项失效，逐项开关由 [on] 统一判定。
+ * 跨进程使用的开关由 com.rosan.dhizuku.server_api.Variables.UseNeoDhizuku 承载。
  */
 object NeoDhizuku {
     /** 总开关：false = 完全回退到原始逻辑 */
     const val UseNeoDhizuku: Boolean = true
 
-    // ---------------- A 类：静态可证的问题 ----------------
+    // 基础修正
 
     /** getVersionName() 返回版本名而非版本码 */
     const val FixVersionName: Boolean = true
@@ -85,7 +70,7 @@ object NeoDhizuku {
     /** 取消所有者后不刷新 */
     const val FixDeactivateRefresh: Boolean = true
 
-    // ---------------- B 类：条件触发的问题 ----------------
+    // 运行时修正
 
     /** DaemonService 清理逻辑误删黑名单 */
     const val FixBlacklistPurge: Boolean = true
@@ -108,7 +93,7 @@ object NeoDhizuku {
     /** DB 降级崩溃 / 设置存储分区不一致 */
     const val FixDbDowngradeAndDeStorage: Boolean = true
 
-    // ---------------- C 类：规范与工程化 ----------------
+    // 规范与工程
 
     /** 反射替换 DevicePolicyManager.mService */
     const val FixReflectionDpm: Boolean = true
@@ -137,7 +122,7 @@ object NeoDhizuku {
     /** server_api 缺少版本名常量 */
     const val FixApiVersionName: Boolean = true
 
-    // ---------------- D 类：安全加固（需真机验证后再独立关闭） ----------------
+    // 安全加固
 
     /** 授权 Activity 导出且 UID 由客户端自报 */
     const val HardenPermissionEntry: Boolean = true
@@ -151,7 +136,7 @@ object NeoDhizuku {
     /** 无自身完整性校验 */
     const val HardenIntegrityCheck: Boolean = true
 
-    // ---------------- 界面相关 ----------------
+    // 界面
 
     /** 悬浮底部导航栏 */
     const val UseFloatingNavBar: Boolean = true
@@ -180,15 +165,11 @@ object NeoDhizuku {
     /** 运行日志落库（保留 30 天） */
     const val UseRuntimeLogPersist: Boolean = true
 
-    /**
-     * 拦截第三方应用通过 remote_transact 转移设备所有者。
-     * 关闭（默认）时直接拒绝并通知；开启时放行但发警示通知。
-     */
+    /** 第三方通过 remote_transact 转移设备所有者时的拦截开关。 */
     const val HardenOwnerTransferGuard: Boolean = true
 
     /**
      * 能力分级执行。
-     *
      * 开启后，第三方通过 remote_transact 调用设备策略接口时，
      * 会先比对当前身份等级（设备管理员 / 资料管理员 / 设备所有者）
      * 与该方法所需的最低等级；不足时按服务策略里的「能力不足时的处理」回应。
@@ -197,7 +178,6 @@ object NeoDhizuku {
 
     /**
      * 擦除设备数据的强制确认。
-     *
      * `wipeData` 不可逆，且设备管理员身份下同样可以执行，
      * 因此无论当前身份等级如何，第三方发起的擦除一律先拦截，
      * 需用户在确认页通过两级警告后才放行。
@@ -206,7 +186,6 @@ object NeoDhizuku {
 
     /**
      * 调试日志总开关。
-     *
      * 打开后 `NeoDhizuku.DebugLog` 为真，NeoLog 才会输出。
      * 建议排查问题时打开：
      *   adb logcat -s NeoDhizuku:V
@@ -215,7 +194,7 @@ object NeoDhizuku {
     const val DebugLog: Boolean = true
 
     /**
-     * 判断某个改动点是否启用。
+     * 判断某个分项开关是否启用。
      * 总开关关闭时，所有分项一律视为关闭。
      */
     @JvmStatic

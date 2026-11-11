@@ -14,7 +14,6 @@ class DaemonReceiver : BroadcastReceiver() {
         // onReceive 返回后 BroadcastReceiver 的生命周期即结束。
         // 冷启动时进程是专门为这条广播拉起的，一旦返回就可能被立刻回收，
         // 因此尽量用 goAsync() 把生命周期延长到服务启动请求发出之后。
-        //
         // 注意：goAsync() 并不保证返回非空——当本次派发没有 PendingResult 时
         // （例如被 DeviceAdminReceiver 之类父类转发的场景）会返回 null。
         // 拿不到就按普通同步广播处理，
@@ -28,7 +27,6 @@ class DaemonReceiver : BroadcastReceiver() {
             // sync() 的副作用（含 autoDaemonService）跑在 IO 协程上，
             // 开机场景下协程可能还没轮到执行，进程就已经被回收，
             // 表现就是"开机后服务没起来"。
-            //
             // BOOT_COMPLETED / LOCKED_BOOT_COMPLETED 属于前台服务后台启动的豁免场景，
             // 此处调用 startForegroundService() 是合法的。
             DhizukuState.startDaemonNow(ctx)

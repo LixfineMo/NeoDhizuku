@@ -57,6 +57,9 @@ compose-material3 = { group = "androidx.compose.material3", name = "material3", 
 
 # miuix-blur 可独立引入（不依赖 miuix-ui，因此不需要换掉 MaterialTheme）。
 miuix-blur = { group = "top.yukonga.miuix.kmp", name = "miuix-blur", version.ref = "miuixBlur" }
+# miuix-ui：KernelSU 风格的 MiuixTheme / Card（与 miuix-blur 同为 0.9.3，
+# 避免 0.9.4 backdrop API breaking change；纯 Android 工程由 KMP metadata 解析 -android 变体）
+miuix-ui = { group = "top.yukonga.miuix.kmp", name = "miuix-ui", version.ref = "miuixBlur" }
 
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

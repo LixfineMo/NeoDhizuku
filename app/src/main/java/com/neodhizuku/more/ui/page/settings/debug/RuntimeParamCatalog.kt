@@ -21,7 +21,6 @@ enum class ParamKind { BOOL, INT, LONG, STRING }
 
 /**
  * 一个可写的运行时参数。
- *
  * [name] 直接用变量名，不做翻译；[read] / [write] 都跑在调用线程上，
  * 不挂起、不阻塞 Binder 线程之外的任何东西。
  */
@@ -40,12 +39,10 @@ data class ParamGroup(
 
 /**
  * 「实时参数修改」的数据源。
- *
  * 收录所有**运行时可写**的变量：设置仓库的全部属性、服务运行态、
  * 身份状态、更新检查状态、选点缓存、token 表与事务码缓存。
  * 编译期常量（NeoDhizuku.FixXxx 等）无法在运行时改写，统一放到
  * 「详细运行信息」里展出，不在这里伪装成可改项。
- *
  * 不做任何危险项屏蔽：调试页本来就是给需要动刀的人用的。
  */
 object RuntimeParamCatalog : KoinComponent {
@@ -124,10 +121,11 @@ object RuntimeParamCatalog : KoinComponent {
                 bool("isWhitelistMode", { settingsRepo.isWhitelistMode }, { settingsRepo.isWhitelistMode = it }),
                 bool("isDhizukuEnabled", { settingsRepo.isDhizukuEnabled }, { settingsRepo.isDhizukuEnabled = it }),
                 bool("isDonateButtonHidden", { settingsRepo.isDonateButtonHidden }, { settingsRepo.isDonateButtonHidden = it }),
-                bool("isAllowOwnerTransfer", { settingsRepo.isAllowOwnerTransfer }, { settingsRepo.isAllowOwnerTransfer = it }),
                 bool("isServiceStoppedByUser", { settingsRepo.isServiceStoppedByUser }, { settingsRepo.isServiceStoppedByUser = it }),
                 bool("isUseLegacyVersion", { settingsRepo.isUseLegacyVersion }, { settingsRepo.isUseLegacyVersion = it }),
                 bool("isStrictServiceCheck", { settingsRepo.isStrictServiceCheck }, { settingsRepo.isStrictServiceCheck = it }),
+                bool("isAllowOwnerTransfer", { settingsRepo.isAllowOwnerTransfer }, { settingsRepo.isAllowOwnerTransfer = it },
+                    "true = 允许第三方应用主动转移设备所有者（不影响应用内转移）"),
                 bool("isExperimentalQuickActivateFix", { settingsRepo.isExperimentalQuickActivateFix }, { settingsRepo.isExperimentalQuickActivateFix = it }),
                 bool("isExperimentalDelegationCleanup", { settingsRepo.isExperimentalDelegationCleanup }, { settingsRepo.isExperimentalDelegationCleanup = it }),
                 bool("isExperimentalVerboseLog", { settingsRepo.isExperimentalVerboseLog }, { settingsRepo.isExperimentalVerboseLog = it }),
@@ -156,13 +154,13 @@ object RuntimeParamCatalog : KoinComponent {
             listOf(
                 bool("isDeviceOwner", { DhizukuState.state.isDeviceOwner }, {
                     DhizukuState.setDebugState(it, DhizukuState.state.isProfileOwner, DhizukuState.state.isDeviceAdmin)
-                }),
+                }, "改全局真值；sync 会打回；影响能力分级"),
                 bool("isProfileOwner", { DhizukuState.state.isProfileOwner }, {
                     DhizukuState.setDebugState(DhizukuState.state.isDeviceOwner, it, DhizukuState.state.isDeviceAdmin)
-                }),
+                }, "改全局真值；sync 会打回；影响能力分级"),
                 bool("isDeviceAdmin", { DhizukuState.state.isDeviceAdmin }, {
                     DhizukuState.setDebugState(DhizukuState.state.isDeviceOwner, DhizukuState.state.isProfileOwner, it)
-                })
+                }, "改全局真值；sync 会打回；仅管理员不足以让客户端 init 成功")
             )
         ),
         ParamGroup(
@@ -179,11 +177,23 @@ object RuntimeParamCatalog : KoinComponent {
                         "failed" -> StartupUpdateChecker.State.Failed("debug")
                         else -> null
                     }
-                    if (state == null) false else {
-                        StartupUpdateChecker.forceState(state)
-                        true
-                    }
+                    if (state != null) StartupUpdateChecker.forceState(state)
                 }, "Idle / Checking / UpToDate / Available / Failed")
+            )
+        ),
+        ParamGroup(
+            "UiOverrides",
+            listOf(
+                bool("DebugUiOverrides.forceActivatedDisplay",
+                    { DebugUiOverrides.forceActivatedDisplay },
+                    { DebugUiOverrides.applyForceActivatedDisplay(it) },
+                    "true = 首页/设置页强制显示已激活（仅 UI，不改判定链）"),
+                str("DebugUiOverrides.forceActivationKind",
+                    { DebugUiOverrides.forceActivationKind },
+                    { DebugUiOverrides.applyForceActivationKind(it) },
+                    "device_owner / profile_owner / device_admin"),
+                bool("DebugUiOverrides.reset", { false }, { if (it) DebugUiOverrides.reset() },
+                    "true = 全部复位")
             )
         ),
         ParamGroup(

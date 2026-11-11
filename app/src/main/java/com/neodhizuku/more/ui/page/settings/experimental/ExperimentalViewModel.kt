@@ -17,7 +17,6 @@ import org.koin.core.component.inject
 
 /**
  * 实验性功能。
- *
  * 与设置里其它开关的区别：这些是**未经验证的修复**，默认全部关闭。
  * 关闭时走原有逻辑，开启后才走修复后的分支 —— 两套逻辑并存，
  * 出问题时可以一键退回对照。
@@ -30,7 +29,6 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
 
     /**
      * 待确认的开关：非空时界面弹出警告。
-     *
      * 只有从"关闭"切到"开启"才需要确认；关掉不用拦。
      */
     var pendingEnable by mutableStateOf<ExperimentalFeature?>(null)
@@ -61,7 +59,6 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
 
     /**
      * 请求切换某个开关。
-     *
      * 开启会先弹警告（[pendingEnable]），确认后才真正写入。
      */
     fun requestToggle(feature: ExperimentalFeature, enabled: Boolean) {

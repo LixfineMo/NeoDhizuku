@@ -27,7 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.automirrored.twotone.Send
 import androidx.compose.material3.Icon
@@ -149,7 +149,7 @@ fun AboutPage(
             }
 
             item("about_admin_residue") {
-                AdminResidueCard()
+                AdminResidueCard(navController)
             }
         }
     }
@@ -157,7 +157,6 @@ fun AboutPage(
 
 /**
  * 设备身份状态卡：显示系统报告的三项身份，并提供强制清除入口。
- *
  * 存在的理由：把设备所有者转移给别的应用之后，部分机型不会顺带卸掉
  * 本应用的设备管理员身份，于是出现"设置里显示未激活、卸载却报设备管理
  * 器阻止"的错位状态。此时 [DhizukuState.state] 三项往往全为 false，
@@ -165,14 +164,15 @@ fun AboutPage(
  * 并且清除动作不看状态、直接调清理接口。
  */
 @Composable
-private fun AdminResidueCard() {
+private fun AdminResidueCard(navController: NavController) {
     val context = LocalContext.current
     var result by remember { mutableStateOf<String?>(null) }
+    var confirmClear by remember { mutableStateOf(false) }
     val state = DhizukuState.state
 
     LaunchedEffect(Unit) { runCatching { DhizukuState.sync(context) } }
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    NeoCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -199,28 +199,50 @@ private fun AdminResidueCard() {
             result?.let {
                 Text(it, style = MaterialTheme.typography.bodySmall)
             }
-            TextButton(onClick = {
-                val r = runCatching { DhizukuState.forceCleanup(context) }
-                    .getOrDefault(emptyMap())
-                runCatching { DhizukuState.sync(context) }
-                result = if (r.isEmpty()) {
-                    context.getString(R.string.about_admin_residue_failed)
-                } else {
-                    r.entries.joinToString("  ") {
-                        "${it.key}=${if (it.value) "ok" else "fail"}"
-                    }
-                }
-            }) {
+            TextButton(onClick = { confirmClear = true }) {
                 Text(stringResource(R.string.about_admin_residue_clean))
             }
+            TextButton(onClick = { navController.navigate(SettingsRoute.OwnerIdentity.route) }) {
+                Text(stringResource(R.string.owner_identity_entry))
+            }
         }
+    }
+
+    // 清除动作不看当前状态、直接调三个清理接口，属于不可逆操作，必须二次确认。
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            title = { Text(stringResource(R.string.about_admin_residue_confirm_title)) },
+            text = { Text(stringResource(R.string.about_admin_residue_confirm_desc)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmClear = false
+                    val r = runCatching { DhizukuState.forceCleanup(context) }
+                        .getOrDefault(emptyMap())
+                    runCatching { DhizukuState.sync(context) }
+                    result = if (r.isEmpty()) {
+                        context.getString(R.string.about_admin_residue_failed)
+                    } else {
+                        r.entries.joinToString("  ") {
+                            "${it.key}=${if (it.value) "ok" else "fail"}"
+                        }
+                    }
+                }) {
+                    Text(stringResource(R.string.about_admin_residue_confirm_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClear = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
 /**
  * 底部反馈卡：点开弹窗填表，发到更新配置里那一台服务器。
- *
- * 整张卡片就是一个点击区，不再内嵌按钮 —— 一行标题加一行说明已经够长，
+ * 整张卡片就是一个点击区 —— 一行标题加一行说明已经够长，
  * 再放一个按钮会把它挤成三行。
  */
 @Composable
@@ -258,7 +280,7 @@ private fun FeedbackCard(viewModel: AboutViewModel = koinViewModel()) {
         }
     }
 
-    ElevatedCard(
+    NeoCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = { showDialog = true }
     ) {
@@ -383,7 +405,7 @@ private fun UpdateCard(viewModel: AboutViewModel = koinViewModel()) {
 
     val checking = viewModel.updateState is UpdateState.Checking
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    NeoCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -619,7 +641,7 @@ private fun InfoCard(
     title: String,
     content: @Composable () -> Unit
 ) {
-    ElevatedCard(modifier = modifier) {
+    NeoCard(modifier = modifier) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 title,

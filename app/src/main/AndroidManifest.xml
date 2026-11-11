@@ -43,12 +43,21 @@
         android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         tools:node="remove" />
 
+    <!-- LSPatch 修补目标应用时，请把它注入目标 manifest；主 App 自己声明一份，
+         也便于修补器识别模块归属。Android 11+ 不声明就看不到本应用的 Provider。 -->
+    <queries>
+        <package android:name="com.neodhizuku.more" />
+        <provider android:authorities="com.neodhizuku.more.dhizuku_server.provider" />
+        <provider android:authorities="com.neodhizuku.more.hook.config" />
+    </queries>
+
     <uses-feature
         android:name="android.software.device_admin"
         android:required="true" />
 
     <application
         android:name=".App"
+        android:testOnly="${testOnly}"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:appCategory="productivity"
@@ -60,6 +69,20 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Dhizuku">
+
+        <!-- ================================================================
+             Xposed 模块声明。
+             · 有 LSPosed / LSPatch 的用户：管理器把本 APK 识别为模块，
+               勾选作用域后由 assets/xposed_init 加载 HookInit。
+             · 没有它们的用户：这几行只是 manifest 里的普通 meta-data，
+               系统不会加载 xposed_init，Java 侧 Xposed 类也不会被实例化，
+               应用行为与集成前完全一致。
+             · 不写 xposedscope：作用域由 HookConfigProvider 动态下发，
+               也避免推荐列表里出现「系统框架」引导用户误勾。
+             ================================================================ -->
+        <meta-data android:name="xposedmodule" android:value="true" />
+        <meta-data android:name="xposeddescription" android:value="@string/xposed_module_description" />
+        <meta-data android:name="xposedminversion" android:value="54" />
 
         <activity
             android:name=".ui.activity.SettingsActivity"
@@ -129,6 +152,13 @@
             android:excludeFromRecents="true"
             android:theme="@style/Theme.Dhizuku" />
 
+        <!-- 第三方转移设备所有者的二次确认页：由安全警示通知拉起 -->
+        <activity
+            android:name=".ui.activity.OwnerTransferConfirmActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Dhizuku.Translucent" />
+
         <provider
             android:name=".server.MyDhizukuProvider"
             android:authorities="${dhizukuAuthorities}"
@@ -149,6 +179,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
+
+        <!-- 模块配置 / 报到通道。exported 才能让被 hook 的第三方进程 call 进来；
+             未启用时返回 disabled，模块保持 no-op。不提供 query/openFile。 -->
+        <provider
+            android:name=".server.HookConfigProvider"
+            android:authorities="${applicationId}.hook.config"
+            android:exported="true"
+            android:enabled="true" />
 
         <service
             android:name=".server.DaemonService"
@@ -185,6 +223,11 @@
                 <!-- booted receiver-->
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <!-- 覆盖安装（含 adb install -r -t）后立刻刷新身份并拉起服务，
+                     否则要等用户手动打开管理器，第三方会短暂连不上 binder。
+                     MY_PACKAGE_REPLACED 只发给本包，属于静态注册豁免广播。 -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
 
                 <!-- device/profile owner changed receiver -->
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />

@@ -6,12 +6,10 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * 调用记录（授权审计）。
- *
  * 设计取舍：
  * - 只保存在内存（进程存活期间），**不落库、不持久化**，避免引入隐私合规负担与 Room 迁移；
  * - 上限 200 条，超出滚动丢弃最旧的；
  * - 展示文案全部映射为中文短句，不暴露 API 名称（见 [describe]）。
- *
  * 数据来源：MyDhizukuService.onAudit()。
  */
 object AuditLogStore {

@@ -1,23 +1,21 @@
 package com.neodhizuku.more.server
 
+import android.content.Context
 import android.os.Binder
 import android.os.Parcel
 
 /**
  * 设备策略接口（DevicePolicyManager）的口语化对照表。
- *
  * 背景：`remote_transact` 是第三方拿到授权后最常用也最危险的一条路径 ——
  * 它把 DPM 的 binder 包装起来，以本应用的设备所有者身份调用其任意方法。
  * 但服务端能看到的只有接口描述符和事务码，日志里形如
  * 「调用 android.app.admin.IDevicePolicyManager（事务码 47）」，
  * 既不知道在干什么，也不知道想干什么。
- *
  * 这里做两件事：
  * 1. 把事务码翻译回方法名（反射系统 Stub 的 TRANSACTION_* 常量，与
  *    [OwnerTransferGuard] 同一套做法，不硬编码）；
  * 2. 把方法名映射成一句人话，并尽量带上参数 ——
  *    「把密码最小长度改为 6」比「调用了 setPasswordMinimumLength」有用得多。
- *
  * 对照表只覆盖常见方法；未收录的回退到「调用系统接口 xxx」，
  * 仍然比只给事务码可读。
  */
@@ -40,7 +38,6 @@ object DpmApiCatalog {
 
     /**
      * 单个参数的类型。
-     *
      * DPM 的 AIDL 参数顺序并不统一：多数方法第一个参数是 ComponentName
      * （本应用自己），第二个才是真正的目标；且 ComponentName 在 Parcel 中的
      * 写入格式随版本有差异。因此这里不做精确定位，而是按顺序宽容扫描，
@@ -50,7 +47,6 @@ object DpmApiCatalog {
 
     /**
      * 方法级描述规则。
-     *
      * [pattern] 支持一个 `%1` 占位符，按顺序填入读取到的参数值。
      */
     private data class MethodSpec(
@@ -64,7 +60,6 @@ object DpmApiCatalog {
 
     /**
      * 常见方法的对照表。
-     *
      * [MethodSpec.pattern] 支持 %1 / %2 占位符，按顺序填入扫描到的参数值；
      * [MethodSpec.args] 描述期望读到的参数类型，用于决定怎么解释读到的值。
      */
@@ -240,12 +235,10 @@ object DpmApiCatalog {
 
     /**
      * 按 [MethodSpec.args] 的顺序从 Parcel 里取值并填入占位符。
-     *
      * 两个必须守住的点：
      * 1. **读完必须恢复 dataPosition**。这次读取发生在真正的 transact 之前，
      *    位置没恢复会导致后续调用读到错位的数据，后果远大于日志不好看。
      * 2. 读到一半出错就放弃参数解析，退回固定描述 —— 展示问题不应影响调用。
-     *
      * DPM 多数方法第一个参数是 ComponentName（本应用自己），写入格式随版本有
      * 差异，无法精确定位。因此这里只按类型顺序读取并过滤掉本应用包名，
      * 取到的第一个"像目标"的值作为填充内容。
@@ -331,7 +324,6 @@ object DpmApiCatalog {
 
     /**
      * 事务码 -> 方法名。
-     *
      * 反射的是运行期的 Stub 常量，因此能跟上系统版本变化；
      * 反射失败时返回 null，调用方会退回显示事务码。
      */
@@ -339,32 +331,57 @@ object DpmApiCatalog {
 
     /**
      * 一句人话描述。
-     *
      * @param descriptor 目标 binder 的接口描述符；不是设备策略接口时直接回退
      * @param code 事务码
      * @param data 调用参数，可为空；为空时只显示固定描述，不带实参
      */
-    fun describe(descriptor: String?, code: Int, data: Parcel? = null): String {
+    fun describe(
+        descriptor: String?,
+        code: Int,
+        data: Parcel? = null,
+        context: Context? = null
+    ): String {
         if (descriptor != DPM_DESCRIPTOR) {
-            return "调用 ${descriptor ?: "未知接口"} 的事务 $code"
+            return "调用 ${targetLabel(descriptor)} 的事务 $code"
         }
         val name = methodName(code)
             ?: return "调用设备策略接口的事务 $code"
         val spec = CATALOG[name]
-            ?: return "调用设备策略的 $name"
+        if (spec == null) {
+            // 未写进参数对照表的方法，优先用清单里的本地化名称；
+            // 连清单都没收录时也要说明白，而不是只丢一个裸方法名
+            val human = context?.let { DpmPolicyStrings.name(it, name) } ?: name
+            return if (human == name) "调用未收录的系统接口「$name」"
+            else "调用系统接口「$human」"
+        }
         return if (data == null) spec.pattern
         else fillPattern(spec, data)
     }
 
+    /** 目标 binder 的人话短名，用于日志而不是丢一长串接口描述符 */
+    fun targetLabel(descriptor: String?): String = when {
+        descriptor == null -> "未知接口"
+        descriptor == DPM_DESCRIPTOR -> "设备策略接口"
+        else -> descriptor.substringAfterLast('.')
+    }
+
+    /** 日志里的接口标识：人话名 + 方法名括注；都认不出时至少给事务码 */
+    fun interfaceLabel(context: Context, descriptor: String?, code: Int): String {
+        if (descriptor != DPM_DESCRIPTOR) {
+            return "${targetLabel(descriptor)}（事务 $code）"
+        }
+        val name = methodName(code)
+            ?: return "设备策略接口（事务 $code）"
+        val label = DpmPolicyStrings.readable(context, name)
+        return if (label == name) "未收录的系统接口「$name」" else label
+    }
+
     /**
      * 供外部判定：某次调用是否为擦除设备数据。
-     *
      * **无法判定时按「是」处理**（fail-closed）。
-     *
      * 原实现在 `methodName(code)` 返回 null 时返回 false，等于"认不出就放行" ——
      * 反射一旦失效（Android 版本差异 / hidden API 豁免失败 / 方法改名），
      * 擦除守卫会**静默失效**，调用方完全不知情。
-     *
      * 擦除是不可逆操作，认不出时应当拦下来交给用户确认，而不是默认放行。
      * 代价是反射失效期间设备策略调用需要逐次确认，用户可关闭擦除守卫恢复。
      */
@@ -377,7 +394,6 @@ object DpmApiCatalog {
 
     /**
      * 反射出的对照表是否可用。
-     *
      * 为空说明反射失败 —— 此时 [isWipe] 会对所有设备策略调用返回 true，
      * 守卫进入保守模式。调用方应据此提示用户，而不是让用户莫名发现"都用不了了"。
      */

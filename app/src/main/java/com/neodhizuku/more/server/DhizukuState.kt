@@ -30,7 +30,6 @@ data object DhizukuState : KoinComponent {
     private val settingsRepo: SettingsRepo by inject()
     /**
      * 当前身份状态。
-     *
      * [isOwner] 的语义保持原样（拥有所有者权限），大量既有逻辑依赖它：
      * 服务启停、授权校验、所有者转移拦截都以它为"完全激活"的判据，
      * 把设备管理员算进去会连带影响这三条链路，因此另设 [isActive]。
@@ -122,16 +121,13 @@ data object DhizukuState : KoinComponent {
 
     /**
      * 无条件尝试清除本应用残留的设备身份，逐项返回成败。
-     *
      * 背景：通过 `transferOwnership` 把设备所有者转给别的应用后，部分机型
      * 不会顺带卸掉本应用的设备管理员身份，于是出现"设置里显示未激活、
      * 卸载却报设备管理器阻止"的错位状态（DELETE_FAILED_DEVICE_POLICY_MANAGER）。
-     *
      * 这里**不依赖状态检测**：转移之后 [State.isDeviceAdmin] 往往已经回到
      * false（`isAdminActive` 读不到），但系统卸载检查读的是另一份记录，
      * 按状态判断会得出"没有可清理的东西"而什么都不做。因此直接调用三个
      * 清理接口，让用户在卡死状态下有自救手段。
-     *
      * 不做自动清理：激活流程是 `setActiveAdmin` 之后才 `setDeviceOwner`，
      * 中间存在"仅管理员、还不是所有者"的窗口，此时自动卸掉管理员会把
      * 正在进行的激活打断。所以只由用户手动触发。
@@ -233,7 +229,6 @@ data object DhizukuState : KoinComponent {
 
     /**
      * 同步拉起守护服务，供 BroadcastReceiver 在 onReceive 内调用。
-     *
      * [sync] 的副作用跑在 IO 协程上，开机这种冷启动场景下协程可能来不及执行，
      * 进程就已经被回收。接收器必须有一个同步入口把服务启动请求发出去。
      */

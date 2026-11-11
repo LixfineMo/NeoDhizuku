@@ -17,7 +17,7 @@ import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.automirrored.twotone.ArrowForward
 import androidx.compose.material.icons.twotone.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,6 +50,7 @@ fun ExperimentalPage(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: ExperimentalViewModel = koinViewModel()
 ) {
+
     LaunchedEffect(Unit) {
         viewModel.collect()
     }
@@ -97,7 +98,7 @@ fun ExperimentalPage(
             }
 
             item("experimental_card") {
-                ElevatedCard {
+                NeoCard {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SwitchEntry(
                             title = stringResource(R.string.experimental_quick_activate_fix),
@@ -180,7 +181,7 @@ private fun featureTitle(feature: ExperimentalFeature): String = stringResource(
 /** 顶部说明：这些功能默认关闭，且未经充分验证。 */
 @Composable
 private fun NoteCard() {
-    ElevatedCard {
+    NeoCard {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

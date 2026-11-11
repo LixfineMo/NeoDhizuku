@@ -80,55 +80,38 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /** 底栏整体高度；药丸比它矮一圈，上下各留 4dp。 */
-private val GlassBarHeight: Dp = 54.dp
+private val GlassBarHeight: Dp = 64.dp
 
 /** 药丸高度，也是内容区高度。 */
-private val GlassPillHeight: Dp = 46.dp
+private val GlassPillHeight: Dp = 56.dp
 
 /** 底栏左右内缩，药丸在这个内缩区里滑动。 */
 private val GlassInset: Dp = 4.dp
 
 /** 页签图标尺寸，随底栏一起收小。 */
-private val GlassTabIconSize: Dp = 22.dp
+private val GlassTabIconSize: Dp = 24.dp
 
-/** 按压时药丸的额外放大比例。 */
-private const val PILL_PRESS_SCALE = 0.10f
+/** 药丸内按钮保持原尺寸，只做边缘折射。 */
+private const val PILL_PRESS_SCALE = 0f
 
 /** 速度换算成形变量的倍率，越大变形越明显。 */
 private const val PILL_VELOCITY_GAIN = 0.1f
 
 /**
  * 药丸与 Pager 位置相差多少页以内，才允许切到「逐帧跟随」。
- *
  * 取得小是为了避免跳变：刚拖完底栏时药丸在弹簧收敛中，与 Pager 差着好几页，
  * 此时直接跟随会让药丸瞬间跳到 Pager 的位置。
  */
 private const val FOLLOW_ENTER_TOLERANCE = 0.06f
 
-/**
- * 「暂停跟随」的最长时长。超过它说明页面那边没有如期滑动，此时强制接手，
- * 让药丸回到页面所在位置，保证两者最终一致。
- */
-private const val FOLLOW_BLOCK_TIMEOUT_MS = 1_200L
-
 internal val LocalGlassTabScale = staticCompositionLocalOf<() -> Float> { { 1f } }
 internal val LocalGlassContentColor = staticCompositionLocalOf { Color.Unspecified }
 
 /**
- * 液态玻璃底部选择栏。
- *
- * 与 [com.neodhizuku.more.ui.component.FloatingNavBar] 是两套并存的实现：
- * 这一套的手势是「按下即预览 + 阻尼弹簧跟手 + 松手落位」，位移用
- * stiffness 1000 的高刚度弹簧收敛，缩放的横纵阻尼不同（0.6 / 0.7），
- * 回弹时带轻微横向拉伸；玻璃高光随设备姿态移动。
- *
+ * 液态玻璃底部选择栏，与 [FloatingNavBar] 共用 [NavDestination] 与拖动状态。
  * 药丸里放整条页签并反向平移，与底栏每一项逐像素对齐；底栏那一份按
- * 「被药丸覆盖的比例」连续淡出，两者墨量互补，拖动途中不会空位或重影。
- *
- * 玻璃完全由 [glassPanel] 自绘：底色压到极低让背后页面直接透出来，
- * 再叠顶沿高光、边缘折射、色散与内阴影形成厚度感。
- * 没有引入外部模糊库——真实背景采样需要 GPU 侧离屏抓取，
- * 自绘方案在任意设备上表现一致，不依赖驱动能力。
+ * 「被药丸覆盖的比例」连续淡出，拖动途中不会空位或重影。
+ * 传入背景采样层时由 miuix-blur 做真实背景采样与折射，否则退回自绘。
  */
 @Composable
 fun GlassNavBar(
@@ -137,19 +120,13 @@ fun GlassNavBar(
     onNavigate: (String) -> Unit,
     /**
      * 连续页码（含小数），通常是 Pager 的 `currentPage + currentPageOffsetFraction`。
-     *
      * 药丸逐帧跟随这个值，而不是对每个整数页重启动画 —— 后者会让药丸
      * 先收敛到中间页并停住，等下一个整数页到来才继续，看起来就是"卡一下"。
      */
     selectedPosition: () -> Float = { selectedIndex().toFloat() },
     /** 拖动松手后让 Pager 立即对齐到落点，避免药丸与 Pager 位置对不上。 */
     onSettleTab: ((Int) -> Unit)? = null,
-    /**
-     * 玻璃背景透明度倍率。1f 为默认观感，调小更透、调大更实。
-     *
-     * 玻璃质感靠 [glassPanel] 自绘得到：极低透明度让背后页面直接透出来，
-     * 再叠顶端高光、边缘折射、色散与内阴影形成厚度感。
-     */
+    /** 玻璃背景透明度倍率。1f 为默认观感，调小更透、调大更实。 */
     backgroundTranslucency: Float = 1f,
     /**
      * miuix-blur 的背景层。传了就走「真实背景采样 + 折射」，
@@ -162,7 +139,9 @@ fun GlassNavBar(
     if (tabs.isEmpty()) return
 
     val scheme = MaterialTheme.colorScheme
-    val dark = (scheme.surface.red + scheme.surface.green + scheme.surface.blue) < 1.5f
+    // 背景图模式下 surface 是透明的（RGB 全 0），改用不透明容器色判断
+    val surface = scheme.surfaceContainerHigh
+    val dark = (surface.red + surface.green + surface.blue) < 1.5f
     val density = LocalDensity.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
 
@@ -188,7 +167,7 @@ fun GlassNavBar(
     // 折射由 miuix 画在下层，自绘的每一层都必须再压一档，否则会把折射成果盖住。
     // 这里不只压底色：高光 / 边缘 / 内阴影 / 色散同样是铺满整块面板画上去的，
     // 原样叠加等于在真折射上糊一层自绘的高光 —— 那就是"开了折射却看不到"。
-    val selfAlphaScale = if (useMiuix) 0.34f else 1f
+    val selfAlphaScale = if (useMiuix) 0.30f else 1f
 
     LaunchedEffect(useMiuix) {
         NeoLog.d(NeoLog.NAV) {
@@ -225,11 +204,8 @@ fun GlassNavBar(
     val onNavigateUpdated by rememberUpdatedState(onNavigate)
     val onSettleTabUpdated by rememberUpdatedState(onSettleTab)
     val gestureIndices = remember { IntArray(2) }
-    // 纯点击松手后暂停「逐帧跟随 Pager」：此时药丸已因按下预览而领先，
-    // 若立刻接管会把药丸拽回旧位置重滑，看着就是跳一下。等页面追上来再接手。
-    val followBlock = remember { booleanArrayOf(false) }
-    /** [followBlock] 的起始时刻，超时后无条件解除，避免跟随被永久阻塞。 */
-    val followBlockAt = remember { longArrayOf(0L) }
+    // 拖动落点用本地累计值，不读异步写入的 Animatable.targetValue。
+    val dragPosBox = remember { floatArrayOf(0f) }
 
     fun indexAt(positionX: Float): Int {
         if (tabWidthPx == 0f) return currentIndex
@@ -247,52 +223,39 @@ fun GlassNavBar(
             onDragStarted = { position ->
                 gestureIndices[0] = currentIndex
                 gestureIndices[1] = indexAt(position.x)
-                // 按下即预览：手指一落药丸就开始移动，点击才是"跟手"的。
-                // 必须用与 Pager 翻页同规格的慢弹簧（stiffness 200），不能用
-                // 高刚度那根（1000，约 150ms 到位）—— 后者药丸先到、页面才
-                // 开始滑，正是「药丸瞬移、页面慢半拍」的来源。
-                this.glideTo(gestureIndices[1].toFloat())
+                dragPosBox[0] = currentIndex.toFloat()
+                // 页面瞬时切换，药丸由 Pager 位置驱动。
             },
             onDragStopped = {
-                // 拖动过：落点取拖动位置；纯点击：落点是按下时算出的那一页。
-                // 不能用 targetValue —— 按下不预览后它仍停在当前页。
                 val target = if (didDrag) {
-                    targetValue.roundToInt().coerceIn(0, count - 1)
+                    dragPosBox[0].roundToInt().coerceIn(0, count - 1)
                 } else {
                     gestureIndices[1]
                 }
                 if (currentIndex != target) {
                     currentIndex = target
-                    NeoLog.d(NeoLog.NAV) { "底栏(玻璃) 拖动 -> ${tabs[target].route} ($target)" }
+                    NeoLog.d(NeoLog.NAV) { "底栏(玻璃) 选择 -> ${tabs[target].route} ($target)" }
+                    // 页面与药丸都瞬时对齐。
+                    this.snapTo(target.toFloat())
                     val settle = onSettleTabUpdated
-                    if (settle != null && didDrag) {
-                        // 拖动过：页面没跟着动，药丸自己落位、页面直接对齐，
-                        // 不再滑一次——否则 Pager 会从旧页一路滑过中间页
-                        settle(target)
-                        updateValue(target.toFloat())
-                    } else {
-                        // 纯点击：药丸在按下时已经用同规格慢弹簧起步，页面从现在
-                        // 开始滑。中途不能让 Pager 的逐帧回传接管 —— 那会把已经
-                        // 跑到目标页的药丸拽回旧位置重新滑，看起来是跳一下。
-                        // 由跟随循环等页面追上来后再无缝接手。
-                        followBlock[0] = true
-                        followBlockAt[0] = System.currentTimeMillis()
-                        onNavigateUpdated(tabs[target].route)
-                    }
+                    if (settle != null) settle(target)
+                    else onNavigateUpdated(tabs[target].route)
                 } else {
-                    updateValue(target.toFloat())
+                    this.snapTo(target.toFloat())
                 }
                 scope.launch { offsetAnimation.animateTo(0f, spring(1f, 300f, 0.5f)) }
             },
             onDragCancelled = {
                 currentIndex = gestureIndices[0]
-                updateValue(gestureIndices[0].toFloat())
+                this.snapTo(gestureIndices[0].toFloat())
                 scope.launch { offsetAnimation.animateTo(0f, spring(1f, 300f, 0.5f)) }
             },
             onDrag = { _, dragAmount ->
                 if (tabWidthPx > 0f && dragAmount.x != 0f) {
                     val delta = dragAmount.x / tabWidthPx * if (isLtr) 1f else -1f
-                    updateValue((targetValue + delta).coerceIn(0f, maxIndex))
+                    dragPosBox[0] = (dragPosBox[0] + delta).coerceIn(0f, maxIndex)
+                    // snapTo 直接落位，不每帧重启 animateTo 弹簧。
+                    this.dragTo(dragPosBox[0])
                     scope.launch { offsetAnimation.snapTo(offsetAnimation.value + dragAmount.x) }
                 }
             },
@@ -306,7 +269,7 @@ fun GlassNavBar(
         var aligned = false
         // 是否处于「逐帧跟随 Pager」状态。
         // 进入要严格：偏差足够小才接手，否则会看到药丸直接跳过去。
-        // 进入后不再因帧间位移退出 —— 快速滚动时单帧位移并不小。
+        // 进入后不因帧间位移退出 —— 快速滚动时单帧位移并不小。
         var following = false
         snapshotFlow {
             selectedPositionUpdated().coerceIn(0f, maxIndex)
@@ -321,19 +284,6 @@ fun GlassNavBar(
                 currentIndex = pos.roundToInt().coerceIn(0, count - 1)
                 drag.snapTo(pos)
                 return@collectLatest
-            }
-            // 纯点击松手后药丸领先于页面（按下即预览），此时若逐帧接管会把药丸
-            // 拽回页面所在位置重滑。等页面追到几乎同位再接手，中间没有跳变。
-            if (followBlock[0]) {
-                // 页面若始终没动（极端情况），超时后也要解除并交回页面位置，
-                // 否则 followBlock 会一直挡着，之后的页码变化药丸都不再跟随
-                val expired =
-                    System.currentTimeMillis() - followBlockAt[0] > FOLLOW_BLOCK_TIMEOUT_MS
-                if (!expired && abs(drag.value - pos) > FOLLOW_ENTER_TOLERANCE) {
-                    return@collectLatest
-                }
-                followBlock[0] = false
-                following = true
             }
             if (!following && abs(drag.value - pos) > FOLLOW_ENTER_TOLERANCE) {
                 // 药丸与 Pager 差得还远（刚拖完底栏，药丸正在弹簧收敛），
@@ -363,7 +313,8 @@ fun GlassNavBar(
     }
     val pillOffsetPx: () -> Float = { pillBasePx() + panelOffset }
 
-    val tabScale: () -> Float = { 1f + 0.14f * drag.pressProgress }
+    // 不做图标放大：药丸内保持原尺寸，只保留边缘折射。
+    val tabScale: () -> Float = { 1f }
     val inactiveContent = scheme.onSurfaceVariant
     val activeContent = scheme.primary
 
@@ -419,18 +370,17 @@ fun GlassNavBar(
                                 shape = { CircleShape },
                                 effects = {
                                     vibrancy()
-                                    blur(5.dp.toPx(), 5.dp.toPx())
+                                    blur(4.dp.toPx(), 4.dp.toPx())
+                                    // 静态不折射，按下才从 0 渐显。
+                                    val progress = drag.pressProgress
                                     lens(
-                                        // 折射强度随按压增强：平时只是淡淡一层，
-                                        // 手指按下才明显起来 —— 这是"点起来才有折射"的来源。
-                                        refractionHeight =
-                                            (14f + 16f * drag.pressProgress).dp.toPx(),
-                                        refractionAmount =
-                                            (6f + 26f * drag.pressProgress).dp.toPx(),
+                                        refractionHeight = 24.dp.toPx() * progress,
+                                        refractionAmount = 24.dp.toPx() * progress,
                                     )
                                 },
                                 onDrawSurface = {
-                                    drawRect(scheme.surfaceContainer.copy(alpha = 0.10f))
+                                    // 中性黑，不用浅色容器色：浅色主题下那层会把整条底栏洗白。
+                                    drawRect(Color.Black.copy(alpha = 0.08f))
                                 },
                             )
                         } else {
@@ -450,8 +400,11 @@ fun GlassNavBar(
                         specularShift = specularShift,
                         rimAlpha = (if (dark) 0.14f else 0.26f) * selfAlphaScale,
                         shadeAlpha = (if (dark) 0.22f else 0.08f) * selfAlphaScale,
-                        lensAlpha = (if (dark) 0.10f else 0.22f) * selfAlphaScale,
-                        dispersionAlpha = (if (dark) 0.10f else 0.18f) * selfAlphaScale,
+                        // 自绘假折射带/色散边全部去掉：真折射由 miuix 提供，
+                        // 两套叠在一起按压时会在边缘打架（重影）。NPatch 也没有。
+                        lensAlpha = 0f,
+                        dispersionAlpha = 0f,
+                        refractionProgress = { drag.pressProgress },
                         // miuix 的 vibrancy() 已经提过一次饱和，再提一次会发假
                         vibrancy = if (useMiuix) 1f else 1.35f,
                         borderColors = glassBorderColors(dark)
@@ -490,26 +443,22 @@ fun GlassNavBar(
                                 backdrop = combinedBackdrop,
                                 shape = { CircleShape },
                                 effects = {
-                                    vibrancy()
-                                    // 模糊压到 3.5dp：模糊越强，折射出来的图标越糊，
-                                    // 看着就是"折射不清晰"
-                                    blur(3.5.dp.toPx(), 3.5.dp.toPx())
+                                    // 药丸会重新采样并覆盖底栏那一层，
+                                    // 补上同半径 blur 才能保持整条底栏连续。
+                                    blur(4.dp.toPx(), 4.dp.toPx())
+                                    val progress = drag.pressProgress
                                     lens(
-                                        // 折射高度：从边缘往里算多少像素的带状区域参与折射。
-                                        // 药丸高 46dp，位移在边缘最大、中心归零，所以按钮本体
-                                        // 不会被放大，被折弯的是贴近轮廓的那一圈。
-                                        refractionHeight =
-                                            (16f + 14f * drag.pressProgress).dp.toPx(),
-                                        // 折射量：边缘最大位移。随按压从 8dp 升到 38dp，
-                                        // 平时只留很淡的一层，按下才明显"点起来"。
-                                        refractionAmount =
-                                            (8f + 30f * drag.pressProgress).dp.toPx(),
+                                        // 静态 progress=0 时 lens() 直接 return，
+                                        // 按下才渐显折射与色散。
+                                        refractionHeight = 16.dp.toPx() * progress,
+                                        refractionAmount = 24.dp.toPx() * progress,
                                         depthEffect = true,
-                                        chromaticAberration = 0.5f,
+                                        chromaticAberration = 0.65f,
                                     )
                                 },
                                 onDrawSurface = {
-                                    drawRect(scheme.surfaceContainer.copy(alpha = 0.10f))
+                                    // 中性黑，不用浅色容器色：浅色主题下那层会把整条底栏洗白。
+                                    drawRect(Color.Black.copy(alpha = 0.08f))
                                 },
                             )
                         } else {
@@ -528,10 +477,12 @@ fun GlassNavBar(
                         specularShift = specularShift,
                         rimAlpha = (if (dark) 0.18f else 0.30f) * selfAlphaScale,
                         shadeAlpha = (if (dark) 0.20f else 0.10f) * selfAlphaScale,
-                        lensAlpha = (if (dark) 0.16f else 0.34f) * selfAlphaScale,
-                        dispersionAlpha = (if (dark) 0.16f else 0.28f) * selfAlphaScale,
+                        lensAlpha = 0f,
+                        dispersionAlpha = 0f,
                         vibrancy = if (useMiuix) 1f else 1.5f,
                         borderColors = glassBorderColors(dark),
+                        // 只保留 miuix 真折射；自绘层在按压时按 glassFade 让路。
+                        refractionProgress = { drag.pressProgress },
                         pressProgress = { drag.pressProgress }
                     )
                     .glassInnerShadow(CircleShape) {
@@ -547,7 +498,6 @@ fun GlassNavBar(
                 // ① 采样层：整条页签画在完全透明的一行上，唯一目的是被录进
                 //    tabsBackdrop。药丸边缘那圈"按钮被折弯"就来自这一层 ——
                 //    它不是画上去的，是折射出来的。
-                //
                 //    alpha(0f) 必须写在 layerBackdrop 之前（即作为外层）：
                 //    这样录取到的是不带透明度的原始内容，而这一层本身不可见。
                 //    反过来的话录进去的就是一片全透明，等于没录。
@@ -596,7 +546,6 @@ fun GlassNavBar(
 
 /**
  * 单个页签。底栏与药丸里各渲染一份，都用 `weight(1f)` 均分，宽度完全一致。
- *
  * 图标只由 [activeLook] 决定：底栏一份恒用描边图标，药丸一份恒用填充图标，
  * 中途半覆盖时不会出现同一项两种描边混在一起。
  */

@@ -8,15 +8,13 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Xposed 模块（DAX 化转发）的配置与报到表。
- *
  * 这个 object 住在 NeoDhizuku 主进程里；[HookConfigProvider] 是它唯一的跨进程入口。
  * 模块代码运行在**被 hook 的第三方进程**，只能通过 ContentProvider.call 取配置。
- *
  * 设计要点：
  *  - 总开关默认关闭。没打开时 Provider 返回 disabled，模块加载了也完全 no-op，
  *    这就是「没有 LSPosed / root 的用户无感」在代码侧的保证。
- *  - scope 留空 = 不额外过滤，交给 LSPosed 里勾选的作用域决定；
- *    一旦填了包名，就只有这些包会被放行。
+ *  - scope 是「应用层允许名单」：留空 = 不额外过滤，完全跟随框架里勾选的
+ *    作用域；填了包名就只有这些包会被放行。两层作用域是 AND 关系。
  *  - configVersion 每次改动自增，模块心跳据此热更新行为参数。
  *  - 报到表只存内存，进程重启即清空，与「启动后才生效」语义一致。
  */
@@ -93,6 +91,7 @@ object HookConfigStore {
     /** 下发给模块的配置。未放行时返回 empty=true，模块据此保持 no-op。 */
     fun buildConfig(pkg: String): Bundle {
         lastContact.set(System.currentTimeMillis())
+        markLoaded()
         val b = Bundle()
         if (!allowed(pkg)) {
             b.putBoolean("enabled", false)
@@ -121,6 +120,7 @@ object HookConfigStore {
     ): Boolean {
         // 报到也刷新接触时间
         lastContact.set(System.currentTimeMillis())
+        markLoaded()
         if (!allowed(pkg)) return false
         reports["$pkg:$pid"] = Report(pkg, pid, uid, processName, framework, sdk, System.currentTimeMillis())
         return true
@@ -153,12 +153,37 @@ object HookConfigStore {
 
     /**
      * 模块是否已被 LSPosed / LSPatch 加载过。
-     *
-     * 只看「最近 60 秒内有没有来问过配置或报到」，与总开关无关：
-     * 用户还没打开总开关时也必须能看见配置入口，否则永远打不开它。
-     * 没有 Xposed 框架的设备上没人调用 Provider，恒为 false。
+     * 早期版本只看「最近 60 秒内有没有来问过配置」，主进程一重启或目标应用没在跑，
+     * 模块入口改由持久化标记与框架安装状态判定：
+     *  - 曾经来问过配置 → 持久化标记，常驻显示；
+     *  - 或当前 60 秒内有报到/心跳；
+     *  - 或设备上装了 LSPosed / LSPatch 管理器（刚勾完作用域、还没启动目标应用也能进）。
+     * 完全没有框架的设备三项皆 false，界面侧仍然无感。
+     * 与总开关无关：用户还没打开总开关时也必须能看见入口，否则永远打不开它。
      */
-    fun moduleDetected(): Boolean = frameworkLabel() != null
+    fun moduleDetected(): Boolean =
+        everLoaded() || frameworkLabel() != null || frameworkInstalled()
+
+    private const val KEY_EVER_LOADED = "everLoaded"
+
+    private fun markLoaded() {
+        if (!::app.isInitialized) return
+        if (!prefs().getBoolean(KEY_EVER_LOADED, false)) {
+            prefs().edit().putBoolean(KEY_EVER_LOADED, true).apply()
+        }
+    }
+
+    private fun everLoaded(): Boolean =
+        ::app.isInitialized && prefs().getBoolean(KEY_EVER_LOADED, false)
+
+    /** 装了框架管理器就给入口，避免「刚在 LSPosed 勾完、还得去调试页」的死循环。 */
+    private fun frameworkInstalled(): Boolean {
+        if (!::app.isInitialized) return false
+        val pm = app.packageManager
+        return listOf("org.lsposed.manager", "top.nkbe.npatch").any { pkg ->
+            runCatching { pm.getApplicationInfo(pkg, 0); true }.getOrDefault(false)
+        }
+    }
 
     /** 已 hook 到的去重应用数 / 活跃进程数（60 秒内有心跳）。 */
     fun hookedCounts(): Pair<Int, Int> {
@@ -172,5 +197,6 @@ object HookConfigStore {
         prefs().edit().clear().apply()
         version.set(1)
         reports.clear()
+        lastContact.set(0)
     }
 }

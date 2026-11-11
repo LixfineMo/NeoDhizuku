@@ -37,11 +37,9 @@ data class PrivateFile(
 
 /**
  * 应用私有区的配置文件访问。
- *
  * CE 与 DE（设备加密存储）两边都扫 —— 本项目从某个版本起把设置与授权库
  * 迁到了 DE，只看 filesDir 会漏掉 api_policy.json / whitelist.json /
  * dhizuku_settings.xml 这些真正在生效的文件。
- *
  * 只允许文本类文件编辑；数据库、图片等二进制只读，避免把数据库写坏。
  */
 object PrivateFileStore : KoinComponent {

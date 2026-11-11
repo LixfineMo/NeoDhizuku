@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -81,7 +81,7 @@ fun RuntimeInfoPage(
                     )
                 }
                 item("card_${section.name}") {
-                    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    NeoCard(modifier = Modifier.fillMaxWidth()) {
                         androidx.compose.foundation.layout.Column(
                             modifier = Modifier.padding(12.dp)
                         ) {

@@ -72,13 +72,10 @@ private enum class LogTab { Audit, Runtime }
 
 /**
  * 调用记录页。
- *
  * 两个 Tab：调用记录（第三方应用调用过哪些能力）、运行日志（服务端自身日志）。
- *
  * 分组层级：
  * - 调用记录：按自然日 → **按应用**。一个应用一张卡，点开看该应用当天的全部调用
  * - 运行日志：按自然日 → **按秒**。同一秒的日志并成一张卡，避免刷屏
- *
  * 最新的日期在最上面；长按卡片可复制该卡片的全部文本。
  * 未激活时也能查看运行日志。
  */
@@ -197,7 +194,6 @@ private fun formatClockMs(timestamp: Long): String =
 
 /**
  * 两级分组：先按自然日，日內再按 `subKey` 分。
- *
  * 用显式的类而不是 Pair / 解构声明：Map.Entry 解构与 Pair 在部分工具链下
  * 会出现 component1() 歧义，显式类型更容易稳定编译。
  */
@@ -385,7 +381,6 @@ private fun runtimeText(list: List<RuntimeLogEntity>): String =
 
 /**
  * 去重后的一行运行日志。
- *
  * 同一秒内完全相同的日志（同级别、同分类、同内容）只保留一条，
  * 用 [count] 记录重复次数 —— 例如心跳类日志一秒能刷出十几条完全一样的，
  * 全部展开既没法看也把真正有用的信息淹没了。
@@ -397,7 +392,6 @@ private data class RuntimeLineItem(
 
 /**
  * 按「级别 + 分类 + 内容」折叠重复项。
- *
  * 保留首次出现那条的时间戳，重复次数累加到 [RuntimeLineItem.count]。
  */
 private fun dedupe(list: List<RuntimeLogEntity>): List<RuntimeLineItem> {
@@ -514,7 +508,6 @@ private fun RuntimeRow(entity: RuntimeLogEntity, count: Int = 1) {
 
 /**
  * 可展开、可长按复制的分组卡片。
- *
  * 点击切换展开；长按把 `copyText` 整段复制到剪贴板。
  * 用系统 ClipboardManager 而非 Compose 剪贴板，避免版本差异。
  */

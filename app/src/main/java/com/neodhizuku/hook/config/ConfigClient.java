@@ -54,7 +54,7 @@ public final class ConfigClient {
         b.putInt("pid", android.os.Process.myPid());
         b.putLong("configVersion", version);
         Bundle r = call(ctx, M_HEARTBEAT, b);
-        if (r == null) return -1;              // -1 = 失联，本轮不重装
+        if (r == null) return -1;              // -1 = 失联，跳过重装
         return r.getLong("configVersion", version);
     }
 }

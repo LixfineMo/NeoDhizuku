@@ -26,7 +26,6 @@ import org.koin.core.component.inject
 
 /**
  * 关于页：更新检测与灰度开关。
- *
  * 检测始终走网络，所以只在用户点按钮时才发起；开关只决定
  * 非正式版本算不算"可更新"，不影响是否发起请求。
  */
@@ -119,9 +118,7 @@ class AboutViewModel : ViewModel(), KoinComponent {
         updateState = UpdateState.Idle
     }
 
-    // ------------------------------------------------------------------
     // 反馈
-    // ------------------------------------------------------------------
 
     /** 反馈提交状态 */
     var feedbackState by mutableStateOf<FeedbackState>(FeedbackState.Idle)
@@ -129,7 +126,6 @@ class AboutViewModel : ViewModel(), KoinComponent {
 
     /**
      * 提交反馈。
-     *
      * 走的是更新配置里那一台服务器，所以地址不用用户再填一次。
      */
     fun submitFeedback(title: String, content: String, contact: String) {

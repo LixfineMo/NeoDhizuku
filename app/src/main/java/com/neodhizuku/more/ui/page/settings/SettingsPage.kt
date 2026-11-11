@@ -13,16 +13,21 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop
 import androidx.navigation.NavController
@@ -34,9 +39,15 @@ import androidx.navigation.compose.rememberNavController
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.NeoLog
 import com.neodhizuku.more.server.DhizukuState
+import com.neodhizuku.more.ui.page.settings.debug.DebugUiOverrides
 import com.neodhizuku.more.ui.component.AppBackground
+import com.neodhizuku.more.ui.component.LocalCardBlurDp
+import com.neodhizuku.more.ui.component.LocalCardGlassBackdrop
+import com.neodhizuku.more.ui.component.LocalCardSolidFallback
 import com.neodhizuku.more.ui.component.FloatingNavBar
 import com.neodhizuku.more.ui.component.NavDestination
+import com.neodhizuku.more.ui.component.RailTotalWidth
+import com.neodhizuku.more.ui.component.SideNavRail
 import com.neodhizuku.more.ui.component.glass.GlassNavBar
 import com.neodhizuku.more.ui.page.settings.activate.ActivatePage
 import com.neodhizuku.more.ui.page.settings.security.SecurityPage
@@ -56,12 +67,15 @@ import com.neodhizuku.more.ui.page.settings.calllog.CallLogPage
 import com.neodhizuku.more.ui.page.settings.delegation.DelegationPage
 import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalPage
 import com.neodhizuku.more.ui.page.settings.home.HomePage
+import com.neodhizuku.more.ui.page.settings.owneridentity.OwnerIdentityPage
 import com.neodhizuku.more.ui.page.settings.theme.ThemePage
 import com.neodhizuku.more.ui.page.settings.apipolicy.ApiPolicyPage
+import com.neodhizuku.more.ui.page.settings.hookconfig.HookConfigPage
 import com.neodhizuku.more.ui.page.settings.whitelist.WhitelistPage
 import com.neodhizuku.more.ui.theme.ThemeConfig
 import com.neodhizuku.more.ui.theme.ThemeSettings
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 // 容器页本身也叫 SettingsPage，与子页同名；用别名避免解析歧义
@@ -77,7 +91,7 @@ fun SettingsPage(windowInsets: WindowInsets) {
 
     val useNavBar = NeoDhizuku.on(NeoDhizuku.UseFloatingNavBar)
     // 设备管理员也算已激活，底栏与管理入口同样可用
-    val isOwner = DhizukuState.state.isActive
+    val isOwner = DebugUiOverrides.displayState().isActive
 
     val tabs = remember(isOwner) {
         NavDestination.entries.filter { !it.requiresOwner || isOwner }
@@ -90,6 +104,15 @@ fun SettingsPage(windowInsets: WindowInsets) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val showNavBar = useNavBar && currentRoute == SettingsRoute.Tabs.route
+
+    // 宽屏（平板 / 横屏）把底部悬浮栏换成左侧竖排导航栏。
+    // 用 screenWidthDp 判断，不额外引入 window-size-class 依赖；
+    // 与手机端一致：只在主 Tab 容器显示，二级页面保持全屏。
+    // 侧栏不受「使用悬浮底栏」开关约束：那个开关管的是手机端那条横条，
+    // 平板上的竖排导航是独立布局，不该被它一起关掉。
+    val expanded = LocalConfiguration.current.screenWidthDp >= 600
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val railVisible = expanded && currentRoute == SettingsRoute.Tabs.route
 
     // 激活状态变化会让页数量变动，越界时收回最后一页
     LaunchedEffect(tabs.size) {
@@ -120,11 +143,19 @@ fun SettingsPage(windowInsets: WindowInsets) {
 
     // 底栏四页之间走 Pager 翻页，其余路由照旧用 NavController。
     // 这样首页/设置页里的入口点进去才会带着底栏，而不是跳成没有底栏的独立页。
+    // 翻页改为瞬时对齐：animateScrollToPage 跨多页会逐页跑弹簧动画并组合
+    // 中间页，四张重页面叠在一起就是「切页卡半秒」的来源。
+    val settleJobBox = remember { arrayOfNulls<Job>(1) }
+    val settleTab: (Int) -> Unit = { index ->
+        settleJobBox[0]?.cancel()
+        settleJobBox[0] = scope.launch { pagerState.scrollToPage(index) }
+    }
+
     val onSelectTab: (String) -> Unit = { route ->
         val index = tabs.indexOfFirst { it.route == route }
         if (index >= 0) {
             NeoLog.d(NeoLog.NAV) { "select tab -> $route (index=$index)" }
-            scope.launch { pagerState.animateScrollToPage(index) }
+            settleTab(index)
         } else {
             runCatching { navController.navigate(route) }.onFailure {
                 NeoLog.e(NeoLog.NAV, { "navigate failed: $route" }, it)
@@ -152,23 +183,39 @@ fun SettingsPage(windowInsets: WindowInsets) {
 
     // 折射需要真实背景：把页面内容登记成 miuix 的采样源，
     // 底栏再按同一个 backdrop 取背景做折射 / 模糊。
-    //
     // lambda 是绘制作用域、不是组合作用域，里面读不到 MaterialTheme，
     // 所以兜底底色要在外面先取好。
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val glassBackdrop = if (glassNavBar) {
+    // 采样源要铺不透明底：主题层把 surface 做成半透明了，直接用会把透明区一起采进去。
+    // 兜底一律用中性黑，浅色主题下不会把卡片 / 底栏洗成一片白。
+    val backdropBase = Color.Black
+    // 宽屏不渲染底栏，也就没有折射的消费者；保留 backdrop 只会让侧栏把自己
+    // 录进采样源，每帧多一层绘制。关掉它是宽屏流畅度的一半。
+    val glassBackdrop = if (glassNavBar && !expanded) {
         rememberLayerBackdrop {
-            drawRect(surfaceColor)
+            drawRect(backdropBase)
             drawContent()
         }
     } else {
         null
     }
 
+    // 卡片玻璃：只把「背景图层」登记成采样源，避免把卡片自己的文字也录进 backdrop。
+    // Android 13 以下 miuix 的 RuntimeShader 不可用，退回接近实色的卡片兜底。
+    // 先铺一层不透明底色再记录背景图：模糊在圆角外沿取样时不会采到透明区，
+    // 否则卡片四周会出现一圈发黑的边，中间又显得格外白。
+    val cardBackdrop = rememberLayerBackdrop {
+        drawRect(backdropBase)
+        drawContent()
+    }
+    val cardGlassSupported = themeSettings.backgroundImageSet &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    val cardGlassActive = cardGlassSupported && themeSettings.cardBlur > 0f
+    val cardSolidFallback = themeSettings.backgroundImageSet && !cardGlassSupported
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            if (showNavBar) {
+            if (!expanded && showNavBar) {
                 // 撑满宽度，否则底栏只占内容宽度，两侧点不到
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (glassNavBar) {
@@ -182,10 +229,8 @@ fun SettingsPage(windowInsets: WindowInsets) {
                                     .coerceIn(0f, (tabs.size - 1).coerceAtLeast(0).toFloat())
                             },
                             onNavigate = onSelectTab,
-                            // 拖动松手后直接对齐，不再走一次滑动动画
-                            onSettleTab = { index ->
-                                scope.launch { pagerState.scrollToPage(index) }
-                            },
+                            // 拖动松手后直接对齐
+                            onSettleTab = settleTab,
                             backdrop = glassBackdrop,
                         )
                     } else {
@@ -199,10 +244,8 @@ fun SettingsPage(windowInsets: WindowInsets) {
                                     .coerceIn(0f, (tabs.size - 1).coerceAtLeast(0).toFloat())
                             },
                             onNavigate = onSelectTab,
-                            // 拖动松手后直接对齐，不再走一次滑动动画
-                            onSettleTab = { index ->
-                                scope.launch { pagerState.scrollToPage(index) }
-                            },
+                            // 拖动松手后直接对齐
+                            onSettleTab = settleTab,
                             liquidGlass = themeSettings.useLiquidGlass
                         )
                     }
@@ -214,6 +257,11 @@ fun SettingsPage(windowInsets: WindowInsets) {
         // 放在容器外的东西折射不出来。
         val bottomSpace = padding.calculateBottomPadding()
 
+        CompositionLocalProvider(
+            LocalCardGlassBackdrop provides if (cardGlassActive) cardBackdrop else null,
+            LocalCardBlurDp provides themeSettings.cardBlur,
+            LocalCardSolidFallback provides cardSolidFallback
+        ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -226,14 +274,18 @@ fun SettingsPage(windowInsets: WindowInsets) {
 
             if (themeSettings.backgroundImageSet) {
                 AppBackground(
+                    // 采样源只登记图片层，遮罩在其后绘制：
+                    // 四周被压暗、卡片采到的是原图，两者同模糊但深浅不同。
+                    imageLayer = if (cardGlassActive) Modifier.layerBackdrop(cardBackdrop)
+                    else Modifier,
                     blurRadiusDp = themeSettings.backgroundBlur,
                     dimAmount = themeSettings.backgroundDim
                 )
             }
 
             NavHost(
-                navController = navController,
-                startDestination = SettingsRoute.Tabs.route,
+                        navController = navController,
+                        startDestination = SettingsRoute.Tabs.route,
                 modifier = Modifier
                     .fillMaxSize()
                     .then(if (showNavBar) Modifier else Modifier.padding(bottom = bottomSpace))
@@ -241,12 +293,22 @@ fun SettingsPage(windowInsets: WindowInsets) {
             composable(route = SettingsRoute.Tabs.route) {
                 HorizontalPager(
                     state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(
+                            if (railVisible) Modifier.padding(
+                                start = if (isLtr) RailTotalWidth else 0.dp,
+                                end = if (isLtr) 0.dp else RailTotalWidth
+                            ) else Modifier
+                        ),
                     // 相邻页保持已组合状态：翻页时不用现做一次整页组合，
                     // 否则每次切页都要在滚动的第一帧里把新页拼出来，必然掉帧
                     beyondViewportPageCount = 1
                 ) { page ->
-                    when (tabs.getOrNull(page)?.route) {
+                    // 页签数量变化（激活态切换）与 Pager 页码错位时回落到首页，
+                    // 不让 else 分支渲染出一张空白页。
+                    val destination = tabs.getOrNull(page) ?: tabs.firstOrNull()
+                    when (destination?.route) {
                         SettingsRoute.Home.route -> HomePage(
                             windowInsets = windowInsets,
                             navController = navController,
@@ -303,6 +365,12 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     navController = navController
                 )
             }
+            composable(route = SettingsRoute.HookConfig.route) {
+                HookConfigPage(
+                    windowInsets = windowInsets,
+                    navController = navController
+                )
+            }
             composable(route = SettingsRoute.Experimental.route) {
                 ExperimentalPage(
                     windowInsets = windowInsets,
@@ -326,6 +394,9 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     windowInsets = windowInsets,
                     navController = navController
                 )
+            }
+            composable(route = SettingsRoute.OwnerIdentity.route) {
+                OwnerIdentityPage(navController = navController)
             }
             composable(route = SettingsRoute.UpdateSettings.route) {
                 UpdateSettingsPage(
@@ -390,6 +461,30 @@ fun SettingsPage(windowInsets: WindowInsets) {
                 )
             }
             }
+
+            // 侧栏叠在内容之上，而不是和 NavHost 并列放进 Row。
+            // 并列时 Pager 被 weight(1f) 钳在受限宽度里，每次翻页都要重测整条
+            // 布局；叠层则让 Pager 保持 fillMaxSize，测量路径与手机端完全一致。
+            if (railVisible) {
+                Box(
+                    modifier = Modifier.align(
+                        if (isLtr) Alignment.CenterStart else Alignment.CenterEnd
+                    )
+                ) {
+                    SideNavRail(
+                        tabs = tabs,
+                        selectedIndex = { pagerState.currentPage },
+                        selectedPosition = {
+                            (pagerState.currentPage + pagerState.currentPageOffsetFraction)
+                                .coerceIn(0f, (tabs.size - 1).coerceAtLeast(0).toFloat())
+                        },
+                        onNavigate = onSelectTab,
+                        onSettleTab = settleTab,
+                        showPill = themeSettings.tabletShowPill,
+                    )
+                }
+            }
+        }
         }
     }
 }

@@ -17,17 +17,14 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 内阴影：让玻璃有厚度。
- *
  * 阴影落在 [GlassInnerShadow.offset] 的**反方向**内侧：[offset] 向下为正时
  * 可见的是上沿一弯，与 CSS `box-shadow: inset` 的语义一致。
- *
  * 这里没有沿用「离屏挖洞」的常见做法。那条路子把「填满的轮廓」与
  * 「偏移后的镂空」录进同一离屏层，靠 [androidx.compose.ui.graphics.BlendMode.Clear]
  * 挖出月牙，再模糊后贴回 —— 那条路径依赖 `GraphicsLayer.record` 与
  * `CompositingStrategy.Offscreen`，一旦离屏层的尺寸或合成策略与预期不符，
  * 结果不是阴影变淡而是**整层被清成透明**，内容一起消失。
- *
- * 改成纯几何绘制：把描边画在**内缩半个描边宽度**的轮廓上，于是描边的外沿
+ * 采用纯几何绘制：把描边画在**内缩半个描边宽度**的轮廓上，于是描边的外沿
  * 正好贴住形状边缘，不会溢出到圆角外面。不申请离屏层、不做混合挖洞，
  * 也就没有把内容清掉的可能。视觉上少一点模糊的柔和感，换来的是确定性。
  */

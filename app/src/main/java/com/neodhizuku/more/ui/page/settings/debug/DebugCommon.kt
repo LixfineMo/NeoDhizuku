@@ -15,7 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.automirrored.twotone.ArrowForward
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +40,6 @@ import com.neodhizuku.more.ui.theme.exclude
 
 /**
  * 调试分区共用的页面骨架。
- *
  * 统一处理 windowInsets、返回键、标题，避免每个二级页面各写一遍 Scaffold。
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +84,7 @@ fun DebugMenuCard(
     danger: Boolean = false
 ) {
     val tint = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    NeoCard(modifier = Modifier.fillMaxWidth()) {
         Surface(
             onClick = onClick,
             color = Color.Transparent,
@@ -153,7 +152,6 @@ fun DebugInfoRow(
 
 /**
  * 修改运行参数的弹窗。
- *
  * 标题直接用变量名（不翻译），输入框预填当前值。确认才写，取消不写。
  */
 @Composable

@@ -31,11 +31,6 @@ class SettingsViewModel : ViewModel(), KoinComponent {
                 state = state.copy(dhizukuEnabled = dhizukuEnabled)
             }
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            settingsRepo.flowAllowOwnerTransfer().collect { allow ->
-                state = state.copy(allowOwnerTransfer = allow)
-            }
-        }
     }
 
     fun setWhitelistMode(enabled: Boolean) {
@@ -50,9 +45,4 @@ class SettingsViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun setAllowOwnerTransfer(enabled: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            settingsRepo.isAllowOwnerTransfer = enabled
-        }
-    }
 }

@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * 把授权表在内存里缓存一份，避免每次 API 调用都在 Binder 线程上
  * runBlocking 地查一次 Room（首次还涉及开库 / 迁移）。
- *
  * 由 DaemonService 在启动时全量载入，并在包安装 / 卸载 / 变更广播时增量更新。
  * 未载入完成时 [get] 返回 null，调用方会回退到原来的 runBlocking 查询路径，
  * 因此不会引入"缓存未就绪导致拒绝服务"的风险。

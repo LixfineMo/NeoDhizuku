@@ -9,12 +9,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 授权请求的一次性令牌（**本类位于 app 模块**）。
- *
  * 为什么放在 app 模块而不是 server_api：
  * app 可能编译/运行在「本地 Dhizuku-API 源码」或「Maven 上的官方包」两种模式下，
  * 若引用 server_api 中新增的类，在 Maven 模式下会直接编译失败。
  * 放在 app 模块可以保证两种模式都能编译，加固逻辑在两种模式下都生效。
- *
  * 授权入口的 uid 不信任客户端传入，改由 MyDhizukuService.onTransact() 拦截
  * requestPermission 事务，用 Binder.getCallingUid() 取真实 uid 并签发 token；
  * Activity 校验 token 通过后才认可该 uid。无 token 或 token 无效（例如第三方
@@ -23,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap
 object RequestPermissionToken {
     /**
      * token 有效期。
-     *
      * 取值较长是刻意的：授权弹窗改由通知拉起后，用户可能过几分钟才点开，
      * 60 秒会大量过期。10 分钟兼顾安全性与可用性（进程被回收即失效）。
      */
@@ -34,9 +31,8 @@ object RequestPermissionToken {
 
     /**
      * 标记「由本应用的通知拉起」，而非第三方 App 直接 startActivity。
-     *
      * 该路径下没有 listener 可回调（老版本客户端从未发起过请求），
-     * 授权结果直接写库，不再回调。
+     * 授权结果直接写库，不回调。
      */
     const val PARAM_SELF_LAUNCH = "neo_self_launch"
 
@@ -54,11 +50,8 @@ object RequestPermissionToken {
 
         /**
          * 是否已被弹窗取用。
-         *
          * 取用**不等于**移除：token 必须先留在表里，等 [dispatchResult] 拿到
-         * listener 回调完成后再移除。之前 consume 直接 remove，导致
-         * dispatchResult 二次取用时拿到 null、listener 永不回调，
-         * 客户端表现为授权后一直转圈。
+         * listener 回调完成后再移除，否则二次取用会拿到 null。
          */
         @Volatile
         var consumed: Boolean = false
@@ -104,9 +97,7 @@ object RequestPermissionToken {
 
     /**
      * 校验并标记 token 为已取用（单次有效）。
-     *
      * 记录本身保留在表中，供 [dispatchResult] 回调使用。
-     *
      * @return token 对应的 uid；无效或过期返回 -1。
      */
     fun consume(token: String?): Int {
@@ -129,7 +120,6 @@ object RequestPermissionToken {
 
     /**
      * 回调授权结果并移除记录。
-     *
      * 必须**先移除再回调**：回调是跨进程调用，对端可能立刻再次发起请求，
      * 晚移除会让这条已完成的记录多留一会儿。
      */

@@ -51,7 +51,6 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
 
     /**
      * 重新挑官方域名。
-     *
      * 免费解析随时会挂，挂了之后要能手动换一个，不然只能等它自己恢复。
      */
     fun reprobeOfficial() {

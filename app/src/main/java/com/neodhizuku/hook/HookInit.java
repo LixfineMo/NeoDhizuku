@@ -14,10 +14,8 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
- * 「成功启动时才生效」的落点：
- *   模块 APK 被 LSPosed/LSPatch 加载时只挂一个 attach 观察者；
- *   目标进程起来后先向 NeoDhizuku 握手，未启用 / 未报到 -> 整个模块保持 no-op。
- *   不碰 system_server，不会 bootloop。
+ * 模块加载时只挂 attach 观察者；目标进程起来后先握手，
+ * 未启用或未报到时保持 no-op，不进入 system_server。
  */
 public class HookInit implements IXposedHookLoadPackage {
 
@@ -27,7 +25,6 @@ public class HookInit implements IXposedHookLoadPackage {
         final String pkg = lpparam.packageName;
         // 排除自身与真 DO，防递归 / 防把管理器自己也代理掉
         // 排除系统框架：即使用户在 LSPosed 里误勾 android，也不进 system_server。
-        // 这正是「启动成功后才 hook」之外最关键的一道 bootloop 保险。
         if (pkg == null || pkg.equals("android")
                 || pkg.equals("com.android.systemui")
                 || pkg.equals("com.neodhizuku.more")

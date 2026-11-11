@@ -18,8 +18,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -49,14 +49,11 @@ import com.neodhizuku.more.ui.theme.DhizukuTheme
 
 /**
  * 擦除设备数据的确认页。
- *
  * 第三方借用本应用身份发起 `wipeData` 时，服务端一律先拦截，
  * 用户必须在这里**连续通过三次确认**才会拿到一次临时放行：
- *
  * 1. 第一级警告弹窗：说明"擦除会清空整机数据且不可逆"
  * 2. 第二级警告弹窗：再次确认是否真的要执行
  * 3. 页面上勾选"我已知晓并自愿承担后果"后点最终按钮
- *
  * 放行是一次性且 5 分钟有效的（见 [WipeGuard]），
  * 避免误确认后长期敞口。
  */
@@ -151,7 +148,7 @@ private fun WipeConfirmScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        Card(
+        NeoCard(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer
             )

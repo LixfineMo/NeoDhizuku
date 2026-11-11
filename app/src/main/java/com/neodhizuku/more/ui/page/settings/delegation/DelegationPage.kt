@@ -19,7 +19,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.twotone.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -236,7 +236,7 @@ private fun DelegationRow(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
-    ElevatedCard(
+    NeoCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick
     ) {
@@ -332,7 +332,7 @@ private fun scopeDesc(scope: String): String = stringResource(
 
 @Composable
 private fun NoteCard() {
-    ElevatedCard {
+    NeoCard {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -361,7 +361,7 @@ private fun NoteCard() {
 
 @Composable
 private fun OwnerRequiredCard() {
-    ElevatedCard {
+    NeoCard {
         Text(
             text = stringResource(R.string.delegation_owner_required),
             modifier = Modifier.padding(16.dp),
@@ -372,7 +372,7 @@ private fun OwnerRequiredCard() {
 
 @Composable
 private fun EmptyCard(text: String) {
-    ElevatedCard {
+    NeoCard {
         Text(
             text = text,
             modifier = Modifier.padding(16.dp),
@@ -384,7 +384,7 @@ private fun EmptyCard(text: String) {
 
 @Composable
 private fun ClearAllRow(onClick: () -> Unit) {
-    ElevatedCard {
+    NeoCard {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -13,34 +13,27 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 折射：把面板自身绘制的内容按圆角矩形的距离场做坐标偏移采样。
- *
  * 着色器是一段圆角矩形距离场折射（ROUNDED_RECT_REFRACTION_WITH_DISPERSION_SHADER），
  * 调用方式走 Android 自带的 [AndroidRenderEffect.createRuntimeShaderEffect]：
  * 它把该层已绘制的内容绑到着色器的 `content` 上，不需要任何第三方库。
- *
  * 注意这里用的是 android.graphics 下的 RuntimeShader / RenderEffect，
  * 而不是 androidx.compose.ui.graphics 下的同名类：Compose 侧的 RenderEffect
  * 只是包装类型，其 companion 没有 createRuntimeShaderEffect，需要先在平台侧
  * 构造好再用 asComposeRenderEffect() 转成 Compose 可赋给 graphicsLayer 的类型。
- *
  * 折射强度在圆角附近最大、往中心衰减到 0，这是玻璃与塑料的分界：
  * 整块均匀偏移看着像贴纸，只有边缘弯曲才有厚度感。
- *
  * [chromaticAberration] 大于 0 时开启色散，沿对角线把 RGB 拆成七次采样，
  * 边缘出现彩虹边。这是 iOS 液态玻璃最标志性的一层，也是唯一能让人一眼
  * 认出「这是玻璃而不是半透明矩形」的细节。
- *
  * 需要 API 33（AGSL / RuntimeShader）。低版本直接返回原 [Modifier]，
  * 由 [com.neodhizuku.more.ui.component.glass.glassPanel] 里的几何折射兜底。
  */
 /**
  * 真 AGSL 折射的总开关。
- *
  * 默认关闭：`graphicsLayer { renderEffect }` 一旦工作异常，表现不是"效果差"
  * 而是**整层内容变透明**（着色器采样失败时返回空色），底栏会整块消失。
  * 关闭时由 [glassPanel] 的几何折射兜底，视觉损失有限但不会丢内容。
- *
- * 确认底栏能正常显示后，把这里改成 true 再验证效果。
+ * 置为 true 可开启调试效果。
  */
 internal const val GLASS_REFRACTION_SHADER_ENABLED: Boolean = false
 

@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ElevatedCard
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,7 +48,6 @@ import org.koin.androidx.compose.koinViewModel
 
 /**
  * 白名单管理：手动勾选允许使用本服务的应用。
- *
  * 分两组展示 —— 已加入的在前面便于复查，其余候选在后面供勾选。
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -174,7 +173,7 @@ private fun AppCheckCard(
     item: WhitelistAppItem,
     onToggle: () -> Unit
 ) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    NeoCard(modifier = Modifier.fillMaxWidth()) {
         // 不用 Modifier.clickable：该符号在部分 Compose foundation 版本下解析不到，
         // 改用 material3 的 Surface(onClick=...)。
         Surface(

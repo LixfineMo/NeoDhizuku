@@ -17,10 +17,8 @@ import kotlinx.coroutines.flow.combine
 
 /**
  * 主题配置。
- *
  * 存储独立于业务配置的 `theme_settings`。
  * 动态取色直接用 Material3 的 `dynamicColorScheme`（Android 12+ 系统原生支持），
- * 不再引入第三方配色库。
  */
 enum class ThemeMode(val value: Int) {
     /** 跟随系统 */
@@ -62,7 +60,11 @@ data class ThemeSettings(
     /** 背景图模糊半径（dp） */
     val backgroundBlur: Float = DEFAULT_BACKGROUND_BLUR,
     /** 背景图暗化程度（0~1） */
-    val backgroundDim: Float = DEFAULT_BACKGROUND_DIM
+    val backgroundDim: Float = DEFAULT_BACKGROUND_DIM,
+    /** 卡片背后的磨砂玻璃模糊半径（dp） */
+    val cardBlur: Float = DEFAULT_CARD_BLUR,
+    /** 平板（宽屏）下是否仍显示选中胶囊药丸；默认关闭，导航栏贴边 */
+    val tabletShowPill: Boolean = false
 )
 
 /** 默认种子色沿用品牌紫，关闭动态取色后不会突然换风格。 */
@@ -72,10 +74,16 @@ const val DEFAULT_CUSTOM_COLOR = 0xFF6650A4.toInt()
 const val DEFAULT_BACKGROUND_BLUR = 24f
 const val DEFAULT_BACKGROUND_DIM = 0.35f
 
+/** 卡片模糊默认半径与上限（dp）。 */
+const val DEFAULT_CARD_BLUR = 18f
+
 object ThemeConfig {
 
     /** 背景图模糊半径上限（dp） */
     const val MAX_BACKGROUND_BLUR = 60f
+
+    /** 卡片模糊上限（dp） */
+    const val MAX_CARD_BLUR = 48f
 
     private const val PREFS_NAME = "theme_settings"
     private const val KEY_THEME_MODE = "theme_mode"
@@ -86,6 +94,8 @@ object ThemeConfig {
     private const val KEY_BACKGROUND_IMAGE_SET = "background_image_set"
     private const val KEY_BACKGROUND_BLUR = "background_blur"
     private const val KEY_BACKGROUND_DIM = "background_dim"
+    private const val KEY_CARD_BLUR = "card_blur"
+    private const val KEY_TABLET_SHOW_PILL = "tablet_show_pill"
 
     /** 动态取色的最低系统版本（Android 12） */
     fun isMonetSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -116,6 +126,17 @@ object ThemeConfig {
 
     fun getBackgroundDim(context: Context): Float =
         prefs(context).getFloat(KEY_BACKGROUND_DIM, DEFAULT_BACKGROUND_DIM)
+
+    fun getCardBlur(context: Context): Float =
+        prefs(context).getFloat(KEY_CARD_BLUR, DEFAULT_CARD_BLUR)
+
+    fun getTabletShowPill(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_TABLET_SHOW_PILL, false)
+
+    fun setTabletShowPill(context: Context, enabled: Boolean) {
+        NeoLog.d(NeoLog.THEME) { "tabletShowPill -> $enabled" }
+        prefs(context).edit().putBoolean(KEY_TABLET_SHOW_PILL, enabled).apply()
+    }
 
     fun setThemeMode(context: Context, mode: ThemeMode) {
         NeoLog.d(NeoLog.THEME) { "setThemeMode -> $mode (value=${mode.value})" }
@@ -162,6 +183,11 @@ object ThemeConfig {
         prefs(context).edit().putFloat(KEY_BACKGROUND_DIM, value).apply()
     }
 
+    fun setCardBlur(context: Context, radius: Float) {
+        val value = radius.coerceIn(0f, MAX_CARD_BLUR)
+        prefs(context).edit().putFloat(KEY_CARD_BLUR, value).apply()
+    }
+
     /** 组合成单个 Flow；主题开关关闭时直接发射系统默认 */
     fun getThemeFlow(context: Context): Flow<ThemeSettings> {
         val p = prefs(context)
@@ -183,15 +209,26 @@ object ThemeConfig {
         val dimFlow = p.asFlow(KEY_BACKGROUND_DIM, DEFAULT_BACKGROUND_DIM)
         val hideFlow = p.asFlow(KEY_HIDE_FROM_RECENTS, false)
 
-        return combine(base, bgSetFlow, blurFlow, dimFlow, hideFlow) { s, imageSet, blur, dim, hide ->
-            val settings = s.copy(
-                backgroundImageSet = imageSet,
-                backgroundBlur = blur,
-                backgroundDim = dim,
-                hideFromRecents = hide
+        val cardFlow = p.asFlow(KEY_CARD_BLUR, DEFAULT_CARD_BLUR)
+        val pillFlow = p.asFlow(KEY_TABLET_SHOW_PILL, false)
+        return combine(
+            combine(base, bgSetFlow, blurFlow, dimFlow, hideFlow) { s, imageSet, blur, dim, hide ->
+                s.copy(
+                    backgroundImageSet = imageSet,
+                    backgroundBlur = blur,
+                    backgroundDim = dim,
+                    hideFromRecents = hide
+                )
+            },
+            cardFlow,
+            pillFlow
+        ) { settings, cardBlur, tabletShowPill ->
+            val final = settings.copy(
+                cardBlur = cardBlur,
+                tabletShowPill = tabletShowPill
             )
-            NeoLog.v(NeoLog.THEME) { "themeFlow emit -> $settings" }
-            settings
+            NeoLog.v(NeoLog.THEME) { "themeFlow emit -> $final" }
+            final
         }
     }
 }

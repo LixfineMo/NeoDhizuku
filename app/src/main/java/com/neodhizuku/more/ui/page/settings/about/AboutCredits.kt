@@ -7,16 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,14 +28,14 @@ import androidx.compose.ui.unit.dp
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.common.util.openUrlInBrowser
 
-/** 一个被引用的开源项目：名字、一句说明、仓库地址。 */
+/** 引用项目：名称、说明、仓库地址。 */
 data class Credit(
     val name: String,
     val descRes: Int,
     val url: String
 )
 
-/** 关于页列出的引用项目。新增或删除条目只改这里。 */
+/** 关于页列出的引用项目。 */
 val CREDITS: List<Credit> = listOf(
     Credit(
         "Dhizuku",
@@ -86,12 +79,12 @@ val CREDITS: List<Credit> = listOf(
     )
 )
 
-/** 引用项目卡：整张卡可点，弹窗里列出全部项目与鸣谢。 */
+/** 引用项目卡：点击后列出全部项目。 */
 @Composable
 fun CreditsCard() {
     var showDialog by remember { mutableStateOf(false) }
 
-    ElevatedCard(
+    NeoCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = { showDialog = true }
     ) {
@@ -132,15 +125,6 @@ private fun CreditsDialog(onDismiss: () -> Unit) {
                 CREDITS.forEach { credit ->
                     CreditRow(credit) { context.openUrlInBrowser(credit.url) }
                 }
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-                CreditRow(
-                    name = stringResource(R.string.about_credit_ai_translation),
-                    desc = stringResource(R.string.about_credit_ai_translation_desc),
-                    onClick = null
-                )
             }
         },
         confirmButton = {
@@ -161,14 +145,14 @@ private fun CreditRow(credit: Credit, onClick: () -> Unit) {
 }
 
 @Composable
-private fun CreditRow(name: String, desc: String, onClick: (() -> Unit)?) {
-    val modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(8.dp))
-        .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-        .padding(horizontal = 4.dp, vertical = 7.dp)
-
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+private fun CreditRow(name: String, desc: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 name,
@@ -179,16 +163,6 @@ private fun CreditRow(name: String, desc: String, onClick: (() -> Unit)?) {
                 desc,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        if (onClick == null) {
-            Icon(
-                Icons.Outlined.Info,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

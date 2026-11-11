@@ -22,10 +22,8 @@ import java.io.File
 
 /**
  * 单项接口策略：存放在应用私有目录的 [FILE_NAME] 里。
- *
  * 与白名单同构 —— 内存镜像 + 临时文件改名落盘，
  * 原因是服务端要在 binder 线程上同步判定，不能挂起等 IO。
- *
  * 文件结构：
  * ```
  * { "global": { "remote_process": false },
@@ -131,7 +129,6 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         }
     }
 
-    // ------------------------------------------------------------------
 
     private fun loadFromDisk(): Pair<Map<String, Boolean>, Map<String, Map<String, Boolean>>> =
         runCatching {
