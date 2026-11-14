@@ -38,10 +38,10 @@ val debugKeystoreProps: Properties? = loadKeystoreProps("r0s.properties", "debug
 val releaseKeystoreProps: Properties? = loadKeystoreProps("release.properties", "r0s.properties")
 
 /**
- * TEST ONLY 标签总开关（默认关闭）。
+ * TEST ONLY 总开关（默认关闭）。
  * 打开：gradle.properties 里设 neoTestOnly=true 后重新编译。
- * 一处同时驱动 AndroidManifest 的 android:testOnly 与 BuildConfig.TEST_ONLY。
- * 界面上的 TEST ONLY 药丸已移除，此开关现在只影响 manifest 与安装方式。
+ * 一处同时驱动 AndroidManifest 的 android:testOnly、BuildConfig.TEST_ONLY
+ * 与关于页的「测试版」徽标。
  * 注意：android:testOnly=true 的 APK 只能用 adb install -t（覆盖安装 -r -t）
  * 或 Android Studio 安装；应用内「下载 APK → 点开安装」会因普通安装器
  * 不带 INSTALL_ALLOW_TEST 而失败。正式发布前务必改回 false。
@@ -95,7 +95,7 @@ android {
             .joinToString(",")
         buildConfigField("String", "SIGNATURE_SHA256_ALLOWLIST", "\"$signatureAllowlist\"")
 
-        // TEST ONLY：manifest 属性与首页药丸共用这一个构建期开关
+        // TEST ONLY：manifest 属性与关于页测试版徽标共用这一个构建期开关
         manifestPlaceholders["testOnly"] = testOnlyFlag.toString()
         buildConfigField("boolean", "TEST_ONLY", testOnlyFlag.toString())
 
@@ -151,6 +151,13 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
         }
     }
 

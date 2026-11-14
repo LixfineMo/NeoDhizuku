@@ -1,15 +1,15 @@
 [English](README.md) | [简体中文](README_zh_rCN.md) | 繁体中文 | [日本語](README_ja.md) | [Русский](README_ru.md)
 |-|-|-|-|-|
 
-# Dhizuku
+# NeoDhizuku
 
-[![下載量](https://img.shields.io/github/downloads/iamr0s/Dhizuku/total?label=下載量)](https://github.com/iamr0s/Dhizuku/releases)
-[![最新版本](https://img.shields.io/github/v/release/iamr0s/Dhizuku?label=最新版本)](https://github.com/iamr0s/Dhizuku/releases/latest)
-[![授權條款](https://img.shields.io/github/license/iamr0s/Dhizuku?label=授權條款)](https://github.com/iamr0s/Dhizuku/blob/main/LICENSE)
+[![下載量](https://img.shields.io/github/downloads/LixfineMo/NeoDhizuku/total?label=下載量)](https://github.com/LixfineMo/NeoDhizuku/releases)
+[![最新版本](https://img.shields.io/github/v/release/LixfineMo/NeoDhizuku?label=最新版本)](https://github.com/LixfineMo/NeoDhizuku/releases/latest)
+[![授權條款](https://img.shields.io/github/license/LixfineMo/NeoDhizuku?label=授權條款)](https://github.com/LixfineMo/NeoDhizuku/blob/main/LICENSE)
 
-<a href="https://play.google.com/store/apps/details?id=com.rosan.dhizuku" target="_blank"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="70"></a>
-<a href="https://f-droid.org/packages/com.rosan.dhizuku/" target="_blank"><img src="https://f-droid.org/badge/get-it-on.png" height="70"></a>
-<a href="https://apt.izzysoft.de/fdroid/index/apk/com.rosan.dhizuku" target="_blank"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="70"></a>
+<a href="https://play.google.com/store/apps/details?id=com.neodhizuku.more" target="_blank"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="70"></a>
+<a href="https://f-droid.org/packages/com.neodhizuku.more/" target="_blank"><img src="https://f-droid.org/badge/get-it-on.png" height="70"></a>
+<a href="https://apt.izzysoft.de/fdroid/index/apk/com.neodhizuku.more" target="_blank"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="70"></a>
 
 | [**使用條款**（英文）](TERMS.md) | [**隱私權政策**（英文）](PRIVACY.md) |
 |-|-|
@@ -24,11 +24,11 @@ Android 8.0 ~ 17
 
 ## 啟用教學
 
-- [Github Discussions](https://github.com/iamr0s/Dhizuku/discussions/16)
+- [Github Discussions](https://github.com/LixfineMo/NeoDhizuku/discussions)
 
 ## 致開發者（接入Dhizuku API）
 
-- [Dhizuku API](https://github.com/iamr0s/Dhizuku-API.git)
+- [Dhizuku API](https://github.com/LixfineMo/NeoDhizuku/tree/main/Dhizuku-API)
 
 ## 參與翻譯
 
@@ -43,3 +43,7 @@ Android 8.0 ~ 17
 ## 開源授權
 
 Dhizuku目前基於 [**GNU General Public License v3 (GPL-3)**](http://www.gnu.org/copyleft/gpl.html) 開源，且保證未來將持續遵循此協議開源。
+
+---
+
+目前版本為 0.10.6Beta（versionCode 26）。完整功能說明請見[簡體中文](README_zh_rCN.md)與[English](README.md)。

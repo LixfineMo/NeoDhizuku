@@ -35,7 +35,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
+import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -117,7 +117,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         private const val KEY_TIME_LEFT = "neo_time_left"
         private const val KEY_TRUSTED = "neo_trusted"
         private const val KEY_BLOCKLIST_COUNTDOWN = "neo_blocklist_countdown"
-    }
+        }
 
     data class ViewState(
         val uid: Int = UID_ERR,
@@ -290,8 +290,10 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
     override fun onDestroy() {
         // 兜底回收：正常路径下 token 已在 dispatchResult 中移除，
         // 但进程被杀 / 异常退出等路径走不到那里，残留记录会一直持有跨进程
-        // listener 引用。这里无条件再清一次，重复清理无害。
-        runCatching { RequestPermissionToken.revoke(state.serverToken) }
+        // listener 引用。
+        if (isFinishing || !isChangingConfigurations) {
+            runCatching { RequestPermissionToken.revoke(state.serverToken) }
+        }
         super.onDestroy()
     }
 
@@ -329,11 +331,11 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
 
         coroutineScope.launch {
             val uid = state.uid
-            val allowApi = state.allowApi
             val packageInfo = packageManager.getPackageInfoForUid(uid) ?: return@launch
             val signature = packageInfo.signature ?: return@launch
 
             val entity = appRepo.findByUID(uid)
+            val allowApi = state.allowApi
             if (entity == null)
                 appRepo.insert(AppEntity(uid = uid, signature = signature, allowApi = allowApi))
             else
@@ -354,10 +356,15 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         get() = !state.serverToken.isNullOrEmpty()
 
     /** 落库。超时/取消场景不覆盖已有的 allowApi=true 记录（避免被"轰炸"撤销授权）。 */
-    private suspend fun persistResult(uid: Int, allowApi: Boolean, blocked: Boolean = false) {
+    private suspend fun persistResult(
+        uid: Int,
+        allowApi: Boolean,
+        blocked: Boolean = false
+    ) {
         val packageInfo = packageManager.getPackageInfoForUid(uid) ?: return
         val signature = packageInfo.signature ?: return
         val entity = appRepo.findByUID(uid)
+        val finalAllow = allowApi
 
         if (!userDecided && !allowApi && entity?.allowApi == true && !blocked) {
             // 未做出明确选择（超时 / 被动 finish）：保留原授权，仅回调拒绝本次请求
@@ -393,7 +400,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
                 AppEntity(
                     uid = uid,
                     signature = signature,
-                    allowApi = allowApi,
+                    allowApi = finalAllow,
                     blocked = blocked
                 )
             )
@@ -402,14 +409,14 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
                 entity.copy(
                     uid = uid,
                     signature = signature,
-                    allowApi = if (blocked) false else allowApi,
+                    allowApi = if (blocked) false else finalAllow,
                     blocked = blocked || entity.blocked
                 )
             )
         }
         runCatching { PermissionCache.refreshOne(uid) }
         NeoLog.i(NeoLog.PERM) {
-            "result: 落库 uid=$uid allowApi=${if (blocked) false else allowApi} " +
+            "result: 落库 uid=$uid allowApi=${if (blocked) false else finalAllow} " +
                 "blocked=$blocked 原blocked=${entity?.blocked} decided=$userDecided"
         }
         // 授权变更后刷新首页「授权应用」计数
@@ -444,10 +451,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
 
     private fun registerAppEntity(intent: Intent?): Boolean {
         if (intent == null) return false
-
         if (neoHardenedEntry) {
-            // 优先校验服务端下发的一次性 token。
-            // token 有效 → uid 来自 Binder.getCallingUid()，客户端无法伪造。
             val token = intent.getStringExtra(RequestPermissionToken.PARAM_SERVER_TOKEN)
             val trustedUid = RequestPermissionToken.consume(token)
             NeoLog.d(NeoLog.PERM) {
@@ -462,8 +466,6 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
                 )
                 return true
             }
-            // 无有效 token（旧版本客户端）：继续走原有逻辑，保持兼容。
-            // 超时与取消不会覆盖已有授权，因此伪造请求无法撤销他人授权。
         }
 
         // 由本应用的通知拉起：没有 listener 可回调（老客户端从未发起过请求），
@@ -503,10 +505,6 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
 
         val binder = bundle.getBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER)
         if (binder == null) {
-            // 拿不到回调 binder 也要弹窗：结果只落库、不回调。
-            // 直接 return false 会让这类客户端永远拿不到授权 ——
-            // 弹窗没有、回调也没有，下一次 isPermissionGranted() 依旧是 false，
-            // 用户看到的就是"已授权却始终提示无权限"。
             NeoLog.w(NeoLog.PERM) { "request: 无回调 binder，仅弹窗写库 uid=$uid" }
             state = state.copy(
                 uid = uid,
@@ -786,7 +784,7 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier
@@ -805,8 +803,8 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
                             .height(48.dp),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2E7D32),
-                            contentColor = Color.White
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
                         Text(text = stringResource(R.string.agree))

@@ -163,7 +163,7 @@ object OwnerIdentityTools {
     /**
      * 把设备所有者转移给目标组件。
      * 硬性前提：**调用方必须是当前 device owner**。这不是本项目能绕过的限制 ——
-     * 截图里 `DEVICE_ADMIN cannot execute transferOwnership (requires DEVICE_OWNER)`
+     * 设备管理员执行 `transferOwnership` 时会收到 `requires DEVICE_OWNER` 错误，
      * 说的正是这件事，与目标组件是否声明了管理员无关。
      * 若所有者是被改包名的那个实例，请在那一个实例（同一份代码）里执行本操作。
      */

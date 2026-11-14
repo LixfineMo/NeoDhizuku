@@ -24,7 +24,7 @@ import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.Check
 import androidx.compose.material.icons.twotone.Code
 import androidx.compose.material.icons.twotone.Warning
-import androidx.compose.material3.AlertDialog
+import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults

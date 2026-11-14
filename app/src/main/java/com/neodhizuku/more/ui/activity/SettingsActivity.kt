@@ -19,7 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestPermissi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.material3.AlertDialog
+import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text

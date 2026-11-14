@@ -179,6 +179,9 @@
     <string name="home_stop_service">停止服务</string>
     <string name="home_restart_dsp">重启守护服务，恢复对第三方应用的 API 支持。</string>
     <string name="call_log_copy_done">已复制到剪贴板</string>
+    <string name="call_log_export">导出日志</string>
+    <string name="call_log_export_chooser">分享日志</string>
+    <string name="call_log_export_failed">导出日志失败</string>
     <string name="call_log_long_press_hint">长按卡片可复制全部内容</string>
     <string name="alert_permission_request_title">有应用请求 NeoDhizuku 授权</string>
     <string name="alert_permission_request_text">「%1$s」请求使用 NeoDhizuku。点击处理此请求。</string>
@@ -240,6 +243,7 @@
     <string name="about_card_version_title">版本信息</string>
     <string name="about_card_detail_title">详细信息</string>
     <string name="about_version_name">版本名</string>
+    <string name="about_test_only_badge">测试版</string>
     <string name="about_version_code">版本号</string>
     <string name="about_build_type">构建类型</string>
     <string name="about_build_type_debug">调试版</string>
@@ -813,4 +817,43 @@
     <string name="owner_identity_transfer_warning">设备所有者将转移给下面的应用。转移后本应用会立即失去设备所有者权限，且无法撤销；若目标应用没有授权入口，所有者可能再也无法找回。请仔细核对应用名称与包名。</string>
     <string name="owner_identity_transfer_final_warning">请再次确认：转移完成后无法在 NeoDhizuku 内撤销。请再次核对下面的应用。</string>
     <string name="owner_transfer_pkg_label">包名：%1$s</string>
+    <string name="theme_background_adjust">调整显示</string>
+    <string name="theme_background_crop_title">调整背景图片</string>
+    <string name="theme_background_crop_hint">拖动调整位置，双指或滑杆缩放</string>
+    <string name="theme_background_zoom">缩放</string>
+    <string name="theme_background_reset">重置</string>
+    <string name="full_access_badge">完全</string>
+    <string name="cve_98432_title">CVE-2026-98432 实验室</string>
+    <string name="experimental_cve_98432">SELinux 宽容实验（CVE-2026-98432）</string>
+    <string name="experimental_cve_98432_desc">导入镜像提取偏移、只读 UAF 探测，链路终点为 SELinux 宽容</string>
+    <string name="cve_98432_danger_title">高危内核实验 · 请完整阅读</string>
+    <string name="cve_98432_danger_text">本页对你导入的同一份 boot.img 执行本地内核释放后重用实验，唯一目标是把 SELinux 设为宽容（enforcing = 0）。不提权、不改 uid 与能力位、不安装 su、不刷写任何分区、不改动 BL 与 AVB。</string>
+    <string name="cve_98432_import_boot">导入 boot.img 镜像</string>
+    <string name="cve_98432_boot_none">尚未导入镜像</string>
+    <string name="cve_98432_boot_ready">已导入：%1$s</string>
+    <string name="cve_98432_prepare">环境准备</string>
+    <string name="cve_98432_start">开始执行</string>
+    <string name="cve_98432_full_root">执行完整流程（仅 SELinux 宽容）</string>
+    <string name="cve_98432_full_root_desc">关：只读 UAF 探测。开：跑到链路最后一次写入，只把 enforcing 置 0。不提权、不改 uid、不装 su、不加载模块、不自动越狱。</string>
+    <string name="cve_98432_log">日志</string>
+    <string name="cve_98432_log_copy">复制</string>
+    <string name="cve_98432_log_clear">清空</string>
+    <string name="cve_98432_log_empty">暂无日志</string>
+    <string name="cve_98432_danger_what">为什么需要宽容：KernelSU 的越狱模式要求先处于宽容状态，才能从内存加载模块。这里只准备这个条件。成功后请你自己打开 KernelSU，在考虑清楚之后点越狱模式。本功能不会替你拉起管理器、加载模块或点击任何按钮。</string>
+    <string name="cve_98432_danger_not">不会做的事：不自动恢复 enforcing、不自动启动管理器、不重启、不清除数据、不改动设备所有者与应用数据。重启后自动回到 enforcing，宽容状态只在本次开机期间有效。</string>
+    <string name="cve_98432_danger_risk">风险：符号或结构体偏移错误、竞态失败、堆布局与预期不符都可能导致内核 panic、重启或变砖。宽容期间 SELinux 不再强制其策略；安卓仍保留 DAC uid 沙箱、应用权限、分区存储、Verified Boot 等多层兜底，宽容本身不会直接泄露数据，但会放大内核攻击面。请先备份，使用能进 fastboot 或 recovery 恢复的设备，不要在存有敏感数据的主力机上运行。</string>
+    <string name="cve_98432_danger_duty">责任声明：这是安全研究与玩机发烧友工具。导入镜像、通过倒计时确认并点击开始，即表示你自行承担全部后果。开关默认关闭，只读探测不写内核，每一步都有日志。不确定就不要继续。</string>
+    <string name="cve_98432_profile_none">尚未提取偏移</string>
+    <string name="cve_98432_profile_ready">已提取偏移：%1$d 个代码锚点\n结构体字段为候选值，仍需按本机构建核对</string>
+    <string name="cve_98432_cancel">停止</string>
+    <string name="cve_98432_handoff_title">SELinux 已设为宽容</string>
+    <string name="cve_98432_handoff_text">没有替你执行任何后续操作。请自行打开 KernelSU，在准备好之后点越狱模式。应用不会自动恢复 enforcing，重启后自动恢复。</string>
+    <string name="cve_98432_handoff_open_ksu">打开 KernelSU</string>
+    <string name="cve_98432_handoff_no_ksu">未安装 KernelSU 管理器</string>
+    <string name="cve_98432_confirm_title">确认内核实验</string>
+    <string name="cve_98432_confirm_text">即将向本机 TCP 栈注入构造的 IPv4 报文并尝试一次内核写入，唯一目标是 enforcing = 0。偏移错误可能 panic 或变砖。请先备份并确认设备可恢复。</string>
+    <string name="cve_98432_confirm_wait">请阅读并考虑：%1$d 秒</string>
+    <string name="cve_98432_confirm_ready">现在可以继续</string>
+    <string name="cve_98432_confirm_accept">我已知悉并承担后果</string>
+    <string name="cve_98432_confirm_cancel">取消</string>
 </resources>

@@ -16,6 +16,8 @@ sealed class SettingsRoute(val route: String) {
     /** DAX 化 Xposed 模块：作用域与行为配置 */
     data object HookConfig : SettingsRoute("hook_config")
     data object Experimental : SettingsRoute("experimental")
+    /** 内核漏洞实验室：导入 boot.img、环境自检、执行日志 */
+    data object Cve98432 : SettingsRoute("cve_98432")
     data object Delegation : SettingsRoute("delegation")
     data object Theme : SettingsRoute("theme")
     data object About : SettingsRoute("about")

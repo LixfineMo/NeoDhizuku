@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.plus
@@ -27,7 +28,6 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.twotone.Block
 import androidx.compose.material.icons.twotone.CheckCircle
 import androidx.compose.material3.Button
@@ -36,7 +36,6 @@ import androidx.compose.material3.CardDefaults
 import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -58,12 +57,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 
 import com.neodhizuku.more.NeoDhizuku
 import com.neodhizuku.more.R
 import com.neodhizuku.more.server.ClientApiVersion
 import com.neodhizuku.more.ui.component.ClientApiBadge
+import com.neodhizuku.more.ui.component.ClientApiVersionBadge
+import com.neodhizuku.more.ui.component.FullAccessBadge
 import com.neodhizuku.more.ui.theme.AppIconCache
 import com.neodhizuku.more.ui.theme.exclude
 import com.neodhizuku.more.ui.theme.combine
@@ -74,7 +74,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AppManagementPage(
     windowInsets: WindowInsets,
-    navController: NavController,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: AppManagementViewModel = koinViewModel()
 ) {
@@ -90,16 +89,6 @@ fun AppManagementPage(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.navigateUp()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.TwoTone.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
                 title = {
                     Text(stringResource(R.string.home_app_management_title))
                 }
@@ -180,12 +169,13 @@ private fun LazyItemScope.ItemWidget(
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 val applicationInfo = data.applicationInfo
                 val imageBitmap = AppIconCache.rememberImageBitmapState(applicationInfo)
                 val packageName = applicationInfo.packageName
                 val label = applicationInfo.loadLabel(LocalContext.current.packageManager).toString()
+                val version = ClientApiVersion.ofPackage(packageName)
 
                 Image(
                     bitmap = imageBitmap.value,
@@ -209,8 +199,10 @@ private fun LazyItemScope.ItemWidget(
                             else MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f, fill = false)
                         )
-                        ClientApiBadge(version = ClientApiVersion.ofPackage(packageName))
+                        if (data.fullAccess) FullAccessBadge()
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ClientApiVersionBadge(version = version)
                     Text(
                         packageName,
                         style = MaterialTheme.typography.bodySmall,
@@ -218,6 +210,11 @@ private fun LazyItemScope.ItemWidget(
                         else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                ClientApiBadge(
+                    version = version,
+                    modifier = Modifier.align(Alignment.Top)
+                )
             }
 
             AnimatedVisibility(

@@ -254,9 +254,11 @@ fun SideNavRail(
     // 没设背景图 / 不支持真模糊时退回纯色，长按拖动零额外开销。
     val cardBackdrop = LocalCardGlassBackdrop.current
     val cardBlurDp = LocalCardBlurDp.current
-    val railRadiusPx = with(density) { cardBlurDp.coerceAtLeast(0f).dp.toPx() }
+    // 导航条不是卡片：卡片模糊默认 18dp 会把整条侧栏糊成一片雾。
+    // 保留滑杆的低段响应，但钳在 3dp，与底栏的通透口径一致。
+    val railRadiusPx = with(density) { cardBlurDp.coerceIn(0f, 3f).dp.toPx() }
     val railBackdrop = cardBackdrop?.takeIf { cardBlurDp > 0f }
-    val outline = scheme.outlineVariant.copy(alpha = if (dark) 0.20f else 0.45f)
+    val outline = scheme.outlineVariant.copy(alpha = if (dark) 0.12f else 0.24f)
     val barSurface: Modifier = Modifier
         .clip(CircleShape)
         .then(
@@ -265,11 +267,11 @@ fun SideNavRail(
                     backdrop = railBackdrop,
                     shape = { CircleShape },
                     effects = {
-                        vibrancy()
+                        vibrancy(1.15f)
                         blur(railRadiusPx, railRadiusPx)
                     },
                     onDrawSurface = {
-                        drawRect(Color.Black.copy(alpha = 0.12f))
+                        drawRect(Color.Black.copy(alpha = 0.05f))
                     }
                 )
             } else {
@@ -417,24 +419,26 @@ private fun PlainSideNavRail(
     val density = LocalDensity.current
     val cardBackdrop = LocalCardGlassBackdrop.current
     val cardBlurDp = LocalCardBlurDp.current
-    val radiusPx = with(density) { cardBlurDp.coerceAtLeast(0f).dp.toPx() }
+    // 同胶囊分支：导航条只留极轻磨砂，不跟着卡片模糊一路糊到 18dp。
+    val radiusPx = with(density) { cardBlurDp.coerceIn(0f, 3f).dp.toPx() }
     val railBackdrop = cardBackdrop?.takeIf { cardBlurDp > 0f }
-    val outline = scheme.outlineVariant.copy(alpha = 0.28f)
+    val outline = scheme.outlineVariant.copy(alpha = 0.16f)
 
     val railSurface = if (railBackdrop != null) {
         Modifier.drawBackdrop(
             backdrop = railBackdrop,
             shape = { RectangleShape },
             effects = {
-                vibrancy()
+                vibrancy(1.15f)
                 blur(radiusPx, radiusPx)
             },
             onDrawSurface = {
-                drawRect(Color.Black.copy(alpha = 0.14f))
+                // 贴边条比卡片略深一点即可，压太厚就成了一块灰板。
+                drawRect(Color.Black.copy(alpha = 0.05f))
             }
         )
     } else {
-        Modifier.background(scheme.surfaceContainer.copy(alpha = 0.22f))
+        Modifier.background(scheme.surfaceContainer.copy(alpha = 0.16f))
     }
 
     val count = tabs.size

@@ -11,8 +11,10 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -54,13 +56,17 @@ import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.material.icons.twotone.SwapHorizontalCircle
 import androidx.compose.material.icons.twotone.Terminal
 import androidx.compose.material.icons.twotone.Warning
-import androidx.compose.material3.AlertDialog
+import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import com.neodhizuku.more.ui.component.NeoDropdownMenu
 import com.neodhizuku.more.ui.component.NeoDropdownItem
 import com.neodhizuku.more.ui.component.NeoCard
+import com.neodhizuku.more.ui.component.LocalCardBlurDp
+import com.neodhizuku.more.ui.component.LocalCardGlassBackdrop
+import com.neodhizuku.more.ui.component.LocalCardSolidFallback
+import com.neodhizuku.more.ui.component.MiuixGlassLayer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -99,6 +105,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -297,7 +304,7 @@ private fun TopBarActions(navController: NavController) {
     val donateButtonHidden by settingsRepo.flowDonateButtonHidden()
         .collectAsState(initial = settingsRepo.isDonateButtonHidden)
 
-    // 左上角入口改为「关于」：跳转到关于页。
+    // 左上角入口为「关于」：跳转到关于页。
     // 长按仍可隐藏 —— 复用原来的开关与确认弹窗，不新增状态。
     if (!donateButtonHidden) {
         Box {
@@ -683,30 +690,64 @@ private fun LazyItemScope.MiuixStatusRow(navController: NavController) {
     }
 }
 
-/** 未激活时的红色提示条，对应 miuix 风格顶部警告横幅。 */
+/** 未激活时的顶部警告横幅。 */
 @Composable
 private fun MiuixWarningBanner() {
+    val dark = isSystemInDarkTheme()
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFFDE9E9))
+            .background(if (dark) Color(0xFF3A1F20) else Color(0xFFFDE9E9))
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
         Text(
             text = stringResource(R.string.home_status_owner_denied),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
-            color = Color(0xFFD32F2F)
+            color = if (dark) Color(0xFFFF8A80) else Color(0xFFD32F2F)
         )
     }
 }
 
-/** 激活卡：走 miuix 交互卡，按压反馈与新版 KernelSU 首页状态卡一致。 */
+/** 首页 miuix 卡的局部模糊是否生效。 */
+@Composable
+private fun miuixGlassActive(): Boolean {
+    return LocalCardGlassBackdrop.current != null
+        && LocalCardBlurDp.current > 0f
+        && !LocalCardSolidFallback.current
+}
+
+/**
+ * 首页 miuix 卡的玻璃层。组件库底色会盖住挂在 Card 外层的 drawBackdrop，
+ * 因此画在内容最底层；[tint] 半透明叠在模糊结果上，夜间仍保留激活态的绿色。
+ */
+@Composable
+private fun BoxScope.MiuixCardGlass(tint: Color) {
+    val backdrop = LocalCardGlassBackdrop.current ?: return
+    val blurDp = LocalCardBlurDp.current
+    if (blurDp <= 0f || LocalCardSolidFallback.current) return
+    val radiusPx = with(LocalDensity.current) { blurDp.dp.toPx() }
+    MiuixGlassLayer(
+        backdrop = backdrop,
+        shape = RoundedCornerShape(24.dp),
+        radiusPx = radiusPx,
+        tint = tint,
+        modifier = Modifier.matchParentSize()
+    )
+}
+
+/** 激活卡：带按压下沉反馈的交互卡。 */
 @Composable
 private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val cardColor = Color(0xFFE8F8EC)
+    val dark = isSystemInDarkTheme()
+    // 夜间用深绿而不是组件库的黑色：保留激活态的绿色识别度。
+    val cardColor = if (dark) Color(0xFF1A3825) else Color(0xFFE8F8EC)
+    val titleColor = if (dark) Color(0xFFE8F2EA) else Color(0xFF111318)
+    val subColor = if (dark) Color(0xFFB7C7BC) else Color(0xFF4A4F58)
+    // 绿勾圆环日夜都保持亮绿，不随卡片底色变暗。
     val ringColor = Color(0xFF2FCB63)
+    val glassActive = miuixGlassActive()
 
     MiuixCard(
         modifier = modifier,
@@ -715,9 +756,12 @@ private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) 
         pressFeedbackType = PressFeedbackType.Tilt,
         cornerRadius = 24.dp,
         insideMargin = PaddingValues(0.dp),
-        colors = MiuixCardDefaults.defaultColors(color = cardColor)
+        colors = MiuixCardDefaults.defaultColors(
+            color = if (glassActive) Color.Transparent else cardColor
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
+            MiuixCardGlass(cardColor.copy(alpha = 0.38f))
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -727,7 +771,7 @@ private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) 
                     text = stringResource(R.string.home_status_owner_granted_short),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF111318)
+                    color = titleColor
                 )
                 Spacer(Modifier.height(12.dp))
                 Row(
@@ -737,14 +781,14 @@ private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) 
                     MiuixTag(label = activationLabel(), color = MiuixTheme.colorScheme.primary)
                     val framework = hookFrameworkLabel()
                     if (framework != null) {
-                        MiuixTag(label = framework, color = Color(0xFF6A1B9A))
+                        MiuixTag(label = framework, color = MaterialTheme.colorScheme.tertiary)
                     }
                 }
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = stringResource(R.string.home_status_version, displayVersionName()),
                     fontSize = 14.sp,
-                    color = Color(0xFF4A4F58)
+                    color = subColor
                 )
                 // 卡片剩余空间留给右下角的圆环。
                 Spacer(Modifier.weight(1f))
@@ -760,40 +804,50 @@ private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) 
     }
 }
 
-/** 下方数值卡：浅灰底、灰色标签、大号粗体数值，两张等宽并排。 */
+/** 下方数值卡：跟随明暗配色的标签与大号数值，两张等宽并排。 */
 @Composable
 private fun MiuixStatCard(modifier: Modifier = Modifier, label: String, value: String) {
+    val dark = isSystemInDarkTheme()
+    val cardColor = if (dark) Color(0xFF24262B) else Color(0xFFF4F5F7)
+    val labelColor = if (dark) Color(0xFF9AA1AB) else Color(0xFF6B7280)
+    val valueColor = if (dark) Color(0xFFE9EBEF) else Color(0xFF111318)
+    val glassActive = miuixGlassActive()
     MiuixCard(
         modifier = modifier,
         cornerRadius = 24.dp,
         insideMargin = PaddingValues(0.dp),
-        colors = MiuixCardDefaults.defaultColors(color = Color(0xFFF4F5F7))
+        colors = MiuixCardDefaults.defaultColors(
+            color = if (glassActive) Color.Transparent else cardColor
+        )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = label,
-                fontSize = 14.sp,
-                color = Color(0xFF6B7280),
-                maxLines = 1
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = value,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF111318),
-                maxLines = 1
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            MiuixCardGlass(cardColor.copy(alpha = 0.30f))
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    color = labelColor,
+                    maxLines = 1
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = value,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = valueColor,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
 
-/** 身份药丸：miuix 蓝 / 未激活红，白字圆角胶囊。 */
+/** 身份标签胶囊。 */
 @Composable
 private fun MiuixTag(label: String, color: Color) {
     Box(
@@ -1015,7 +1069,10 @@ private fun StatusBadges(includeActivation: Boolean) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (includeActivation) StatusTag(label = activationLabel())
-        if (framework != null) StatusTag(label = framework, color = Color(0xFF6A1B9A))
+        if (framework != null) StatusTag(
+            label = framework,
+            color = MaterialTheme.colorScheme.tertiary
+        )
     }
 }
 

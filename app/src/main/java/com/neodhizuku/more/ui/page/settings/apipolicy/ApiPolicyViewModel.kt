@@ -13,6 +13,8 @@ import androidx.lifecycle.viewModelScope
 import com.neodhizuku.more.data.settings.repo.ApiPolicyRepo
 import com.neodhizuku.more.data.settings.repo.AppRepo
 import com.neodhizuku.more.server.DpmPolicyCatalog
+import com.neodhizuku.more.server.FullAccessStore
+import com.neodhizuku.more.server.HookConfigStore
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -28,12 +30,16 @@ data class ApiPolicyAppItem(
     val label: String,
     val packageName: String,
     /** 单独配置过的接口 id；为空表示跟随全局 */
-    val configured: Set<String>
+    val configured: Set<String>,
+    /** 是否已勾选完全 */
+    val fullAccess: Boolean = false,
+    /** 是否已被框架接管 */
+    val hooked: Boolean = false
 )
 
 data class ApiPolicyViewState(
     val loading: Boolean = true,
-    /** 有单独配置的应用，排在前面 */
+    /** 排在前面的应用 */
     val configuredApps: List<ApiPolicyAppItem> = emptyList(),
     /** 其余候选应用 */
     val others: List<ApiPolicyAppItem> = emptyList(),
@@ -64,14 +70,26 @@ class ApiPolicyViewModel : ViewModel(), KoinComponent {
     private val permissionLegacy by lazy { "com.rosan.dhizuku.permission.API" }
     private val permissionSelf by lazy { "${context.packageName}.permission.API" }
 
+    private fun hookedPackages(): Set<String> =
+        (HookConfigStore.snapshot().map { it.pkg } + HookConfigStore.scope).toHashSet()
+
     fun collect() {
         state = state.copy(loading = true)
+        runCatching { HookConfigStore.init(context.applicationContext) }
         viewModelScope.launch(Dispatchers.IO) {
             combine(
                 apiPolicyRepo.flowApps(),
                 appRepo.flowAll()
             ) { configured, authorized ->
                 val authorizedUids = authorized.map { it.uid }.toHashSet()
+                val fullPackages: Set<String> = FullAccessStore.allUids()
+                    .flatMap { uid ->
+                        runCatching {
+                            packageManager.getPackagesForUid(uid)?.toList() ?: emptyList()
+                        }.getOrDefault(emptyList())
+                    }
+                    .toHashSet()
+                val hooked = hookedPackages()
 
                 val flags = PackageManager.GET_META_DATA or PackageManager.GET_PERMISSIONS
                 val installed = runCatching {
@@ -91,7 +109,7 @@ class ApiPolicyViewModel : ViewModel(), KoinComponent {
                         packageManager.getPackageUid(pkg, 0)
                     }.getOrNull()?.let { it in authorizedUids } ?: false
                     val hasPolicy = configured.containsKey(pkg)
-                    if (!declared && !hasRecord && !hasPolicy) return@mapNotNull null
+                    if (!declared && !hasRecord && !hasPolicy && pkg !in hooked) return@mapNotNull null
 
                     val label = runCatching {
                         appInfo.loadLabel(packageManager).toString()
@@ -101,14 +119,24 @@ class ApiPolicyViewModel : ViewModel(), KoinComponent {
                         applicationInfo = appInfo,
                         label = label,
                         packageName = pkg,
-                        configured = configured[pkg]?.keys?.toSet() ?: emptySet()
+                        configured = configured[pkg]?.keys?.toSet() ?: emptySet(),
+                        fullAccess = pkg in fullPackages,
+                        hooked = pkg in hooked
                     )
-                }.sortedBy { it.label.lowercase() }
+                }.sortedWith(
+                    compareByDescending<ApiPolicyAppItem> { it.hooked }
+                        .thenByDescending { it.fullAccess }
+                        .thenByDescending { it.configured.size }
+                        .thenBy { it.label.lowercase() }
+                )
 
-                val withPolicy = items.filter { it.configured.isNotEmpty() }
-                    .sortedByDescending { it.configured.size }
-                val rest = items.filter { it.configured.isEmpty() }
-                Pair(withPolicy, rest)
+                val front = items.filter {
+                    it.hooked || it.fullAccess || it.configured.isNotEmpty()
+                }
+                val rest = items.filterNot {
+                    it.hooked || it.fullAccess || it.configured.isNotEmpty()
+                }
+                Pair(front, rest)
             }.collect { (withPolicy, rest) ->
                 state = state.copy(
                     loading = false,

@@ -143,4 +143,38 @@
     <string name="owner_identity_transfer_warning">Device owner will be transferred to the app below. This app loses device owner rights immediately and the change cannot be undone. If the target app has no authorization entry, ownership may be unrecoverable. Check the app name and package name carefully.</string>
     <string name="owner_identity_transfer_final_warning">Confirm again: the transfer cannot be undone inside NeoDhizuku. Check the app below once more.</string>
     <string name="owner_transfer_pkg_label">Package: %1$s</string>
+    <string name="full_access_badge">Full</string>
+    <string name="cve_98432_title">CVE-2026-98432 lab</string>
+    <string name="experimental_cve_98432">SELinux permissive lab (CVE-2026-98432)</string>
+    <string name="experimental_cve_98432_desc">Boot image offsets, read-only UAF probe and a chain that stops at SELinux permissive</string>
+    <string name="cve_98432_danger_title">High-risk kernel experiment - read everything below</string>
+    <string name="cve_98432_danger_text">What this does: this page runs a local kernel use-after-free experiment against the exact boot.img you import. Its only goal is to set SELinux to permissive (enforcing = 0). It does not grant root, does not change your uid or capabilities, does not install su, does not flash any partition and does not touch the bootloader or AVB.</string>
+    <string name="cve_98432_import_boot">Import boot.img</string>
+    <string name="cve_98432_boot_none">No boot image imported</string>
+    <string name="cve_98432_boot_ready">Imported: %1$s</string>
+    <string name="cve_98432_prepare">Prepare environment</string>
+    <string name="cve_98432_start">Start</string>
+    <string name="cve_98432_full_root">Run the full chain (SELinux permissive only)</string>
+    <string name="cve_98432_full_root_desc">Off: read-only UAF probe. On: run the chain to its final write, which only sets enforcing to 0. No root, no uid change, no su, no module load, no automatic jailbreak.</string>
+    <string name="cve_98432_log">Log</string>
+    <string name="cve_98432_log_copy">Copy</string>
+    <string name="cve_98432_log_clear">Clear</string>
+    <string name="cve_98432_log_empty">No entries yet</string>
+    <string name="cve_98432_danger_what">Why permissive: KernelSU jailbreak mode requires SELinux permissive before it can load its module from memory. This experiment only prepares that condition. After it succeeds, you open KernelSU yourself and press the jailbreak entry when you are ready. Nothing here launches KernelSU, loads a module or clicks anything for you.</string>
+    <string name="cve_98432_danger_not">What it will NOT do: no auto-restore of enforcing, no automatic manager launch, no reboot, no wipe, no changes to device owner or app data. Reboot returns the device to enforcing. The permissive state is temporary and lasts only until the next boot.</string>
+    <string name="cve_98432_danger_risk">Risks: a wrong symbol or struct offset, a failed race, or an unexpected heap layout can panic the kernel and reboot or brick the device. While permissive, SELinux no longer enforces its policy; Android still keeps the DAC uid sandbox, app permissions, scoped storage, Verified Boot and other layers, so permissive alone does not directly expose your data, but it does widen the kernel attack surface. Back up first, use a device you can recover with fastboot or recovery, and do not run this on a daily driver with sensitive data.</string>
+    <string name="cve_98432_danger_duty">Responsibility: this is a security research and enthusiast tool. By importing a boot.img, passing the confirmation countdown and pressing Start you accept full responsibility for the outcome. The switch is off by default, the read-only probe sends no kernel write, and every step is logged. If you are not sure, do not proceed.</string>
+    <string name="cve_98432_profile_none">No offsets extracted yet</string>
+    <string name="cve_98432_profile_ready">Offsets extracted: %1$d text anchors\nCandidate struct fields still need verification against this exact build</string>
+    <string name="cve_98432_cancel">Stop</string>
+    <string name="cve_98432_handoff_title">SELinux is permissive</string>
+    <string name="cve_98432_handoff_text">No further action was taken for you. Open KernelSU yourself and press its jailbreak entry when you are ready. The app will not restore enforcing automatically; a reboot returns to enforcing.</string>
+    <string name="cve_98432_handoff_open_ksu">Open KernelSU</string>
+    <string name="cve_98432_handoff_no_ksu">KernelSU manager is not installed</string>
+    <string name="cve_98432_confirm_title">Confirm the kernel experiment</string>
+    <string name="cve_98432_confirm_text">You are about to inject crafted IPv4 packets into the local TCP stack and attempt a kernel write. The only intended write is enforcing = 0. A wrong offset can panic or brick the device. Back up first and confirm you can recover the device.</string>
+    <string name="cve_98432_confirm_wait">Read and think it over: %1$d s</string>
+    <string name="cve_98432_confirm_ready">You can continue now</string>
+    <string name="cve_98432_confirm_accept">I understand and accept</string>
+    <string name="cve_98432_confirm_cancel">Cancel</string>
 </resources>

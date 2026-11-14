@@ -26,7 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
-import androidx.compose.material3.AlertDialog
+import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.automirrored.twotone.Send
@@ -575,6 +575,20 @@ private fun VersionCard(modifier: Modifier = Modifier) {
             label = stringResource(R.string.about_version_name),
             value = BuildConfig.VERSION_NAME
         )
+        // 显示与否只由构建期注入的实际值决定，不缓存、不受调试页参数影响。
+        if (BuildConfig.TEST_ONLY) {
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    stringResource(R.string.about_test_only_badge),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+        }
         InfoRow(
             label = stringResource(R.string.about_version_code),
             value = BuildConfig.VERSION_CODE.toString()

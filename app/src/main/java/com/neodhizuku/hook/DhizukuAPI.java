@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
+import com.rosan.dhizuku.shared.DhizukuVariables;
 import com.neodhizuku.hook.config.ConfigClient;
 import com.neodhizuku.hook.config.HookConfig;
 import com.neodhizuku.hook.runtime.Handshake;
@@ -29,6 +30,10 @@ public class DhizukuAPI extends Hook {
 
     public boolean init(Context context) {
         try {
+            // hook 模块与宿主应用共用 uid：若上报本项目 API 版本，服务端会把
+            // 「用原版 Dhizuku-API 的宿主」误标成 Modern，并让普通授权走进加固路径。
+            // 握手只取 binder，不声明版本，宿主按 Legacy 走原版授权流程。
+            DhizukuVariables.ReportClientApiVersion = false;
             if (!Dhizuku.init(context)) return false;
             ComponentName owner = Dhizuku.getOwnerComponent();
             if (owner == null) return false;

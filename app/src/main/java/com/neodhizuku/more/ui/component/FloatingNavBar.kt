@@ -296,13 +296,16 @@ fun FloatingNavBar(
         Modifier
             .shadow(elevation = 16.dp, shape = CircleShape, clip = false)
             .glassSurface(
-                // 明显低于不透明：滚动时能看到内容从底栏后面穿过，这是玻璃和实心最直观的区别
-                tintTop = scheme.surfaceContainer.copy(alpha = if (dark) 0.34f else 0.42f),
-                tintBottom = scheme.surfaceContainer.copy(alpha = if (dark) 0.22f else 0.30f),
-                specularAlpha = if (dark) 0.45f else 0.80f,
-                rimAlpha = if (dark) 0.14f else 0.26f,
-                shadeAlpha = if (dark) 0.22f else 0.08f,
-                borderColors = glassBorderColors(dark)
+                // 明显低于不透明：滚动时能看到内容从底栏后面穿过，这是玻璃和实心最直观的区别。
+                // 与真玻璃底栏同一套通透口径：薄底色 + 淡高光，不糊成一块雾面板。
+                tintTop = scheme.surfaceContainer.copy(alpha = if (dark) 0.20f else 0.26f),
+                tintBottom = scheme.surfaceContainer.copy(alpha = if (dark) 0.13f else 0.18f),
+                specularAlpha = if (dark) 0.26f else 0.44f,
+                rimAlpha = if (dark) 0.08f else 0.14f,
+                shadeAlpha = if (dark) 0.12f else 0.04f,
+                borderColors = glassBorderColors(dark).map {
+                    it.copy(alpha = it.alpha * 0.45f)
+                }
             )
     } else {
         Modifier
@@ -362,16 +365,18 @@ fun FloatingNavBar(
             val pillSurface: Modifier = if (liquidGlass) {
                 Modifier
                     .background(
-                        scheme.surfaceContainer.copy(alpha = if (dark) 0.18f else 0.24f),
+                        scheme.surfaceContainer.copy(alpha = if (dark) 0.10f else 0.14f),
                         CircleShape
                     )
                     .glassSurface(
-                        tintTop = scheme.primary.copy(alpha = if (dark) 0.28f else 0.20f),
-                        tintBottom = scheme.primary.copy(alpha = if (dark) 0.18f else 0.12f),
-                        specularAlpha = if (dark) 0.40f else 0.70f,
-                        rimAlpha = if (dark) 0.10f else 0.20f,
-                        shadeAlpha = if (dark) 0.16f else 0.05f,
-                        borderColors = glassBorderColors(dark),
+                        tintTop = scheme.primary.copy(alpha = if (dark) 0.16f else 0.12f),
+                        tintBottom = scheme.primary.copy(alpha = if (dark) 0.10f else 0.07f),
+                        specularAlpha = if (dark) 0.24f else 0.42f,
+                        rimAlpha = if (dark) 0.06f else 0.12f,
+                        shadeAlpha = if (dark) 0.10f else 0.03f,
+                        borderColors = glassBorderColors(dark).map {
+                            it.copy(alpha = it.alpha * 0.45f)
+                        },
                         specularHeight = 2.dp,
                         pressProgress = { drag.press.value }
                     )

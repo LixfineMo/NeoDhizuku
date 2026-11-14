@@ -2,7 +2,6 @@ package com.neodhizuku.more.ui.component.glass
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.Modifier
@@ -11,11 +10,16 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * 阻尼拖动手势：按下即预览到按下位置对应的项并整体放大，
@@ -44,24 +48,28 @@ internal class DampedDragAnimation(
     private val visibilityThreshold = 0.001f
 
     private val valueSpec = spring<Float>(1f, 1000f, visibilityThreshold)
-    /** 与 Pager 翻页动画规格一致的慢弹簧，点击兜底用。 */
-    private val glideSpec = spring<Float>(1f, 200f, visibilityThreshold)
-    private val velocitySpec = spring<Float>(0.5f, 300f, visibilityThreshold * 10f)
+    // 速度衰减必须单调：0.5 阻尼会让 velocity 来回振荡，layerBlock 每帧读它
+    // 就会把药丸缩放抖成「底栏按钮在颤抖」。
+    private val velocitySpec = spring<Float>(1f, 300f, visibilityThreshold * 10f)
     private val pressSpec = spring<Float>(1f, 1000f, visibilityThreshold)
     private val scaleXSpec = spring<Float>(0.6f, 250f, visibilityThreshold)
     private val scaleYSpec = spring<Float>(0.7f, 250f, visibilityThreshold)
 
     private val valueAnimation =
         Animatable(initialValue.coerceIn(valueRange), visibilityThreshold)
-    private val velocityAnimation = Animatable(0f, 5f)
+    // 速度值域被钳在 ±0.25，阈值沿用参考的 5f 会让衰减动画瞬间结束，
+    // 形变「啪」地归零；用小阈值才能留下可见的回弹尾巴。
+    private val velocityAnimation = Animatable(0f, visibilityThreshold)
     private val pressProgressAnimation = Animatable(0f, visibilityThreshold)
     private val scaleXAnimation = Animatable(initialScale, visibilityThreshold)
     private val scaleYAnimation = Animatable(initialScale, visibilityThreshold)
 
-    private val mutatorMutex = MutatorMutex()
     private val velocityTracker = VelocityTracker()
     private var dragJob: Job? = null
+    private var pressJob: Job? = null
+    private var releaseJob: Job? = null
     private var decaying = false
+    private var lastFeedbackMs = 0L
 
     /** 当前位置（小数，拖动中连续变化） */
     val value: Float get() = valueAnimation.value
@@ -91,6 +99,10 @@ internal class DampedDragAnimation(
     val pressProgress: Float get() = pressProgressAnimation.value
     val scaleX: Float get() = scaleXAnimation.value
     val scaleY: Float get() = scaleYAnimation.value
+    /**
+     * 形变速度统一是快照状态：普通字段的变化不会让 layerBlock 重绘，
+     * 药丸的挤压拉伸就会一顿一顿；写进 Animatable 才能逐帧连续。
+     */
     val velocity: Float get() = velocityAnimation.value
 
     val modifier: Modifier = Modifier.pointerInput(Unit) {
@@ -168,8 +180,12 @@ internal class DampedDragAnimation(
     }
 
     fun press() {
+        // 新一轮按下顶掉上一轮回弹，避免两组弹簧同时写同一组 Animatable；
+        // 放大本身要跑满，松手后由 release() 接管回弹。
+        releaseJob?.cancel()
+        pressJob?.cancel()
         velocityTracker.resetTracking()
-        animationScope.launch {
+        pressJob = animationScope.launch {
             launch { pressProgressAnimation.animateTo(1f, pressSpec) }
             launch { scaleXAnimation.animateTo(pressedScale, scaleXSpec) }
             launch { scaleYAnimation.animateTo(pressedScale, scaleYSpec) }
@@ -177,17 +193,49 @@ internal class DampedDragAnimation(
     }
 
     fun release() {
-        animationScope.launch {
+        // 不能取消 pressJob：放大要跑满，回弹才会从接近 pressedScale 起步，
+        // 被 0.6 / 0.7 阻尼弹簧越过 1 再收回来 —— 这就是 Q 弹。
+        // KSU 靠「等位置弹簧收敛」给放大留时间，但本项目位置完全由 Pager 逐帧
+        // snapTo（始终跟手），value 恒等于 targetValue，那段等待永远不成立。
+        // 改成直接等缩放到达目标 92%，再启动回弹；超时兜底避免极端帧率下卡死。
+        releaseJob?.cancel()
+        releaseJob = animationScope.launch {
+            val reached = initialScale + (pressedScale - initialScale) * 0.92f
+            runCatching {
+                withTimeout(300L) {
+                    snapshotFlow { scaleXAnimation.value }.first { it >= reached }
+                }
+            }
+            // 放大已到位：立刻回弹。三个 animateTo 会各自取消同一 Animatable 上
+            // 仍在跑的放大子协程；spring(0.6 / 0.7) 从 ~1.39 回 1 会越过 1 再
+            // 收回，这就是 Q 弹。绝不能 join pressJob：spring 的
+            // visibilityThreshold=0.001f 会把收敛拖到 0.6s 以上，回弹被推迟到
+            // 松手后近一秒才启动，观感上就等于「没有 Q 弹」。
             launch { pressProgressAnimation.animateTo(0f, pressSpec) }
             launch { scaleXAnimation.animateTo(initialScale, scaleXSpec) }
             launch { scaleYAnimation.animateTo(initialScale, scaleYSpec) }
         }
     }
 
+    /**
+     * 点击 / 跨整数页只跑缩放反馈。位置绝不在这里驱动：始终由 Pager 的连续页码
+     * （followToSync）或手指（dragTo）逐帧写入，药丸才不会先被弹簧拽一下、
+     * 下一帧又被 snapTo 硬拉回来（那就是切页发卡的原因）。
+     */
+    fun feedback() {
+        // onSelect 与跨整数页会在同一次点击里先后调用，不节流的话第二次
+        // press() 会 cancel 掉第一次刚起步的放大与回弹，Q 弹被自己掐断。
+        val now = System.currentTimeMillis()
+        if (now - lastFeedbackMs < 160L) return
+        lastFeedbackMs = now
+        press()
+        release()
+    }
+
     /** 拖动中连续更新位置。 */
     fun updateValue(value: Float) {
         val target = value.coerceIn(valueRange)
-        animationScope.launch {
+        animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
             valueAnimation.animateTo(target, valueSpec) { updateVelocity() }
         }
     }
@@ -196,20 +244,17 @@ internal class DampedDragAnimation(
     fun dragTo(value: Float) {
         val target = value.coerceIn(valueRange)
         dragJob?.cancel()
-        dragJob = animationScope.launch { valueAnimation.snapTo(target) }
-    }
-
-    /** 外部页码变化时平滑跟随：带一次按压，落位后解除。 */
-    fun animateToValue(value: Float) {
-        animationScope.launch {
-            mutatorMutex.mutate {
-                press()
-                val target = value.coerceIn(valueRange)
-                launch { valueAnimation.animateTo(target, valueSpec) }
-                if (velocity != 0f) {
-                    launch { velocityAnimation.animateTo(0f, velocitySpec) }
-                }
-                release()
+        dragJob = animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            valueAnimation.snapTo(target)
+        }
+        velocityTracker.addPosition(System.currentTimeMillis(), Offset(target, 0f))
+        val span = valueRange.endInclusive - valueRange.start
+        if (span > 0f) {
+            val raw = (velocityTracker.calculateVelocity().x / span).coerceIn(-0.25f, 0.25f)
+            // 低通一次：瞬时速度在相邻帧会跳，形变跟着跳就成了抖动。
+            val smoothed = velocityAnimation.value * 0.6f + raw * 0.4f
+            animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                velocityAnimation.snapTo(smoothed)
             }
         }
     }
@@ -221,36 +266,23 @@ internal class DampedDragAnimation(
      */
     fun snapTo(value: Float) {
         val target = value.coerceIn(valueRange)
-        animationScope.launch {
-            launch { valueAnimation.snapTo(target) }
-            launch { velocityAnimation.snapTo(0f) }
-        }
-    }
-
-    /**
-     * 点击后药丸自己滑向目标页，与 Pager 的翻页动画同时启动、规格一致。
-     * 兜底驱动源：Pager 若逐帧回传位置，[followToSync] 下一帧就接管并取消它
-     * （Animatable.snapTo 会停掉正在跑的动画），两者不打架；若没回传，
-     * 它就是唯一驱动源，药丸不会停在原地。
-     */
-    fun glideTo(value: Float) {
-        val target = value.coerceIn(valueRange)
-        animationScope.launch {
-            valueAnimation.animateTo(target, glideSpec) { updateVelocity() }
+        animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            valueAnimation.snapTo(target)
+            velocityAnimation.snapTo(0f)
         }
     }
 
     /**
      * 逐帧跟随外部连续位置（Pager 的滚动偏移），不做弹簧、不碰按压与缩放。
-     * 与 [animateToValue] 的区别：后者是「目标变了，自己跑一段动画过去」，
-     * 每来一个新整数页就要重启一次动画；本方法是「位置就是外部给的」，
-     * 逐帧写入，因此不会在中间页停住。
+     * 这是药丸位置的唯一驱动源（手指拖动时是 [dragTo]），因此点击切页不会
+     * 出现「弹簧先拽一下、下一帧又被 snapTo 硬拉回」的顿挫，始终跟手。
      * 位置必须同步写入 snapTo，否则协程调度会让药丸滞后页面一帧。
      */
     suspend fun followToSync(value: Float) {
         val target = value.coerceIn(valueRange)
-        // 先判再写：snapTo 之后 targetValue 必然等于 target，判断就没意义了
-        if (valueAnimation.targetValue == target) {
+        // 用当前值判断：snapTo 之后 targetValue 恒等于 target，
+        // 旧写法会让速度衰减永远不启动。
+        if (abs(valueAnimation.value - target) < visibilityThreshold) {
             // 停止跟随：只起一次衰减协程，不要每帧重复启动。
             if (velocityAnimation.value != 0f && !decaying) {
                 decaying = true
@@ -267,7 +299,8 @@ internal class DampedDragAnimation(
         velocityTracker.addPosition(System.currentTimeMillis(), Offset(target, 0f))
         val span = valueRange.endInclusive - valueRange.start
         if (span > 0f) {
-            velocityAnimation.snapTo(velocityTracker.calculateVelocity().x / span)
+            val raw = (velocityTracker.calculateVelocity().x / span).coerceIn(-0.25f, 0.25f)
+            velocityAnimation.snapTo(velocityAnimation.value * 0.6f + raw * 0.4f)
         }
     }
 
@@ -275,8 +308,11 @@ internal class DampedDragAnimation(
     private fun updateVelocity() {
         velocityTracker.addPosition(System.currentTimeMillis(), Offset(value, 0f))
         val span = valueRange.endInclusive - valueRange.start
-        val targetVelocity = velocityTracker.calculateVelocity().x / span
-        animationScope.launch { velocityAnimation.animateTo(targetVelocity, velocitySpec) }
+        val targetVelocity = (velocityTracker.calculateVelocity().x / span)
+            .coerceIn(-0.25f, 0.25f)
+        animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            velocityAnimation.snapTo(targetVelocity)
+        }
     }
 }
 

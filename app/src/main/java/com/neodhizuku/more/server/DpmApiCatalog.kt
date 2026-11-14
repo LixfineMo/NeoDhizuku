@@ -230,7 +230,14 @@ object DpmApiCatalog {
         "isDeviceOwnerApp" to MethodSpec("查询某个应用是否为设备所有者"),
         "isProfileOwnerApp" to MethodSpec("查询某个应用是否为资料管理员"),
         "isAdminActive" to MethodSpec("查询某个应用是否为设备管理员"),
-        "getActiveAdmins" to MethodSpec("读取已激活的设备管理员列表")
+        "getActiveAdmins" to MethodSpec("读取已激活的设备管理员列表"),
+
+        "getDeviceOwnerComponentOnUser" to MethodSpec("读取指定用户的设备所有者"),
+        "getProfileOwnerAsUser" to MethodSpec("读取指定用户的资料管理员"),
+        "getDelegatePackages" to MethodSpec("读取已委派的应用列表"),
+        "getDelegatedScopes" to MethodSpec("读取已委派的能力"),
+        "isProvisioningAllowed" to MethodSpec("查询是否允许初始化设备"),
+        "isCallingUserAffiliated" to MethodSpec("查询当前用户是否隶属于设备所有者")
     )
 
     /**
@@ -351,7 +358,7 @@ object DpmApiCatalog {
             // 未写进参数对照表的方法，优先用清单里的本地化名称；
             // 连清单都没收录时也要说明白，而不是只丢一个裸方法名
             val human = context?.let { DpmPolicyStrings.name(it, name) } ?: name
-            return if (human == name) "调用未收录的系统接口「$name」"
+            return if (human == name) "调用系统接口「$name」"
             else "调用系统接口「$human」"
         }
         return if (data == null) spec.pattern
@@ -373,7 +380,10 @@ object DpmApiCatalog {
         val name = methodName(code)
             ?: return "设备策略接口（事务 $code）"
         val label = DpmPolicyStrings.readable(context, name)
-        return if (label == name) "未收录的系统接口「$name」" else label
+        if (label != name) return label
+        // 清单未收录但已补进人话对照表的方法（多为查询类，无参数占位符）
+        val spec = CATALOG[name] ?: return "系统接口「$name」"
+        return spec.pattern.replace(Regex("「%\\d+」"), "").replace(Regex("%\\d+"), "").trim()
     }
 
     /**

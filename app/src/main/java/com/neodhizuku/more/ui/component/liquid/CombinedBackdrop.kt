@@ -10,13 +10,10 @@ import androidx.compose.ui.unit.Density
 import top.yukonga.miuix.kmp.blur.Backdrop
 
 /**
- * 把两个背景层叠成一个。
- * 药丸要透出两层东西，先画的在下、后画的在上：
- *   first  —— 页面内容（由页面级 rememberLayerBackdrop 提供）。
- *             它带一张不透明的 surface 兜底矩形，所以必须垫在最底下。
- *   second —— 药丸内部的图标 + 文字（由 .alpha(0f).layerBackdrop(tabsBackdrop) 提供）。
- *             这一层除了图标本身都是透明的，叠在页面层上面才看得见。
- * 两者叠加后做折射，才会出现「药丸边缘能看到图标被折弯」的效果。
+ * 把两个背景层按顺序叠成一个：先画的在下，后画的在上。
+ * 与 KernelSU / NPatch 的 FloatingBottomBar 一致，药丸从
+ * 「页面层 + 不可见页签层」一起采样，边缘折射才会倒转底栏及其上下背景。
+ * 药丸内部不再单独渲染可见内容，因此不会出现两份图标并存的重影。
  */
 @Stable
 class CombinedBackdrop(

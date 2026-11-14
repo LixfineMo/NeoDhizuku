@@ -12,6 +12,7 @@ import com.neodhizuku.more.ui.page.settings.debug.RuntimeParamViewModel
 import com.neodhizuku.more.ui.page.settings.debug.ServiceConfigViewModel
 import com.neodhizuku.more.ui.page.settings.debug.ServiceFileEditViewModel
 import com.neodhizuku.more.ui.page.settings.delegation.DelegationViewModel
+import com.neodhizuku.more.ui.page.settings.experimental.Cve98432ViewModel
 import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalViewModel
 import com.neodhizuku.more.ui.page.settings.security.SecurityViewModel
 import com.neodhizuku.more.ui.page.settings.settings.SettingsViewModel
@@ -42,6 +43,11 @@ val viewModelModule = module {
     }
     viewModel {
         ExperimentalViewModel()
+    }
+    // CVE98432 实验页用 koinViewModel()，漏注册会在进页面时抛
+    // NoDefinitionFoundException 并崩掉整个 Composition。
+    viewModel {
+        Cve98432ViewModel()
     }
     viewModel {
         DelegationViewModel()

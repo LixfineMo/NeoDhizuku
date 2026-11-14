@@ -2,6 +2,11 @@ package com.neodhizuku.more.ui.page.settings
 
 import android.os.Build
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -65,6 +70,7 @@ import com.neodhizuku.more.ui.page.settings.app_management.AppManagementPage
 import com.neodhizuku.more.ui.page.settings.blocklist.BlocklistPage
 import com.neodhizuku.more.ui.page.settings.calllog.CallLogPage
 import com.neodhizuku.more.ui.page.settings.delegation.DelegationPage
+import com.neodhizuku.more.ui.page.settings.experimental.Cve98432Page
 import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalPage
 import com.neodhizuku.more.ui.page.settings.home.HomePage
 import com.neodhizuku.more.ui.page.settings.owneridentity.OwnerIdentityPage
@@ -72,8 +78,10 @@ import com.neodhizuku.more.ui.page.settings.theme.ThemePage
 import com.neodhizuku.more.ui.page.settings.apipolicy.ApiPolicyPage
 import com.neodhizuku.more.ui.page.settings.hookconfig.HookConfigPage
 import com.neodhizuku.more.ui.page.settings.whitelist.WhitelistPage
+import com.neodhizuku.more.ui.theme.LocalUiEngine
 import com.neodhizuku.more.ui.theme.ThemeConfig
 import com.neodhizuku.more.ui.theme.ThemeSettings
+import com.neodhizuku.more.ui.theme.navMotion
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -114,6 +122,11 @@ fun SettingsPage(windowInsets: WindowInsets) {
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val railVisible = expanded && currentRoute == SettingsRoute.Tabs.route
 
+    // 二级页面进出场按引擎分流；RTL 下推入方向整体翻转。
+    // 规格只在引擎或布局方向变化时重建，避免每次重组都让 NavHost 重启动画。
+    val uiEngine = LocalUiEngine.current
+    val motion = remember(uiEngine, isLtr) { navMotion(uiEngine, isLtr) }
+
     // 激活状态变化会让页数量变动，越界时收回最后一页
     LaunchedEffect(tabs.size) {
         if (tabs.isNotEmpty() && pagerState.currentPage >= tabs.size) {
@@ -143,7 +156,7 @@ fun SettingsPage(windowInsets: WindowInsets) {
 
     // 底栏四页之间走 Pager 翻页，其余路由照旧用 NavController。
     // 这样首页/设置页里的入口点进去才会带着底栏，而不是跳成没有底栏的独立页。
-    // 翻页改为瞬时对齐：animateScrollToPage 跨多页会逐页跑弹簧动画并组合
+    // 翻页瞬时对齐：animateScrollToPage 跨多页会逐页跑弹簧动画并组合
     // 中间页，四张重页面叠在一起就是「切页卡半秒」的来源。
     val settleJobBox = remember { arrayOfNulls<Job>(1) }
     val settleTab: (Int) -> Unit = { index ->
@@ -215,7 +228,12 @@ fun SettingsPage(windowInsets: WindowInsets) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            if (!expanded && showNavBar) {
+            // 返回时底栏不能比下层的推入动画更早硬跳出来，淡入淡出与页面过渡同步。
+            AnimatedVisibility(
+                visible = !expanded && showNavBar,
+                enter = fadeIn(animationSpec = tween(160, easing = FastOutSlowInEasing)),
+                exit = fadeOut(animationSpec = tween(120, easing = FastOutSlowInEasing))
+            ) {
                 // 撑满宽度，否则底栏只占内容宽度，两侧点不到
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (glassNavBar) {
@@ -279,7 +297,10 @@ fun SettingsPage(windowInsets: WindowInsets) {
                     imageLayer = if (cardGlassActive) Modifier.layerBackdrop(cardBackdrop)
                     else Modifier,
                     blurRadiusDp = themeSettings.backgroundBlur,
-                    dimAmount = themeSettings.backgroundDim
+                    dimAmount = themeSettings.backgroundDim,
+                    imageScale = themeSettings.backgroundScale,
+                    imageOffsetX = themeSettings.backgroundOffsetX,
+                    imageOffsetY = themeSettings.backgroundOffsetY
                 )
             }
 
@@ -288,7 +309,13 @@ fun SettingsPage(windowInsets: WindowInsets) {
                         startDestination = SettingsRoute.Tabs.route,
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (showNavBar) Modifier else Modifier.padding(bottom = bottomSpace))
+                    .then(if (showNavBar) Modifier else Modifier.padding(bottom = bottomSpace)),
+                // 四段都显式给出：navigation-compose 会按预见式返回手势的进度
+                // 逐帧定位 popEnter / popExit，缺一段就会退回生硬的瞬切。
+                enterTransition = { motion.enter() },
+                exitTransition = { motion.exit() },
+                popEnterTransition = { motion.popEnter() },
+                popExitTransition = { motion.popExit() }
             ) {
             composable(route = SettingsRoute.Tabs.route) {
                 HorizontalPager(
@@ -318,13 +345,11 @@ fun SettingsPage(windowInsets: WindowInsets) {
 
                         SettingsRoute.AppManagement.route -> AppManagementPage(
                             windowInsets = windowInsets,
-                            navController = navController,
                             contentPadding = tabContentPadding
                         )
 
                         SettingsRoute.CallLog.route -> CallLogPage(
                             windowInsets = windowInsets,
-                            navController = navController,
                             contentPadding = tabContentPadding,
                             // 未激活时没有调用记录，默认落在「运行日志」标签
                             startOnRuntime = !isOwner
@@ -373,6 +398,12 @@ fun SettingsPage(windowInsets: WindowInsets) {
             }
             composable(route = SettingsRoute.Experimental.route) {
                 ExperimentalPage(
+                    windowInsets = windowInsets,
+                    navController = navController
+                )
+            }
+            composable(route = SettingsRoute.Cve98432.route) {
+                Cve98432Page(
                     windowInsets = windowInsets,
                     navController = navController
                 )

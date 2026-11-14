@@ -54,3 +54,7 @@
 -keep class com.neodhizuku.hook.** { *; }
 -keep class com.rosan.dhizuku.api.** { *; }
 -keep class com.rosan.dhizuku.shared.** { *; }
+
+# CVE-2026-98432 JNI: native method names and the static log callback must survive R8.
+-keep class com.neodhizuku.more.ui.page.settings.experimental.Cve98432Bridge { *; }
+-keepclasseswithmembernames class * { native <methods>; }

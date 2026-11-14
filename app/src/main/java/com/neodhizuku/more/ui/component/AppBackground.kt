@@ -41,6 +41,12 @@ fun AppBackground(
     blurRadiusDp: Float,
     dimAmount: Float,
     modifier: Modifier = Modifier,
+    /** 背景图显示缩放（1~3）。 */
+    imageScale: Float = 1f,
+    /** 背景图水平偏移，归一化到 -1~1。 */
+    imageOffsetX: Float = 0f,
+    /** 背景图垂直偏移，归一化到 -1~1。 */
+    imageOffsetY: Float = 0f,
     /** 由调用方把图片层登记进卡片采样源（Modifier.layerBackdrop）；遮罩在其后绘制。 */
     imageLayer: Modifier = Modifier
 ) {
@@ -60,19 +66,24 @@ fun AppBackground(
         with(density) { blurRadiusDp.coerceAtLeast(0f).dp.toPx() }
     }
 
-    val imageModifier = if (radiusPx > 0f && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Modifier
-            .fillMaxSize()
-            .graphicsLayer {
+    // 显示变换与整体模糊放在同一层：先缩放/平移再模糊，卡片采样源
+    // 拿到的也是变换后的图，裁切结果与预览完全一致。
+    val imageModifier = Modifier
+        .fillMaxSize()
+        .graphicsLayer {
+            scaleX = imageScale
+            scaleY = imageScale
+            translationX = imageOffsetX * size.width * 0.5f
+            translationY = imageOffsetY * size.height * 0.5f
+            clip = true
+            if (radiusPx > 0f && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 renderEffect = PlatformRenderEffect.createBlurEffect(
                     radiusPx,
                     radiusPx,
                     Shader.TileMode.CLAMP
                 ).asComposeRenderEffect()
             }
-    } else {
-        Modifier.fillMaxSize()
-    }
+        }
 
     // 采样源里也压一层中性黑：卡片与四周都从同一张偏暗的图取样，
     // 只是深浅差一点，浅色主题下不会再透出一块白。四周补剩下的差值，

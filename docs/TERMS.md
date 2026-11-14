@@ -24,9 +24,9 @@ These terms may be updated at any time without prior notice. Continued use of th
 
 ## 6. Contact
 
-For inquiries or issues, please reach out via [GitHub Issues](https://github.com/iamr0s/Dhizuku/issues).
+For inquiries or issues, please reach out via [GitHub Issues](https://github.com/LixfineMo/NeoDhizuku/issues).
 
 ## 7. License
 
-This application is licensed under the [GNU General Public License v3.0](https://github.com/iamr0s/Dhizuku/blob/master/LICENSE).  
+This application is licensed under the [GNU General Public License v3.0](https://github.com/LixfineMo/NeoDhizuku/blob/main/LICENSE).  
 By using or distributing this app, you agree to comply with the terms of this license.

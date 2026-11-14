@@ -33,7 +33,7 @@ import androidx.compose.material.icons.twotone.ArrowDropDown
 import androidx.compose.material.icons.twotone.Check
 import androidx.compose.material.icons.twotone.Shield
 import androidx.compose.material.icons.twotone.Warning
-import androidx.compose.material3.AlertDialog
+import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import androidx.compose.material3.Checkbox
 import com.neodhizuku.more.ui.component.NeoDropdownMenu
 import com.neodhizuku.more.ui.component.NeoDropdownItem

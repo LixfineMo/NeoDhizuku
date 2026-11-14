@@ -30,7 +30,7 @@ private suspend fun blockingRequestShizukuPermission() = callbackFlow {
 }.first()
 
 suspend fun <T> requireShizukuPermissionGranted(action: suspend () -> T): T {
-    // NeoDhizuku：包名改为 com.neodhizuku.more 后，这里应传自身包名，
+    // 包名为 com.neodhizuku.more，这里传自身包名，
     // 与 App.onCreate() 中的 Sui.init(packageName) 保持一致。
     Sui.init(BuildConfig.APPLICATION_ID)
     val binder = Shizuku.getBinder()

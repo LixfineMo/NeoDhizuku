@@ -180,6 +180,15 @@ fun SettingsPage(
                                 navController.navigate(SettingsRoute.HookConfig.route)
                             }
                         )
+                        HorizontalDividerSafe()
+                        ManageEntry(
+                            title = stringResource(R.string.delegation_title),
+                            desc = stringResource(R.string.delegation_entry_dsp),
+                            onClick = {
+                                NeoLog.d(NeoLog.NAV) { "settings -> delegation" }
+                                navController.navigate(SettingsRoute.Delegation.route)
+                            }
+                        )
                     }
                 }
             }

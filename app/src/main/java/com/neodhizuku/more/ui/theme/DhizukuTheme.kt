@@ -199,14 +199,14 @@ private fun miuixTypography(base: androidx.compose.material3.Typography) =
 
 private fun translucentScheme(scheme: ColorScheme): ColorScheme = scheme.copy(
     // Scaffold / Surface / TopAppBar 都要完全透明，否则浅色主题下那层白会把
-    // 背景图整片盖掉，只剩卡片里看得出模糊（截图里「四周是白色」的根因）。
+    // 背景图整片盖掉，只剩卡片里看得出模糊。
     // 暗化统一交给 AppBackground 的中性黑遮罩，四周因此仍比卡片略深。
     background = scheme.background.copy(alpha = 0f),
     surface = scheme.surface.copy(alpha = 0f),
     surfaceVariant = scheme.surfaceVariant.copy(alpha = 0.32f),
     surfaceContainerLowest = scheme.surfaceContainerLowest.copy(alpha = 0.32f),
     surfaceContainerLow = scheme.surfaceContainerLow.copy(alpha = 0.40f),
-    // TopAppBar 滚动后取 surfaceContainer：压低它，避免顶栏又浮出一条白横带。
+    // 顶栏滚动后的容器色压低，保持与背景一致。
     surfaceContainer = scheme.surfaceContainer.copy(alpha = 0.22f),
     surfaceContainerHigh = scheme.surfaceContainerHigh.copy(alpha = 0.58f),
     surfaceContainerHighest = scheme.surfaceContainerHighest.copy(alpha = 0.66f)

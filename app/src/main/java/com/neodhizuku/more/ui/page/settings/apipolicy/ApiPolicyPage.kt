@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 import com.neodhizuku.more.R
+import com.neodhizuku.more.ui.component.FullAccessBadge
 import com.neodhizuku.more.server.DpmPolicyCatalog
 import com.neodhizuku.more.ui.theme.exclude
 
@@ -229,11 +230,18 @@ private fun AppPolicyCard(
         onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                item.label,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    item.label,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                if (item.fullAccess) FullAccessBadge()
+            }
             if (configured) {
                 Text(
                     stringResource(R.string.api_policy_configured_count, item.configured.size),
@@ -311,7 +319,7 @@ private fun AppPolicyDialog(
         }
         map
     }
-    androidx.compose.material3.AlertDialog(
+    com.neodhizuku.more.ui.component.NeoAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(item.label) },
         text = {

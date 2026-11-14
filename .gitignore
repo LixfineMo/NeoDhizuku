@@ -17,5 +17,9 @@
 /.vscode/
 # Keystore
 /keystore/
-/Update
-/Dhizuku-API
+# 服务端
+/Update/
+# 附加项目
+/Dhizuku-API/
+# CMake
+/app/.*

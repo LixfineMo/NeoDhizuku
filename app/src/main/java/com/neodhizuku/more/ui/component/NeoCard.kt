@@ -1,8 +1,11 @@
 package com.neodhizuku.more.ui.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -41,10 +44,38 @@ val LocalCardBlurDp = staticCompositionLocalOf { 0f }
 val LocalCardSolidFallback = staticCompositionLocalOf { false }
 
 /**
- * 全项目统一卡片。
- * 普通状态下与 ElevatedCard 行为一致；设置背景图且开启「卡片模糊」时，
- * 先从 [LocalCardGlassBackdrop] 采样背景，再按半径模糊，最后叠一层薄色遮罩。
- * 卡片内容永远清晰，模糊只发生在卡片背后。
+ * miuix 引擎下卡片的玻璃层。
+ * 组件库的 Card 会在自己的 modifier 之后绘制底色，把 drawBackdrop 挂在 Card 外层
+ * 会被这层底色盖掉，所以玻璃必须画在「内容的最底层」，压住底色、托住文字。
+ * [tint] 用于状态卡这类需要保留配色的卡片：半透明色叠在模糊结果之上。
+ */
+@Composable
+fun MiuixGlassLayer(
+    backdrop: Backdrop,
+    shape: Shape,
+    radiusPx: Float,
+    tint: Color = Color.Transparent,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier.drawBackdrop(
+            backdrop = backdrop,
+            shape = { shape },
+            effects = {
+                vibrancy()
+                blur(radiusPx, radiusPx)
+            },
+            onDrawSurface = {
+                drawRect(Color.Black.copy(alpha = 0.04f))
+                if (tint.alpha > 0f) drawRect(tint)
+            }
+        )
+    )
+}
+
+/**
+ * 全项目统一卡片。设置背景图且开启局部模糊时，从 [LocalCardGlassBackdrop]
+ * 采样背景再按半径模糊，卡片内容始终清晰。
  */
 @Composable
 fun NeoCard(
@@ -57,15 +88,35 @@ fun NeoCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val density = LocalDensity.current
-    // miuix 引擎用组件库自己的 Card：交互式卡片带按压反馈（与新版 KernelSU
-    // 首页状态卡一致：Tilt，按下/长按时卡片朝触点下沉）。静态卡片不加反馈。
-    // 不叠加原版的背景采样模糊 —— 那是「原版」引擎独有的玻璃效果。
+    val backdrop = LocalCardGlassBackdrop.current
+    val blurDp = LocalCardBlurDp.current
+    val solidFallback = LocalCardSolidFallback.current
+    val glassBackdrop = backdrop?.takeIf { blurDp > 0f && !solidFallback }
+    val radiusPx = with(density) { blurDp.coerceAtLeast(0f).dp.toPx() }
+    // 两套引擎共用同一份卡片采样层：miuix 引擎也要响应「卡片模糊」滑杆。
+    val glassModifier = if (glassBackdrop != null) {
+        Modifier.drawBackdrop(
+            backdrop = glassBackdrop,
+            shape = { shape },
+            effects = {
+                vibrancy()
+                blur(radiusPx, radiusPx)
+            },
+            onDrawSurface = { drawRect(Color.Black.copy(alpha = 0.04f)) }
+        )
+    } else {
+        Modifier
+    }
+
+    // miuix 引擎用组件库自己的 Card：交互式卡片带按压下沉反馈，静态卡不加。
     if (LocalUiEngine.current == UiEngine.MIUIX) {
         // 卡片底色也交给组件库，危险色/自定义色才不会在 miuix 引擎下丢失。
-        // 背景图模式下 MaterialTheme 的容器色是半透明的，这里补成不透明，
-        // miuix 引擎不叠加原版的玻璃采样，半透明反而会让卡片发灰。
+        // 背景图模式下 MaterialTheme 的容器色是半透明的，这里补成不透明；
+        // 玻璃层改画在内容最底层（见 MiuixGlassLayer），不受底色覆盖影响。
         val container = colors.containerColor
         val miuixColor = when {
+            // 局部模糊生效时卡片本身必须透明，否则组件库底色会把模糊盖住。
+            glassBackdrop != null -> Color.Transparent
             container == Color.Unspecified -> MiuixTheme.colorScheme.surface
             container.alpha < 1f -> container.copy(alpha = 1f)
             else -> container
@@ -77,6 +128,24 @@ fun NeoCard(
             with(density) { s.topStart.toPx(Size.Zero, this).toDp() }
         } ?: 16.dp
         val cardPadding = PaddingValues(0.dp)
+        val glassLayer = glassBackdrop
+        val glassShape = shape
+        val glassRadiusPx = radiusPx
+        val wrapped: @Composable ColumnScope.() -> Unit = {
+            if (glassLayer != null) {
+                Box(Modifier.fillMaxWidth()) {
+                    MiuixGlassLayer(
+                        backdrop = glassLayer,
+                        shape = glassShape,
+                        radiusPx = glassRadiusPx,
+                        modifier = Modifier.matchParentSize()
+                    )
+                    Column { content() }
+                }
+            } else {
+                content()
+            }
+        }
         if (onClick != null && enabled) {
             MiuixCard(
                 modifier = modifier,
@@ -86,7 +155,7 @@ fun NeoCard(
                 cornerRadius = cornerRadius,
                 insideMargin = cardPadding,
                 colors = miuixColors,
-                content = content
+                content = wrapped
             )
         } else {
             MiuixCard(
@@ -94,25 +163,15 @@ fun NeoCard(
                 cornerRadius = cornerRadius,
                 insideMargin = cardPadding,
                 colors = miuixColors,
-                content = content
+                content = wrapped
             )
         }
         return
     }
 
-    val backdrop = LocalCardGlassBackdrop.current
-    val blurDp = LocalCardBlurDp.current
-    val solidFallback = LocalCardSolidFallback.current
-    // 判空只做一次：K2 会把非空结果收窄给下面的 drawBackdrop，
-    // 不必再写一遍 backdrop != null（那一遍恒为真，会触发警告）。
-    val glassBackdrop = backdrop?.takeIf { blurDp > 0f && !solidFallback }
     val glassActive = glassBackdrop != null
 
     val surface = MaterialTheme.colorScheme.surfaceContainer
-    val radiusPx = with(density) { blurDp.coerceAtLeast(0f).dp.toPx() }
-    // 玻璃态只留极薄一层中性黑：浅色主题下用 surface / containerColor
-    // 做遮罩会把卡片中间洗成一片白，四周也因此看着比卡片干净。
-    val overlayTint = Color.Black.copy(alpha = 0.04f)
     // 玻璃态下卡片自身必须完全透明：模糊结果由 drawBackdrop 绘制，
     // 再叠一层半透明 surface / elevation 会把中间盖白，只剩边缘看得出颜色。
     val cardElevation = CardDefaults.cardElevation(
@@ -129,23 +188,6 @@ fun NeoCard(
             disabledContainerColor = solidTint(colors.disabledContainerColor, surface)
         )
         else -> colors
-    }
-
-    val glassModifier = if (glassBackdrop != null) {
-        Modifier.drawBackdrop(
-            backdrop = glassBackdrop,
-            shape = { shape },
-            effects = {
-                // 提饱和，避免背景被 dim 洗白后透出来是一片灰白
-                vibrancy()
-                blur(radiusPx, radiusPx)
-            },
-            onDrawSurface = {
-                drawRect(overlayTint)
-            }
-        )
-    } else {
-        Modifier
     }
 
     val cardModifier = modifier.then(glassModifier)

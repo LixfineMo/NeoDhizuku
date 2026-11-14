@@ -9,10 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 授权请求的一次性令牌（**本类位于 app 模块**）。
- * 为什么放在 app 模块而不是 server_api：
- * app 可能编译/运行在「本地 Dhizuku-API 源码」或「Maven 上的官方包」两种模式下，
- * 若引用 server_api 中新增的类，在 Maven 模式下会直接编译失败。
- * 放在 app 模块可以保证两种模式都能编译，加固逻辑在两种模式下都生效。
+ * 放在 app 模块可以保证两种编译模式下都能生效，加固逻辑也不受依赖来源影响。
  * 授权入口的 uid 不信任客户端传入，改由 MyDhizukuService.onTransact() 拦截
  * requestPermission 事务，用 Binder.getCallingUid() 取真实 uid 并签发 token；
  * Activity 校验 token 通过后才认可该 uid。无 token 或 token 无效（例如第三方

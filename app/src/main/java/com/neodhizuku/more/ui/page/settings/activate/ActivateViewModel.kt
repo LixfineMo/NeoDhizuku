@@ -69,6 +69,17 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         collectData()
     }
 
+    /**
+     * 本应用自身是否已是设备所有者 / 资料所有者。用于把「already set」这类
+     * 成功态异常从失败提示里摘掉，只作用于 Shizuku 自身激活路径。
+     */
+    private fun selfIsOwner(): Boolean = runCatching {
+        DhizukuState.sync(context)
+        DhizukuState.state.isDeviceOwner || DhizukuState.state.isProfileOwner ||
+            devicePolicyManager.isDeviceOwnerApp(context.packageName) ||
+            devicePolicyManager.isProfileOwnerApp(context.packageName)
+    }.getOrDefault(false)
+
     private var collectDataJob: Job? = null
 
     enum class OwnerType {
@@ -105,8 +116,11 @@ class ActivateViewModel : ViewModel(), KoinComponent {
                 val component = it.component
                 ActivateViewData(
                     admin = it,
-                    enabled = devicePolicyManager.isAdminActive(component)
-                            && devicePolicyManager.isDeviceOwnerApp(component.packageName)
+                    // 「设备管理员已激活」也要能被预选：免删账号流程成功注册管理员后，
+                    // 若仍要求同时是设备所有者，列表会显示成未启用，诱导用户重复激活。
+                    enabled = devicePolicyManager.isAdminActive(component) ||
+                            devicePolicyManager.isDeviceOwnerApp(component.packageName) ||
+                            devicePolicyManager.isProfileOwnerApp(component.packageName)
                 )
             }.sortedBy {
                 it.admin.packageName
@@ -140,7 +154,14 @@ class ActivateViewModel : ViewModel(), KoinComponent {
                 else it
             }
             if (exceptionOrNull is CancellationException) return@launch
-            state = state.copy(status = ActivateViewState.Status.End(error = exceptionOrNull))
+            // setDeviceOwner 抛 "device owner is already set" 时，本应用其实已经激活成功。
+            // 免删账号 / Shizuku 路径常见「激活已完成但界面未刷新」，此时若仍把它映射成
+            // 「已存在设备所有者或资料所有者」，用户会以为失败并反复重试。
+            val resolvedError = if (
+                mode == SettingsRoute.Activate.Mode.Shizuku &&
+                exceptionOrNull != null && selfIsOwner()
+            ) null else exceptionOrNull
+            state = state.copy(status = ActivateViewState.Status.End(error = resolvedError))
         }
     }
 
@@ -162,7 +183,14 @@ class ActivateViewModel : ViewModel(), KoinComponent {
                 else it
             }
             if (exceptionOrNull is CancellationException) return@launch
-            state = state.copy(status = ActivateViewState.Status.End(error = exceptionOrNull))
+            // setDeviceOwner 抛 "device owner is already set" 时，本应用其实已经激活成功。
+            // 免删账号 / Shizuku 路径常见「激活已完成但界面未刷新」，此时若仍把它映射成
+            // 「已存在设备所有者或资料所有者」，用户会以为失败并反复重试。
+            val resolvedError = if (
+                mode == SettingsRoute.Activate.Mode.Shizuku &&
+                exceptionOrNull != null && selfIsOwner()
+            ) null else exceptionOrNull
+            state = state.copy(status = ActivateViewState.Status.End(error = resolvedError))
         }
     }
 
@@ -194,26 +222,39 @@ class ActivateViewModel : ViewModel(), KoinComponent {
             } else {
                 delay(1500)
             }
-            if (NeoDhizuku.on(NeoDhizuku.FixReflectionDpm)) {
-                requireWrappedDevicePolicyManager(wrapper = {
-                    ShizukuBinderWrapper(it)
-                }) {
-                    val userId = Os.getuid() / 100000
-                    it.setActiveAdminV2(who, true, userId)
-                    it.setDeviceOwnerV2(who, null, userId)
-                }
-            } else {
-                requireBinderWrapperDevicePolicyManager(wrapper = {
-                    ShizukuBinderWrapper(it)
-                }) {
-                    val userId = Os.getuid() / 100000
-                    it.setActiveAdmin(who, true, userId)
-                    it.setDeviceOwner(who, null, userId)
+            val ownerResult = runCatching {
+                if (NeoDhizuku.on(NeoDhizuku.FixReflectionDpm)) {
+                    requireWrappedDevicePolicyManager(wrapper = {
+                        ShizukuBinderWrapper(it)
+                    }) {
+                        val userId = Os.getuid() / 100000
+                        it.setActiveAdminV2(who, true, userId)
+                        it.setDeviceOwnerV2(who, null, userId)
+                    }
+                } else {
+                    requireBinderWrapperDevicePolicyManager(wrapper = {
+                        ShizukuBinderWrapper(it)
+                    }) {
+                        val userId = Os.getuid() / 100000
+                        it.setActiveAdmin(who, true, userId)
+                        it.setDeviceOwner(who, null, userId)
+                    }
                 }
             }
             // 必须同步状态，否则激活确实成功、弹窗也提示成功，
             // 但首页仍显示未激活。
             DhizukuState.sync(context)
+            // 多用户 / 已存在资料所有者时，setDeviceOwner 会抛
+            // "device owner or profile owner is already set"，但公开 API 可能
+            // 已经显示本应用是设备所有者（管理员也确已激活）。此时按成功处理，
+            // 不要再拿「已有所有者」误导用户去删一个其实不存在的东西。
+            if (ownerResult.isFailure && !isAlreadyDeviceOwner(who)) {
+                throw ownerResult.exceptionOrNull()!!
+            }
+            NeoLog.i(NeoLog.ACTIVATE) {
+                if (ownerResult.isSuccess) "setDeviceOwner 调用完成（两参）"
+                else "setDeviceOwner 抛错但已是设备所有者，按成功处理"
+            }
         }
 
     @SuppressLint("PrivateApi")
@@ -337,10 +378,13 @@ class ActivateViewModel : ViewModel(), KoinComponent {
             kotlinx.coroutines.delay(1500)
             return
         }
-        repeat(16) {
+        // 只等账户服务可读，不要求「账户清零」。旧写法在有账户时反而空转 8 秒，
+        // 把 user_setup_complete=0 的临时窗口拖过期，随后 setDeviceOwner 更容易
+        // 报「已有所有者」。账户本身由系统策略判断，不该由这里死等。
+        repeat(8) {
             val count = runCatching { manager.accounts.size }.getOrDefault(-1)
-            if (count == 0) return
-            kotlinx.coroutines.delay(500)
+            if (count >= 0) return
+            kotlinx.coroutines.delay(250)
         }
     }
 

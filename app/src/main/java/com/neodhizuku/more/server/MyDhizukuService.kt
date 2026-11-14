@@ -94,28 +94,52 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     override fun getVersionCode(): Int = super.getVersionCode()
 
     /**
-     * 单项系统接口策略判定；被拒时抛 SecurityException。
+     * 单项系统接口策略判定；返回 true 表示继续执行，false 表示本次调用已处理完毕。
      * 只作用于设备策略接口（[DpmPolicyCatalog] 收录的方法），
      * 未收录的方法一律放行 —— 不以"认不出"为由拦截正常调用。
-     * 排除本应用自身，且首页停服时不介入（交给既有的拒绝模式处理）。
+     * 排除本应用自身、完全体，且首页停服时不介入（交给既有的拒绝模式处理）。
      */
-    private fun enforceDpmPolicy(method: String?, uid: Int, pkg: String?, label: String) {
-        if (method == null) return
-        if (uid == Process.myUid()) return
-        if (runCatching { settingsRepo.isServiceStoppedByUser }.getOrDefault(false)) return
-        val def = DpmPolicyCatalog.byId(method) ?: return
+    private fun enforceDpmPolicy(
+        method: String?,
+        uid: Int,
+        pkg: String?,
+        label: String,
+        reply: Parcel?,
+        fullAccess: Boolean
+    ): Boolean {
+        if (method == null) return true
+        if (uid == Process.myUid()) return true
+        if (fullAccess) return true
+        if (runCatching { settingsRepo.isServiceStoppedByUser }.getOrDefault(false)) return true
+        val def = DpmPolicyCatalog.byId(method) ?: return true
         val decision = apiPolicyRepo.decide(pkg, def.id, def.defaultAllowed)
-        if (decision.allowed) return
+        if (decision.allowed) return true
         val from = if (decision.fromApp) "本应用配置" else "全局配置"
         val shown = DpmPolicyStrings.name(context, def.id)
+        val readable = DpmPolicyStrings.readable(context, def.id)
+        val mode = runCatching { DenyMode.from(settingsRepo.denyMode) }
+            .getOrDefault(DenyMode.DEFAULT)
         NeoLog.w(NeoLog.PERM) {
-            "单项策略: 拒绝 pkg=$pkg 接口=${DpmPolicyStrings.readable(context, def.id)} 依据=$from"
+            "单项策略: 拒绝 pkg=$pkg 接口=$readable 依据=$from 处理=$mode"
         }
-        runCatching { AlertNotifier.apiDenied(context, pkg, shown) }
-            .onFailure { NeoLog.w(NeoLog.PERM) { "单项策略通知发送失败：${it.message}" } }
-        throw SecurityException(
-            "Device policy denied by user: ${DpmPolicyStrings.readable(context, def.id)} uid=$uid"
-        )
+        return when (mode) {
+            DenyMode.DENY_ALL_SUCCESS, DenyMode.DENY_DANGEROUS_SUCCESS -> {
+                // 不真正执行，只回一个成功结果，客户端看不出这一项被拒。
+                reply?.writeNoException()
+                false
+            }
+            DenyMode.NO_ACTION -> {
+                // 不回写也不抛异常，调用停在这里等待。
+                false
+            }
+            else -> {
+                runCatching { AlertNotifier.apiDenied(context, pkg, shown) }
+                    .onFailure { NeoLog.w(NeoLog.PERM) { "单项策略通知发送失败：${it.message}" } }
+                throw SecurityException(
+                    "Device policy denied by user: $readable uid=$uid"
+                )
+            }
+        }
     }
 
     override fun getVersionName(): String {
@@ -275,6 +299,14 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     // 但只对本项目的接口布局成立：旧版客户端（原版 API）的 17 号事务未必是
     // requestPermission，参数里也未必有 listener，强行解析只会读出垃圾。
     override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
+        // 完全体状态查询。客户端只能读，不能申请或改写。
+        if (code == DhizukuVariables.TRANSACT_QUERY_FULL_ACCESS) {
+            val handled = runCatching { handleQueryFullAccess(data, reply) }
+                .onFailure { NeoLog.e(NeoLog.PERM, { "isFullAccessGranted 异常" }, it) }
+                .getOrDefault(false)
+            if (handled) return true
+            return super.onTransact(code, data, reply, flags)
+        }
         if (NeoDhizuku.on(NeoDhizuku.HardenPermissionEntry)
             && code == RequestPermissionToken.TRANSACT_REQUEST_PERMISSION
         ) {
@@ -398,7 +430,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         // 后台启动 Activity 限制（Android 10+）下，从后台 startActivity 可能
         // **静默失败**：既不弹窗也不抛异常。此时若回调 DENIED，客户端会认为
         // 用户拒绝了，之后不再重试 —— 表现为"永远无法授权"。
-        // 改为：保留 token，延迟确认弹窗是否真的起来；没起来就发通知，
+        // 保留 token，延迟确认弹窗是否真的起来；没起来就发通知，
         // 由用户点击拉起（用户点击属于用户发起，不受后台启动限制）。
         if (!started) {
             AlertNotifier.permissionRequest(context, uid, token)
@@ -406,6 +438,25 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             scheduleFallbackNotify(uid, token)
         }
         reply?.writeNoException()
+        return true
+    }
+
+    /** 完全体状态查询：客户端只读，不能申请或改写。 */
+    private fun handleQueryFullAccess(data: Parcel, reply: Parcel?): Boolean {
+        val start = data.dataPosition()
+        val magic = runCatching {
+            data.enforceInterface(DhizukuVariables.IDHIZUKU_DESCRIPTOR)
+            if (data.dataAvail() < 4) -1 else data.readInt()
+        }.getOrDefault(-1)
+        if (magic != DhizukuVariables.FULL_ACCESS_QUERY_MAGIC) {
+            runCatching { data.setDataPosition(start) }
+            return false
+        }
+        val uid = Binder.getCallingUid()
+        val signature = context.packageManager.getPackageInfoForUid(uid)?.signature
+        val granted = FullAccessStore.isFull(uid, signature)
+        reply?.writeNoException()
+        reply?.writeInt(if (granted) 1 else 0)
         return true
     }
 
@@ -511,6 +562,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                     }
                 }
             }
+        }
+
+        val callerSignature = context.packageManager.getPackageInfoForUid(callingUid)?.signature
+        if (FullAccessStore.isFull(callingUid, callerSignature)) {
+            NeoLog.d(NeoLog.PERM) { "check: 完全体放行 uid=$callingUid pkg=$pkg" }
+            return true
         }
 
         // 优先走内存缓存，缓存未就绪时回退到原来的 runBlocking 查询
@@ -836,6 +893,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         // binder（含 DevicePolicyManager）以本应用的设备所有者身份执行。
         // 基类只在 remote_process 时回调 onAudit，这条路径需要在这里补审计。
         val callerUid = Binder.getCallingUid()
+        val callerSignature = context.packageManager.getPackageInfoForUid(callerUid)?.signature
+        val fullAccess = FullAccessStore.isFull(callerUid, callerSignature)
         val callerLabel = runCatching {
             context.packageManager.getNameForUid(callerUid)
         }.getOrNull() ?: callerUid.toString()
@@ -852,14 +911,20 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)} 描述=$human"
         }
 
-        // 单项系统接口策略：用户在「设置 - 服务 - 单项接口配置」里的选择。
+        // 单项系统接口策略：用户在「设置 - 服务 - 单项接口配置」里的选择；完全体不参与。
         // 只对设备策略接口生效（descriptor 命中才判），且排在守卫之前 ——
         // 用户显式关掉某项时应当立即拦下，不必再走后面的守卫流程。
         if (descriptor == DpmApiCatalog.DPM_DESCRIPTOR) {
             val pkg = runCatching {
                 context.packageManager.getPackagesForUid(callerUid)?.firstOrNull()
             }.getOrNull()
-            enforceDpmPolicy(method, callerUid, pkg, callerLabel)
+            if (!enforceDpmPolicy(method, callerUid, pkg, callerLabel, reply, fullAccess)) {
+                auditRemoteTransact(
+                    callerUid, callerLabel, descriptor, code,
+                    extraDetail = "【已拦截：单项策略】$human"
+                )
+                return true
+            }
         }
 
         // 守卫降级提示（只提示一次）。
@@ -879,6 +944,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
         if (NeoDhizuku.on(NeoDhizuku.HardenWipeGuard)
             && DpmApiCatalog.isWipe(binder, code)
+            && !fullAccess
         ) {
             // 擦除设备数据：不可逆操作，默认一律拦截，需用户多级确认后才放行。
             // 即便当前是设备所有者也拦截 —— 这条规则保护的是"被第三方借身份擦除"。
@@ -910,6 +976,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         // 能力分级：当前身份不足以执行该方法时，按服务策略处理
         if (NeoDhizuku.on(NeoDhizuku.UseCapabilityTier)
             && descriptor == DpmApiCatalog.DPM_DESCRIPTOR
+            && !fullAccess
         ) {
             val level = DhizukuState.state.level
             if (!CapabilityLevel.canExecute(level, method)) {
@@ -960,7 +1027,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 NeoLog.i(NeoLog.SERVER) {
                     "owner transfer: 应用内转移，直接放行 uid=$uid"
                 }
-            } else if (!settingsRepo.isAllowOwnerTransfer) {
+            } else if (!settingsRepo.isAllowOwnerTransfer && !fullAccess) {
                 // 关闭即阻止：只审计并提示去开开关，没有任何确认可以绕过。
                 NeoLog.w(NeoLog.SERVER) {
                     "owner transfer: 第三方转移开关未开启，拦截 uid=$uid ($label)"

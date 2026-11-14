@@ -93,8 +93,7 @@ fun NeoDropdownItem(
     enabled: Boolean = true
 ) {
     val miuix = LocalUiEngine.current == UiEngine.MIUIX
-    // 条目行沿用新版 KernelSU 自定义 DropdownItem 的做法：容器/列由组件库提供，
-    // 文字、图标、配色全部读 miuix，只保留通用 Row + clickable 用于排版与点击。
+    // 容器与列由组件库提供，条目内只做排版与点击。
     val dropdownColors = if (miuix) DropdownDefaults.dropdownColors() else null
     val primary = if (miuix) MiuixTheme.colorScheme.primary else MaterialTheme.colorScheme.primary
     val onSurface = dropdownColors?.contentColor ?: MaterialTheme.colorScheme.onSurface

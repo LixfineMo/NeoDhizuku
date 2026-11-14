@@ -1,6 +1,7 @@
 package com.neodhizuku.more.ui.page.settings.security
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
 import androidx.compose.material.icons.automirrored.twotone.ArrowForward
@@ -20,6 +23,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.twotone.CheckCircle
 import com.neodhizuku.more.ui.component.NeoCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -46,6 +51,7 @@ import com.neodhizuku.more.R
 import com.neodhizuku.more.data.settings.repo.DenyMode
 import com.neodhizuku.more.data.settings.repo.InsufficientMode
 import com.neodhizuku.more.ui.page.settings.SettingsRoute
+import com.neodhizuku.more.ui.theme.AppIconCache
 import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
@@ -223,6 +229,75 @@ fun SecurityPage(
                     }
                 }
             }
+
+            item("full_access_title") {
+                Text(
+                    stringResource(R.string.full_access_badge),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            item("full_access_card") {
+                NeoCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        val apps = viewModel.state.fullAccessApps
+                        apps.forEachIndexed { index, item ->
+                            FullAccessAppRow(
+                                item = item,
+                                onCheckedChange = { enabled ->
+                                    viewModel.setFullAccess(item, enabled)
+                                }
+                            )
+                            if (index != apps.lastIndex) {
+                                androidx.compose.material3.HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FullAccessAppRow(
+    item: FullAccessAppItem,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Surface(
+        onClick = { onCheckedChange(!item.fullAccess) },
+        color = Color.Transparent,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Image(
+                bitmap = AppIconCache.rememberImageBitmapState(item.applicationInfo).value,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(item.label, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    item.packageName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Checkbox(
+                checked = item.fullAccess,
+                onCheckedChange = onCheckedChange
+            )
         }
     }
 }

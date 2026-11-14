@@ -64,7 +64,13 @@ data class ThemeSettings(
     /** 卡片背后的磨砂玻璃模糊半径（dp） */
     val cardBlur: Float = DEFAULT_CARD_BLUR,
     /** 平板（宽屏）下是否仍显示选中胶囊药丸；默认关闭，导航栏贴边 */
-    val tabletShowPill: Boolean = false
+    val tabletShowPill: Boolean = false,
+    /** 背景图显示缩放（1~3） */
+    val backgroundScale: Float = DEFAULT_BACKGROUND_SCALE,
+    /** 背景图水平偏移，归一化到 -1~1 */
+    val backgroundOffsetX: Float = 0f,
+    /** 背景图垂直偏移，归一化到 -1~1 */
+    val backgroundOffsetY: Float = 0f
 )
 
 /** 默认种子色沿用品牌紫，关闭动态取色后不会突然换风格。 */
@@ -76,6 +82,11 @@ const val DEFAULT_BACKGROUND_DIM = 0.35f
 
 /** 卡片模糊默认半径与上限（dp）。 */
 const val DEFAULT_CARD_BLUR = 18f
+
+/** 背景图显示变换的默认与边界。 */
+const val DEFAULT_BACKGROUND_SCALE = 1f
+const val MIN_BACKGROUND_SCALE = 1f
+const val MAX_BACKGROUND_SCALE = 3f
 
 object ThemeConfig {
 
@@ -96,6 +107,9 @@ object ThemeConfig {
     private const val KEY_BACKGROUND_DIM = "background_dim"
     private const val KEY_CARD_BLUR = "card_blur"
     private const val KEY_TABLET_SHOW_PILL = "tablet_show_pill"
+    private const val KEY_BACKGROUND_SCALE = "background_scale"
+    private const val KEY_BACKGROUND_OFFSET_X = "background_offset_x"
+    private const val KEY_BACKGROUND_OFFSET_Y = "background_offset_y"
 
     /** 动态取色的最低系统版本（Android 12） */
     fun isMonetSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -188,6 +202,29 @@ object ThemeConfig {
         prefs(context).edit().putFloat(KEY_CARD_BLUR, value).apply()
     }
 
+    fun getBackgroundScale(context: Context): Float =
+        prefs(context).getFloat(KEY_BACKGROUND_SCALE, DEFAULT_BACKGROUND_SCALE)
+
+    fun getBackgroundOffsetX(context: Context): Float =
+        prefs(context).getFloat(KEY_BACKGROUND_OFFSET_X, 0f)
+
+    fun getBackgroundOffsetY(context: Context): Float =
+        prefs(context).getFloat(KEY_BACKGROUND_OFFSET_Y, 0f)
+
+    /** 一次写入三项，保证预览与实际背景读到的是同一组值。 */
+    fun setBackgroundTransform(
+        context: Context,
+        scale: Float,
+        offsetX: Float,
+        offsetY: Float
+    ) {
+        prefs(context).edit()
+            .putFloat(KEY_BACKGROUND_SCALE, scale.coerceIn(MIN_BACKGROUND_SCALE, MAX_BACKGROUND_SCALE))
+            .putFloat(KEY_BACKGROUND_OFFSET_X, offsetX.coerceIn(-1f, 1f))
+            .putFloat(KEY_BACKGROUND_OFFSET_Y, offsetY.coerceIn(-1f, 1f))
+            .apply()
+    }
+
     /** 组合成单个 Flow；主题开关关闭时直接发射系统默认 */
     fun getThemeFlow(context: Context): Flow<ThemeSettings> {
         val p = prefs(context)
@@ -211,6 +248,12 @@ object ThemeConfig {
 
         val cardFlow = p.asFlow(KEY_CARD_BLUR, DEFAULT_CARD_BLUR)
         val pillFlow = p.asFlow(KEY_TABLET_SHOW_PILL, false)
+        val scaleFlow = p.asFlow(KEY_BACKGROUND_SCALE, DEFAULT_BACKGROUND_SCALE)
+        val offsetXFlow = p.asFlow(KEY_BACKGROUND_OFFSET_X, 0f)
+        val offsetYFlow = p.asFlow(KEY_BACKGROUND_OFFSET_Y, 0f)
+        val transformFlow = combine(scaleFlow, offsetXFlow, offsetYFlow) { sc, x, y ->
+            Triple(sc, x, y)
+        }
         return combine(
             combine(base, bgSetFlow, blurFlow, dimFlow, hideFlow) { s, imageSet, blur, dim, hide ->
                 s.copy(
@@ -221,11 +264,15 @@ object ThemeConfig {
                 )
             },
             cardFlow,
-            pillFlow
-        ) { settings, cardBlur, tabletShowPill ->
+            pillFlow,
+            transformFlow
+        ) { settings, cardBlur, tabletShowPill, transform ->
             val final = settings.copy(
                 cardBlur = cardBlur,
-                tabletShowPill = tabletShowPill
+                tabletShowPill = tabletShowPill,
+                backgroundScale = transform.first,
+                backgroundOffsetX = transform.second,
+                backgroundOffsetY = transform.third
             )
             NeoLog.v(NeoLog.THEME) { "themeFlow emit -> $final" }
             final

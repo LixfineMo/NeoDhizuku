@@ -3,7 +3,10 @@ package com.neodhizuku.more.ui.page.settings.calllog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import androidx.core.content.FileProvider
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -21,7 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.twotone.ArrowBack
+import androidx.compose.material.icons.automirrored.twotone.Send
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.twotone.Delete
@@ -44,6 +47,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,17 +59,24 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-import androidx.navigation.NavController
 
 import com.neodhizuku.more.R
 import com.neodhizuku.more.data.settings.model.room.entity.AuditEntity
 import com.neodhizuku.more.data.settings.model.room.entity.RuntimeLogEntity
 import com.neodhizuku.more.server.AuditLogStore
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 /** 两个标签页 */
 private enum class LogTab { Audit, Runtime }
@@ -83,12 +94,13 @@ private enum class LogTab { Audit, Runtime }
 @Composable
 fun CallLogPage(
     windowInsets: WindowInsets,
-    navController: NavController,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     startOnRuntime: Boolean = false,
     viewModel: CallLogViewModel = org.koin.androidx.compose.koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.collect()
@@ -102,16 +114,29 @@ fun CallLogPage(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.TwoTone.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
                 title = { Text(stringResource(R.string.nav_call_log)) },
                 actions = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            val uri = withContext(Dispatchers.IO) {
+                                buildLogZip(context, state.audit, state.runtime)
+                            }
+                            if (uri == null) {
+                                Toast.makeText(
+                                    context,
+                                    R.string.call_log_export_failed,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                shareLogZip(context, uri)
+                            }
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.TwoTone.Send,
+                            contentDescription = stringResource(R.string.call_log_export)
+                        )
+                    }
                     IconButton(onClick = { clearConfirm = true }) {
                         Icon(
                             imageVector = Icons.TwoTone.Delete,
@@ -147,7 +172,7 @@ fun CallLogPage(
     }
 
     if (clearConfirm) {
-        androidx.compose.material3.AlertDialog(
+        com.neodhizuku.more.ui.component.NeoAlertDialog(
             onDismissRequest = { clearConfirm = false },
             confirmButton = {
                 TextButton(onClick = {
@@ -235,6 +260,67 @@ private fun copyText(context: Context, text: String) {
         Toast.makeText(context, context.getString(R.string.call_log_copy_done), Toast.LENGTH_SHORT)
             .show()
     }
+}
+
+/* ------------------------------ 全部日志导出 ------------------------------ */
+
+private fun exportStamp(): String =
+    SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
+
+private fun logHeader(title: String, count: Int): String = buildString {
+    append("NeoDhizuku ").append(title).append("\n")
+    append("Exported: ")
+        .append(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()))
+        .append("\n")
+    append("Entries: ").append(count.toString()).append("\n")
+    append("------------------------------\n")
+}
+
+private fun ZipOutputStream.writeTextEntry(name: String, content: String) {
+    putNextEntry(ZipEntry(name))
+    write(content.toByteArray(Charsets.UTF_8))
+    closeEntry()
+}
+
+/**
+ * 两份全量日志打进一个 zip，返回可通过 FileProvider 分享的 Uri。
+ * 包内固定两个文件：call_log.txt（调用记录）、runtime_log.txt（运行日志）。
+ * 直接复用页面复制用的文本格式，导出的内容与长按复制一致。
+ */
+private fun buildLogZip(
+    context: Context,
+    audit: List<AuditEntity>,
+    runtime: List<RuntimeLogEntity>
+): Uri? = runCatching {
+    val dir = File(context.cacheDir, "fileprovider_temp").apply { mkdirs() }
+    val file = File(dir, "NeoDhizuku-logs-${exportStamp()}.zip")
+    ZipOutputStream(FileOutputStream(file)).use { zip ->
+        zip.writeTextEntry(
+            "call_log.txt",
+            logHeader("Call log", audit.size) + auditText(audit).ifBlank { "(no entries)" }
+        )
+        zip.writeTextEntry(
+            "runtime_log.txt",
+            logHeader("Runtime log", runtime.size) + runtimeText(runtime).ifBlank { "(no entries)" }
+        )
+    }
+    FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+}.getOrNull()
+
+private fun shareLogZip(context: Context, uri: Uri) {
+    val send = Intent(Intent.ACTION_SEND).apply {
+        type = "application/zip"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    val chooser = Intent.createChooser(
+        send,
+        context.getString(R.string.call_log_export_chooser)
+    ).apply { addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+    runCatching { context.startActivity(chooser) }
+        .onFailure {
+            Toast.makeText(context, R.string.call_log_export_failed, Toast.LENGTH_SHORT).show()
+        }
 }
 
 /* ------------------------------ 调用记录 ------------------------------ */

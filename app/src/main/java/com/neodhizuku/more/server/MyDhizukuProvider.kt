@@ -45,14 +45,14 @@ class MyDhizukuProvider : DhizukuProvider(), KoinComponent {
      * 早先的实现在此处直接返回 null / 空 Bundle（都不含 binder），
      * 结果客户端的 Dhizuku.init() 一律判为"服务不可用"，两种模式完全等价，
      * "返回成功"这一次级差异根本传不到第三方手里。
-     * 现在改为放行 binder：第三方能正常初始化、能查到"已授权"，
+     * 放行 binder：第三方能正常初始化、能查到"已授权"，
      * 失败还是成功由 MyDhizukuService 在接口层面决定（见 DenyMode 的说明）。
      * ContentProvider 的 `call(authority, ...)`（API 30+）默认转发到本三参版本，
      * 因此只覆写这一个就够覆盖全部系统版本。
      */
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
         // 登记客户端 API 版本：新版 Dhizuku-API 会在 init() 的 extras 里带上版本号，
-        // 原版不会带，读不到即按 old 处理（ClientApiVersion.LEGACY）。
+        // 原版不会带，读不到即按 Legacy 处理（ClientApiVersion.LEGACY）。
         // 身份一律用 Binder.getCallingUid() 判定，不取信 extras 里任何自报字段；
         // 这里读到的只是"对方用什么版本的 API 编译"，用于界面标注与后续功能协商。
         runCatching {

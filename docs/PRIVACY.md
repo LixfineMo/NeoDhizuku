@@ -80,4 +80,4 @@ You have the right to disable and remove this app at any time.
 
 ## 6. Contact
 
-For inquiries, please contact us via [GitHub Issues](https://github.com/iamr0s/Dhizuku/issues), and a maintainer will respond accordingly.
+For inquiries, please contact us via [GitHub Issues](https://github.com/LixfineMo/NeoDhizuku/issues), and a maintainer will respond accordingly.

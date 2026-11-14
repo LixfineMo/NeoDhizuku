@@ -17,6 +17,8 @@ import com.neodhizuku.more.data.common.util.getPackageInfoForUid
 import com.neodhizuku.more.data.common.util.signature
 import com.neodhizuku.more.data.settings.model.room.entity.AppEntity
 import com.neodhizuku.more.data.settings.repo.AppRepo
+import com.neodhizuku.more.server.FullAccessStore
+import com.neodhizuku.more.server.HookConfigStore
 import com.neodhizuku.more.server.PermissionCache
 import com.neodhizuku.more.server.ServiceStatus
 import com.rosan.dhizuku.shared.DhizukuVariables
@@ -49,11 +51,27 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
 
     private var collectRepoJob: Job? = null
 
+    private fun hookedPackages(): Set<String> =
+        (HookConfigStore.snapshot().map { it.pkg } + HookConfigStore.scope).toHashSet()
+
+    private fun sortApps(
+        data: List<AppManagementViewData>,
+        hooked: Set<String>
+    ): List<AppManagementViewData> =
+        data.distinctBy { it.applicationInfo.packageName }
+            .sortedWith(
+                compareByDescending<AppManagementViewData> {
+                    it.applicationInfo.packageName in hooked
+                }.thenByDescending { it.fullAccess }
+                    .thenBy { it.applicationInfo.packageName }
+            )
+
     fun collectRepo() {
         state = state.copy(loading = true)
         collectRepoJob?.cancel()
         collectRepoJob = viewModelScope.launch(Dispatchers.IO) {
             repo.flowAll().collect {
+                val hooked = hookedPackages()
                 val flags = PackageManager.GET_META_DATA or PackageManager.GET_PERMISSIONS
 
                 if (NeoDhizuku.on(NeoDhizuku.FixAppManagementPerf)) {
@@ -120,13 +138,13 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
                                 AppManagementViewData(
                                     applicationInfo = applicationInfo,
                                     enabled = allowApi,
-                                    blocked = blocked
+                                    blocked = blocked,
+                                    fullAccess = FullAccessStore.isFull(uid, entity?.signature)
                                 )
                             )
                         }
                     }
-                    val finalData = data.distinctBy { it.applicationInfo.packageName }
-                        .sortedBy { it.applicationInfo.packageName }
+                    val finalData = sortApps(data, hooked)
                     NeoLog.d(NeoLog.APPS) {
                         "loaded: total=${finalData.size}, " +
                             "authorized=${finalData.count { it.enabled && !it.blocked }}, " +
@@ -157,12 +175,12 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
                         AppManagementViewData(
                             applicationInfo = applicationInfo,
                             enabled = allowApi,
-                            blocked = blocked
+                            blocked = blocked,
+                            fullAccess = FullAccessStore.isFull(uid, entity?.signature)
                         )
                     }
                 state = state.copy(
-                    data = data.distinctBy { it.applicationInfo.packageName }
-                        .sortedBy { it.applicationInfo.packageName },
+                    data = sortApps(data, hooked),
                     loading = false
                 )
             }

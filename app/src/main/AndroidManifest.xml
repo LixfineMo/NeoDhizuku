@@ -58,6 +58,7 @@
     <application
         android:name=".App"
         android:testOnly="${testOnly}"
+        android:enableOnBackInvokedCallback="true"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:appCategory="productivity"
@@ -195,6 +196,17 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Maintains Dhizuku device-owner service availability for authorized apps." />
+        </service>
+
+        <!-- 内核实验室的 tun 报文通道。执行期间由 native 注入入站 IPv4 报文，
+             结束或用户撤销授权时立即关闭。 -->
+        <service
+            android:name=".ui.page.settings.experimental.Cve98432VpnService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
         </service>
 
         <receiver

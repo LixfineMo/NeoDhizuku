@@ -94,6 +94,7 @@ fun ThemePage(
     val expanded = LocalConfiguration.current.screenWidthDp >= 600
 
     var modeExpanded by remember { mutableStateOf(false) }
+    var showCrop by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
     val pickLauncher = rememberLauncherForActivityResult(
@@ -426,38 +427,24 @@ fun ThemePage(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.theme_background_image),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    stringResource(
-                                        if (settings.backgroundImageSet) {
-                                            R.string.theme_background_image_desc
-                                        } else {
-                                            R.string.theme_background_unset
-                                        }
-                                    ),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            TextButton(onClick = { pickLauncher.launch("image/*") }) {
+                                Text(stringResource(R.string.theme_background_pick))
                             }
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                TextButton(onClick = { pickLauncher.launch("image/*") }) {
-                                    Text(stringResource(R.string.theme_background_pick))
+                            if (settings.backgroundImageSet) {
+                                TextButton(onClick = { showCrop = true }) {
+                                    Text(stringResource(R.string.theme_background_adjust))
                                 }
-                                if (settings.backgroundImageSet) {
-                                    TextButton(onClick = {
-                                        BackgroundImageStore.clear(context)
-                                        ThemeConfig.setBackgroundImageSet(context, false)
-                                    }) {
-                                        Text(stringResource(R.string.theme_background_clear))
-                                    }
+                            }
+                            if (settings.backgroundImageSet) {
+                                TextButton(onClick = {
+                                    BackgroundImageStore.clear(context)
+                                    ThemeConfig.setBackgroundImageSet(context, false)
+                                }) {
+                                    Text(stringResource(R.string.theme_background_clear))
                                 }
                             }
                         }
@@ -516,6 +503,14 @@ fun ThemePage(
                     }
                 }
             }
+        }
+        if (showCrop) {
+            BackgroundCropDialog(
+                initialScale = settings.backgroundScale,
+                initialOffsetX = settings.backgroundOffsetX,
+                initialOffsetY = settings.backgroundOffsetY,
+                onDismiss = { showCrop = false }
+            )
         }
     }
 }

@@ -54,10 +54,10 @@ object UpdateLinks {
 
     /** GitHub 仓库里的版本清单 */
     const val GITHUB_VERSION_JSON: String =
-        "https://raw.githubusercontent.com/Qingyu-ch/NeoDhizuku/refs/heads/master/Update/verson.json"
+        "https://raw.githubusercontent.com/LixfineMo/NeoDhizuku/refs/heads/master/Update/verson.json"
 
     /** 清单里没有下载地址时退回仓库主页 */
-    const val REPO_HOME: String = "https://github.com/Qingyu-ch/NeoDhizuku"
+    const val REPO_HOME: String = "https://github.com/LixfineMo/NeoDhizuku"
 
     /**
      * GitHub 源是否出现在选择列表里。
