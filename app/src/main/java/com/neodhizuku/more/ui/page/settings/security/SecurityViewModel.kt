@@ -51,6 +51,12 @@ class SecurityViewModel : ViewModel(), KoinComponent {
     var state by mutableStateOf(SecurityViewState())
         private set
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.flowAllowOwnerTransfer().collect { allow ->
@@ -93,9 +99,21 @@ class SecurityViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * hookedPackages
+     * ()
+     * 作用：执行 hookedPackages
+     * 备注：仅内部使用
+     */
     private fun hookedPackages(): Set<String> =
         (HookConfigStore.snapshot().map { it.pkg } + HookConfigStore.scope).toHashSet()
 
+    /**
+     * loadFullAccessApps
+     * ()
+     * 作用：加载 FullAccessApps
+     * 备注：挂起函数；仅内部使用
+     */
     private suspend fun loadFullAccessApps() {
         val app = context.applicationContext
         runCatching { HookConfigStore.init(app) }
@@ -144,6 +162,12 @@ class SecurityViewModel : ViewModel(), KoinComponent {
         state = state.copy(fullAccessApps = items)
     }
 
+    /**
+     * setFullAccess
+     * (item: FullAccessAppItem, enabled: Boolean)
+     * 作用：设置 FullAccess
+     * 备注：—
+     */
     fun setFullAccess(item: FullAccessAppItem, enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             if (enabled) {
@@ -177,19 +201,36 @@ class SecurityViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 是否允许第三方应用不经确认直接转移设备所有者，默认关闭。 */
+    /**
+     * setAllowOwnerTransfer
+     * (enabled: Boolean)
+     * 作用：是否允许第三方应用不经确认直接转移设备所有者，默认关闭。
+     * 备注：—
+     */
     fun setAllowOwnerTransfer(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isAllowOwnerTransfer = enabled
         }
     }
 
+    /**
+     * setDenyMode
+     * (mode: DenyMode)
+     * 作用：设置 DenyMode
+     * 备注：—
+     */
     fun setDenyMode(mode: DenyMode) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.denyMode = mode.name
         }
     }
 
+    /**
+     * setDhizukuEnabled
+     * (enabled: Boolean)
+     * 作用：设置 DhizukuEnabled
+     * 备注：—
+     */
     fun setDhizukuEnabled(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isDhizukuEnabled = enabled
@@ -197,9 +238,10 @@ class SecurityViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 能力不足时的处理方式。
-     * 注意：本模式只在**非设备所有者**身份下才有意义 ——
-     * 设备所有者可以执行全部方法，不存在能力不足。
+     * setInsufficientMode
+     * (mode: InsufficientMode)
+     * 作用：能力不足时的处理方式。 注意：本模式只在**非设备所有者**身份下才有意义 —— 设备所有者可以执行全部方法，不存在能力不足。
+     * 备注：—
      */
     fun setInsufficientMode(mode: InsufficientMode) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -207,6 +249,12 @@ class SecurityViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setWhitelistMode
+     * (enabled: Boolean)
+     * 作用：设置 WhitelistMode
+     * 备注：—
+     */
     fun setWhitelistMode(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isWhitelistMode = enabled
@@ -214,9 +262,10 @@ class SecurityViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 向客户端返回的版本号来源。
-     * 开启时返回上游 Dhizuku 的版本，关闭时返回本项目自身的版本。
-     * 默认开启：部分客户端会校验版本，返回本项目的版本可能被判定为不兼容。
+     * setUseLegacyVersion
+     * (enabled: Boolean)
+     * 作用：向客户端返回的版本号来源。 开启时返回上游 Dhizuku 的版本，关闭时返回本项目自身的版本。 默认开启：部分客户端会校验版本，返回本项目的版本可能被判定为不兼容。
+     * 备注：—
      */
     fun setUseLegacyVersion(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -225,9 +274,10 @@ class SecurityViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 更严格的服务校验。
-     * 关闭（默认）时只按包名放行，只认上游权限名的硬编码客户端同样可用；
-     * 开启后额外要求调用方持有本应用自身声明的权限。
+     * setStrictServiceCheck
+     * (enabled: Boolean)
+     * 作用：更严格的服务校验。 关闭（默认）时只按包名放行，只认上游权限名的硬编码客户端同样可用； 开启后额外要求调用方持有本应用自身声明的权限。
+     * 备注：—
      */
     fun setStrictServiceCheck(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

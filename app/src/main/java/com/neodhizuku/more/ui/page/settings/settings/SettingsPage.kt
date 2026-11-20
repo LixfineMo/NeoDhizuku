@@ -55,6 +55,12 @@ import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * SettingsPage
+ * (windowInsets: WindowInsets, navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp), onSelectTab: (String) -> Unit = { route -> runCatching { navController.navigate(route) } }, viewModel: SettingsViewModel = koinViewModel())
+ * 作用：执行 SettingsPage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsPage(
@@ -302,6 +308,12 @@ fun SettingsPage(
     }
 }
 
+/**
+ * HorizontalDividerSafe
+ * ()
+ * 作用：执行 HorizontalDividerSafe
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun HorizontalDividerSafe() {
     androidx.compose.material3.HorizontalDivider(
@@ -310,7 +322,12 @@ private fun HorizontalDividerSafe() {
     )
 }
 
-/** 设置页里的「跳转型」条目：标题 + 描述 + 右侧箭头 */
+/**
+ * ManageEntry
+ * (title: String, desc: String, onClick: () -> Unit)
+ * 作用：设置页里的「跳转型」条目：标题 + 描述 + 右侧箭头
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ManageEntry(
     title: String,
@@ -349,9 +366,10 @@ private fun ManageEntry(
 }
 
 /**
- * 语言条目：右侧显示当前语言，点击弹出悬浮列表。
- * 选中后写入 SharedPreferences 并重建 Activity —— 语言必须在
- * attachBaseContext 阶段套上，重建是让它立即生效的唯一方式。
+ * LanguageEntry
+ * ()
+ * 作用：语言条目：右侧显示当前语言，点击弹出悬浮列表。 选中后写入 SharedPreferences 并重建 Activity —— 语言必须在 attachBaseContext 阶段套上，重建是让它立即生效的唯一方式。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun LanguageEntry() {

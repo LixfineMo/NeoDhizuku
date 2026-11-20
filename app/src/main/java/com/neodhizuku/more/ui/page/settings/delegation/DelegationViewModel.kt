@@ -38,7 +38,12 @@ class DelegationViewModel : ViewModel(), KoinComponent {
     var state by mutableStateOf(DelegationViewState())
         private set
 
-    /** 刷新委派清单。 */
+    /**
+     * load
+     * ()
+     * 作用：刷新委派清单。
+     * 备注：—
+     */
     fun load() {
         viewModelScope.launch {
             state = state.copy(loading = true, message = null)
@@ -52,12 +57,22 @@ class DelegationViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 打开某个应用的编辑弹窗。 */
+    /**
+     * edit
+     * (entry: DelegationEntry?)
+     * 作用：打开某个应用的编辑弹窗。
+     * 备注：—
+     */
     fun edit(entry: DelegationEntry?) {
         state = state.copy(editing = entry)
     }
 
-    /** 写入某个应用的委派范围。 */
+    /**
+     * save
+     * (pkg: String, scopes: Set<String>)
+     * 作用：写入某个应用的委派范围。
+     * 备注：—
+     */
     fun save(pkg: String, scopes: Set<String>) {
         viewModelScope.launch(Dispatchers.IO) {
             val admin = DhizukuState.admin
@@ -80,7 +95,12 @@ class DelegationViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 清除某个应用的委派。 */
+    /**
+     * clear
+     * (entry: DelegationEntry)
+     * 作用：清除某个应用的委派。
+     * 备注：—
+     */
     fun clear(entry: DelegationEntry) {
         viewModelScope.launch(Dispatchers.IO) {
             val admin = DhizukuState.admin
@@ -104,7 +124,12 @@ class DelegationViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 清除全部委派。 */
+    /**
+     * clearAll
+     * ()
+     * 作用：清除全部委派。
+     * 备注：—
+     */
     fun clearAll() {
         viewModelScope.launch(Dispatchers.IO) {
             val admin = DhizukuState.admin
@@ -130,10 +155,22 @@ class DelegationViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * consumeMessage
+     * ()
+     * 作用：执行 consumeMessage
+     * 备注：—
+     */
     fun consumeMessage() {
         state = state.copy(message = null)
     }
 
+    /**
+     * refresh
+     * ()
+     * 作用：刷新
+     * 备注：挂起函数；仅内部使用
+     */
     private suspend fun refresh() {
         val result = withContext(Dispatchers.IO) { scan() }
         withContext(Dispatchers.Main.immediate) {
@@ -141,7 +178,12 @@ class DelegationViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 搜索关键字，同时过滤两个分组。 */
+    /**
+     * setQuery
+     * (value: String)
+     * 作用：搜索关键字，同时过滤两个分组。
+     * 备注：—
+     */
     fun setQuery(value: String) {
         state = state.copy(query = value)
     }

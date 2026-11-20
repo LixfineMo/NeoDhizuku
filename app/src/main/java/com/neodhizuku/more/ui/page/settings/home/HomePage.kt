@@ -149,6 +149,12 @@ import kotlinx.coroutines.withContext
 
 import org.koin.compose.koinInject
 
+/**
+ * HomePage
+ * (windowInsets: WindowInsets, navController: NavController, contentPadding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(0.dp), onSelectTab: (String) -> Unit = { route -> runCatching { navController.navigate(route) } })
+ * 作用：执行 HomePage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
@@ -248,9 +254,10 @@ fun HomePage(
 }
 
 /**
- * 启动检查发现新版本时的提示卡。
- * 只提示不打断：点整卡直接下载，点"详情"去关于页看完整更新日志。
- * 下载地址为空（清单里只给了详情链接）时退化成跳关于页。
+ * StartupUpdateWidget
+ * (state: StartupUpdateChecker.State.Available, navController: NavController)
+ * 作用：启动检查发现新版本时的提示卡。 只提示不打断：点整卡直接下载，点"详情"去关于页看完整更新日志。 下载地址为空（清单里只给了详情链接）时退化成跳关于页。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun LazyItemScope.StartupUpdateWidget(
@@ -290,6 +297,12 @@ private fun LazyItemScope.StartupUpdateWidget(
     )
 }
 
+/**
+ * TopBarActions
+ * (navController: NavController)
+ * 作用：执行 TopBarActions
+ * 备注：Compose 组件；使用了实验性 API；仅内部使用
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBarActions(navController: NavController) {
@@ -462,6 +475,12 @@ private fun TopBarActions(navController: NavController) {
     }
 }
 
+/**
+ * DhizukuStateWidget
+ * (navController: NavController)
+ * 作用：执行 DhizukuStateWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.DhizukuStateWidget(navController: NavController) {
     // 用 isActive 而非 isOwner：仅设备管理员也算已激活，
@@ -615,7 +634,12 @@ private fun LazyItemScope.ActivationStatusRow(navController: NavController) {
     }
 }
 
-/** miuix 引擎的首页状态区。未激活时只有顶部提示条。 */
+/**
+ * MiuixStatusRow
+ * (navController: NavController)
+ * 作用：miuix 引擎的首页状态区。未激活时只有顶部提示条。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.MiuixStatusRow(navController: NavController) {
     val state = DebugUiOverrides.displayState()
@@ -690,7 +714,12 @@ private fun LazyItemScope.MiuixStatusRow(navController: NavController) {
     }
 }
 
-/** 未激活时的顶部警告横幅。 */
+/**
+ * MiuixWarningBanner
+ * ()
+ * 作用：未激活时的顶部警告横幅。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun MiuixWarningBanner() {
     val dark = isSystemInDarkTheme()
@@ -710,7 +739,12 @@ private fun MiuixWarningBanner() {
     }
 }
 
-/** 首页 miuix 卡的局部模糊是否生效。 */
+/**
+ * miuixGlassActive
+ * ()
+ * 作用：首页 miuix 卡的局部模糊是否生效。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun miuixGlassActive(): Boolean {
     return LocalCardGlassBackdrop.current != null
@@ -719,8 +753,10 @@ private fun miuixGlassActive(): Boolean {
 }
 
 /**
- * 首页 miuix 卡的玻璃层。组件库底色会盖住挂在 Card 外层的 drawBackdrop，
- * 因此画在内容最底层；[tint] 半透明叠在模糊结果上，夜间仍保留激活态的绿色。
+ * MiuixCardGlass
+ * (tint: Color)
+ * 作用：首页 miuix 卡的玻璃层。组件库底色会盖住挂在 Card 外层的 drawBackdrop， 因此画在内容最底层；[tint] 半透明叠在模糊结果上，夜间仍保留激活态的绿色。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun BoxScope.MiuixCardGlass(tint: Color) {
@@ -737,7 +773,12 @@ private fun BoxScope.MiuixCardGlass(tint: Color) {
     )
 }
 
-/** 激活卡：带按压下沉反馈的交互卡。 */
+/**
+ * MiuixStatusCard
+ * (modifier: Modifier = Modifier, onClick: () -> Unit)
+ * 作用：激活卡：带按压下沉反馈的交互卡。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
     val dark = isSystemInDarkTheme()
@@ -804,7 +845,12 @@ private fun MiuixStatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) 
     }
 }
 
-/** 下方数值卡：跟随明暗配色的标签与大号数值，两张等宽并排。 */
+/**
+ * MiuixStatCard
+ * (modifier: Modifier = Modifier, label: String, value: String)
+ * 作用：下方数值卡：跟随明暗配色的标签与大号数值，两张等宽并排。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun MiuixStatCard(modifier: Modifier = Modifier, label: String, value: String) {
     val dark = isSystemInDarkTheme()
@@ -847,7 +893,12 @@ private fun MiuixStatCard(modifier: Modifier = Modifier, label: String, value: S
     }
 }
 
-/** 身份标签胶囊。 */
+/**
+ * MiuixTag
+ * (label: String, color: Color)
+ * 作用：身份标签胶囊。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun MiuixTag(label: String, color: Color) {
     Box(
@@ -865,7 +916,12 @@ private fun MiuixTag(label: String, color: Color) {
     }
 }
 
-/** 右下角圆环 + 对勾；开口留在右下，由卡片边缘裁切。 */
+/**
+ * MiuixCheckRing
+ * (modifier: Modifier = Modifier, color: Color)
+ * 作用：右下角圆环 + 对勾；开口留在右下，由卡片边缘裁切。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun MiuixCheckRing(modifier: Modifier = Modifier, color: Color) {
     Canvas(modifier = modifier) {
@@ -897,8 +953,10 @@ private fun MiuixCheckRing(modifier: Modifier = Modifier, color: Color) {
 }
 
 /**
- * 状态卡上显示的版本名，跟随「使用旧的兼容版本号」开关：
- * 开启时与对外返回的兼容版本保持一致，关闭时显示本应用自身版本。
+ * displayVersionName
+ * ()
+ * 作用：状态卡上显示的版本名，跟随「使用旧的兼容版本号」开关： 开启时与对外返回的兼容版本保持一致，关闭时显示本应用自身版本。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun displayVersionName(): String {
@@ -913,7 +971,10 @@ private fun displayVersionName(): String {
 }
 
 /**
- * 左侧状态卡：对勾图标 + 已激活 + 所有者类型 + 版本。
+ * StatusCard
+ * (modifier: Modifier = Modifier, onClick: () -> Unit)
+ * 作用：左侧状态卡：对勾图标 + 已激活 + 所有者类型 + 版本。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -965,9 +1026,10 @@ private fun StatusCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
 }
 
 /**
- * 激活卡片上的身份标签，五种状态选一。
- * 放在这里而不是另起一张卡：平板上首页右侧没有多余空间，
- * 单独加卡会导致平板与手机布局不一致。
+ * activationLabel
+ * ()
+ * 作用：激活卡片上的身份标签，五种状态选一。 放在这里而不是另起一张卡：平板上首页右侧没有多余空间， 单独加卡会导致平板与手机布局不一致。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun activationLabel(): String {
@@ -997,7 +1059,12 @@ private fun activationLabel(): String {
     return stringResource(res)
 }
 
-/** 右侧小卡：一个标签 + 一个数值 */
+/**
+ * ServiceStatCard
+ * (modifier: Modifier = Modifier, label: String, value: String, stopped: Boolean = false)
+ * 作用：右侧小卡：一个标签 + 一个数值
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ServiceStatCard(
     modifier: Modifier = Modifier,
@@ -1056,10 +1123,10 @@ private fun ServiceStatCard(
 }
 
 /**
- * 状态卡上并排的纯色药丸：身份标签 + 模块框架。
- * 模块框架只在真的有进程报到（或模块被加载过）时出现，
- * 没有 LSPosed / LSPatch 的设备完全看不到它。
- * TEST ONLY 与设备状态无关，不在此显示。
+ * StatusBadges
+ * (includeActivation: Boolean)
+ * 作用：状态卡上并排的纯色药丸：身份标签 + 模块框架。 模块框架只在真的有进程报到（或模块被加载过）时出现， 没有 LSPosed / LSPatch 的设备完全看不到它。 TEST ONLY 与设备状态无关，不在此显示。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun StatusBadges(includeActivation: Boolean) {
@@ -1076,7 +1143,12 @@ private fun StatusBadges(includeActivation: Boolean) {
     }
 }
 
-/** 每 2 秒读一次报到表；只存内存，重启即清空，与「启动后才生效」一致。 */
+/**
+ * hookFrameworkLabel
+ * ()
+ * 作用：每 2 秒读一次报到表；只存内存，重启即清空，与「启动后才生效」一致。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun hookFrameworkLabel(): String? {
     var label by remember { mutableStateOf(HookConfigStore.frameworkLabel()) }
@@ -1089,6 +1161,12 @@ private fun hookFrameworkLabel(): String? {
     return label
 }
 
+/**
+ * StatusTag
+ * (label: String, color: Color? = null)
+ * 作用：执行 StatusTag
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun StatusTag(label: String, color: Color? = null) {
     androidx.compose.foundation.layout.Box(
@@ -1105,6 +1183,12 @@ private fun StatusTag(label: String, color: Color? = null) {
     }
 }
 
+/**
+ * SettingsWidget
+ * (navController: NavController, onSelectTab: (String) -> Unit)
+ * 作用：执行 SettingsWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.SettingsWidget(
     navController: NavController,
@@ -1121,6 +1205,12 @@ private fun LazyItemScope.SettingsWidget(
     })
 }
 
+/**
+ * AppManagementWidget
+ * (navController: NavController, onSelectTab: (String) -> Unit)
+ * 作用：执行 AppManagementWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.AppManagementWidget(
     navController: NavController,
@@ -1137,6 +1227,12 @@ private fun LazyItemScope.AppManagementWidget(
     })
 }
 
+/**
+ * DhizukuWidget
+ * (navController: NavController)
+ * 作用：执行 DhizukuWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.DhizukuWidget(navController: NavController) {
     CardWidget(onClick = {
@@ -1150,6 +1246,12 @@ private fun LazyItemScope.DhizukuWidget(navController: NavController) {
     })
 }
 
+/**
+ * ShizukuWidget
+ * (navController: NavController)
+ * 作用：执行 ShizukuWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.ShizukuWidget(navController: NavController) {
     val context = LocalContext.current
@@ -1169,6 +1271,12 @@ private fun LazyItemScope.ShizukuWidget(navController: NavController) {
     })
 }
 
+/**
+ * QuickActivateWidget
+ * (navController: NavController)
+ * 作用：执行 QuickActivateWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.QuickActivateWidget(navController: NavController) {
     CardWidget(onClick = {
@@ -1182,6 +1290,12 @@ private fun LazyItemScope.QuickActivateWidget(navController: NavController) {
     })
 }
 
+/**
+ * AdbWidget
+ * ()
+ * 作用：执行 AdbWidget
+ * 备注：Compose 组件；使用了实验性 API；仅内部使用
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LazyItemScope.AdbWidget() {
@@ -1299,6 +1413,12 @@ private fun LazyItemScope.AdbWidget() {
     })
 }
 
+/**
+ * DeactivateWidget
+ * ()
+ * 作用：执行 DeactivateWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.DeactivateWidget() {
     val context = LocalContext.current
@@ -1428,6 +1548,12 @@ private fun LazyItemScope.DeactivateWidget() {
     })
 }
 
+/**
+ * HtmlText
+ * (text: String)
+ * 作用：执行 HtmlText
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun HtmlText(text: String) {
     Text(
@@ -1444,6 +1570,12 @@ private fun HtmlText(text: String) {
     )
 }
 
+/**
+ * CardWidget
+ * (modifier: Modifier = Modifier, colors: CardColors = CardDefaults.elevatedCardColors(), onClick: () -> Unit = {}, icon: @Composable () -> Unit, iconColors: IconButtonColors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer), title: @Composable () -> Unit, text: (@Composable () -> Unit)? = null, content: (@Composable () -> Unit)? = null)
+ * 作用：执行 CardWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.CardWidget(
     modifier: Modifier = Modifier,

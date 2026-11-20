@@ -43,14 +43,32 @@ object HookConfigStore {
         val time: Long
     )
 
+    /**
+     * prefs
+     * ()
+     * 作用：执行 prefs
+     * 备注：仅内部使用
+     */
     private fun prefs() = app.getSharedPreferences(PREF, Context.MODE_PRIVATE)
 
+    /**
+     * init
+     * (context: Context)
+     * 作用：初始化
+     * 备注：—
+     */
     fun init(context: Context) {
         if (::app.isInitialized) return
         app = context.applicationContext
         version.set(prefs().getLong("configVersion", 1).coerceAtLeast(1))
     }
 
+    /**
+     * bump
+     * ()
+     * 作用：执行 bump
+     * 备注：仅内部使用
+     */
     private fun bump() {
         val v = version.incrementAndGet()
         prefs().edit().putLong("configVersion", v).apply()
@@ -74,21 +92,44 @@ object HookConfigStore {
             bump()
         }
 
+    /**
+     * flag
+     * (key: String, default: Boolean)
+     * 作用：执行 flag
+     * 备注：—
+     */
     fun flag(key: String, default: Boolean): Boolean =
         if (::app.isInitialized) prefs().getBoolean(key, default) else default
 
+    /**
+     * setFlag
+     * (key: String, value: Boolean)
+     * 作用：设置 Flag
+     * 备注：—
+     */
     fun setFlag(key: String, value: Boolean) {
         prefs().edit().putBoolean(key, value).apply()
         bump()
     }
 
+    /**
+     * allowed
+     * (pkg: String)
+     * 作用：执行 allowed
+     * 备注：—
+     */
     fun allowed(pkg: String): Boolean {
         if (!enabled) return false
         val s = scope
         return s.isEmpty() || pkg in s
     }
 
-    /** 下发给模块的配置。未放行时返回 empty=true，模块据此保持 no-op。 */
+    /**
+     * buildConfig
+     * (pkg: String)
+     * 作用：下发给模块的配置。未放行时返回 empty=true，模块据此保持 no-op。
+     * 备注：—
+     */
     fun buildConfig(pkg: String): Bundle {
         lastContact.set(System.currentTimeMillis())
         markLoaded()
@@ -115,6 +156,12 @@ object HookConfigStore {
         return b
     }
 
+    /**
+     * register
+     * (pkg: String, pid: Int, uid: Int, processName: String, framework: String, sdk: Int)
+     * 作用：注册
+     * 备注：—
+     */
     fun register(
         pkg: String, pid: Int, uid: Int, processName: String, framework: String, sdk: Int
     ): Boolean {
@@ -126,9 +173,20 @@ object HookConfigStore {
         return true
     }
 
+    /**
+     * heartbeat
+     * ()
+     * 作用：执行 heartbeat
+     * 备注：—
+     */
     fun heartbeat(): Bundle = Bundle().apply { putLong("configVersion", configVersion) }
 
-    /** 心跳刷新报到时间，避免长时间运行的目标进程被判成已失联。 */
+    /**
+     * touch
+     * (pkg: String, pid: Int)
+     * 作用：心跳刷新报到时间，避免长时间运行的目标进程被判成已失联。
+     * 备注：—
+     */
     fun touch(pkg: String, pid: Int) {
         lastContact.set(System.currentTimeMillis())
         val key = "$pkg:$pid"
@@ -136,8 +194,10 @@ object HookConfigStore {
     }
 
     /**
-     * 首页药丸用：60 秒内有报到的进程才认为模块真的 hook 到了。
-     * 只有 scope 查询（模块已加载但被总开关挡住）时显示 LSPosed。
+     * frameworkLabel
+     * ()
+     * 作用：首页药丸用：60 秒内有报到的进程才认为模块真的 hook 到了。 只有 scope 查询（模块已加载但被总开关挡住）时显示 LSPosed。
+     * 备注：—
      */
     fun frameworkLabel(): String? {
         val now = System.currentTimeMillis()
@@ -149,6 +209,12 @@ object HookConfigStore {
         return if (now - lastContact.get() < 60_000L) "LSPosed" else null
     }
 
+    /**
+     * snapshot
+     * ()
+     * 作用：执行 snapshot
+     * 备注：—
+     */
     fun snapshot(): List<Report> = reports.values.sortedByDescending { it.time }
 
     /**
@@ -166,6 +232,12 @@ object HookConfigStore {
 
     private const val KEY_EVER_LOADED = "everLoaded"
 
+    /**
+     * markLoaded
+     * ()
+     * 作用：执行 markLoaded
+     * 备注：仅内部使用
+     */
     private fun markLoaded() {
         if (!::app.isInitialized) return
         if (!prefs().getBoolean(KEY_EVER_LOADED, false)) {
@@ -173,10 +245,21 @@ object HookConfigStore {
         }
     }
 
+    /**
+     * everLoaded
+     * ()
+     * 作用：执行 everLoaded
+     * 备注：仅内部使用
+     */
     private fun everLoaded(): Boolean =
         ::app.isInitialized && prefs().getBoolean(KEY_EVER_LOADED, false)
 
-    /** 装了框架管理器就给入口，避免「刚在 LSPosed 勾完、还得去调试页」的死循环。 */
+    /**
+     * frameworkInstalled
+     * ()
+     * 作用：装了框架管理器就给入口，避免「刚在 LSPosed 勾完、还得去调试页」的死循环。
+     * 备注：仅内部使用
+     */
     private fun frameworkInstalled(): Boolean {
         if (!::app.isInitialized) return false
         val pm = app.packageManager
@@ -185,14 +268,24 @@ object HookConfigStore {
         }
     }
 
-    /** 已 hook 到的去重应用数 / 活跃进程数（60 秒内有心跳）。 */
+    /**
+     * hookedCounts
+     * ()
+     * 作用：已 hook 到的去重应用数 / 活跃进程数（60 秒内有心跳）。
+     * 备注：—
+     */
     fun hookedCounts(): Pair<Int, Int> {
         val now = System.currentTimeMillis()
         val alive = snapshot().filter { now - it.time < 60_000L }
         return alive.map { it.pkg }.distinct().size to alive.size
     }
 
-    /** 供调试页重置：清空全部模块配置与报到记录。 */
+    /**
+     * reset
+     * ()
+     * 作用：供调试页重置：清空全部模块配置与报到记录。
+     * 备注：—
+     */
     fun reset() {
         prefs().edit().clear().apply()
         version.set(1)

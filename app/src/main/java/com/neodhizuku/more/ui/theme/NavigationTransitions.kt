@@ -28,6 +28,12 @@ data class NavMotion(
     val popExit: () -> ExitTransition,
 )
 
+/**
+ * navMotion
+ * (engine: UiEngine, isLtr: Boolean)
+ * 作用：执行 navMotion
+ * 备注：—
+ */
 fun navMotion(engine: UiEngine, isLtr: Boolean): NavMotion {
     // 新页从右侧进入；RTL 下整条方向翻转
     val dir = if (isLtr) 1 else -1
@@ -37,7 +43,12 @@ fun navMotion(engine: UiEngine, isLtr: Boolean): NavMotion {
     }
 }
 
-/** 原版：Material 共享轴 X，位移为页宽的 1/6，上下层同步淡入淡出。 */
+/**
+ * originalMotion
+ * (dir: Int)
+ * 作用：原版：Material 共享轴 X，位移为页宽的 1/6，上下层同步淡入淡出。
+ * 备注：仅内部使用
+ */
 private fun originalMotion(dir: Int): NavMotion {
     val fade = tween<Float>(durationMillis = 220, easing = FastOutSlowInEasing)
     val slide = tween<IntOffset>(durationMillis = 220, easing = FastOutSlowInEasing)

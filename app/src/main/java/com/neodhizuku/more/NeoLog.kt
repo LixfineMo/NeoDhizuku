@@ -81,6 +81,12 @@ object NeoLog : KoinComponent {
     private val room: DhizukuRoom?
         get() = runCatching { get<DhizukuRoom>() }.getOrNull()
 
+    /**
+     * enabled
+     * ()
+     * 作用：执行 enabled
+     * 备注：仅内部使用
+     */
     private fun enabled(): Boolean = NeoDhizuku.on(NeoDhizuku.DebugLog)
 
     /**
@@ -102,9 +108,10 @@ object NeoLog : KoinComponent {
     )
 
     /**
-     * 切换记录模式。
-     * 这条提示走系统 Log 直写，不经过下面的过滤规则，
-     * 保证开关是否生效一眼可见。
+     * onVerboseChanged
+     * (value: Boolean)
+     * 作用：切换记录模式。 这条提示走系统 Log 直写，不经过下面的过滤规则， 保证开关是否生效一眼可见。
+     * 备注：仅内部使用
      */
     private fun onVerboseChanged(value: Boolean) {
         verboseLog = value
@@ -112,9 +119,10 @@ object NeoLog : KoinComponent {
     }
 
     /**
-     * 订阅「完整运行日志」开关。
-     * 由 App.onCreate 调用一次。订阅前先同步读一次当前值，
-     * 否则启动阶段早于首次发射的日志会按精简模式丢掉。
+     * bindVerboseLog
+     * ()
+     * 作用：订阅「完整运行日志」开关。 由 App.onCreate 调用一次。订阅前先同步读一次当前值， 否则启动阶段早于首次发射的日志会按精简模式丢掉。
+     * 备注：—
      */
     @JvmStatic
     fun bindVerboseLog() {
@@ -133,16 +141,32 @@ object NeoLog : KoinComponent {
         }
     }
 
-    /** 第一层过滤：按分类粗筛，避免不必要的字符串拼接 */
+    /**
+     * keepClass
+     * (sub: String)
+     * 作用：第一层过滤：按分类粗筛，避免不必要的字符串拼接
+     * 备注：仅内部使用
+     */
     private fun keepClass(sub: String): Boolean = verboseLog || sub in essentialSubs
 
-    /** 第二层过滤：SERVER 分类按内容筛，只留权限调用与高风险操作 */
+    /**
+     * keepContent
+     * (sub: String, text: String)
+     * 作用：第二层过滤：SERVER 分类按内容筛，只留权限调用与高风险操作
+     * 备注：仅内部使用
+     */
     private fun keepContent(sub: String, text: String): Boolean {
         if (verboseLog) return true
         if (sub != SERVER) return true
         return serverEssentialKeys.any { text.contains(it) }
     }
 
+    /**
+     * v
+     * (sub: String, msg: () -> String)
+     * 作用：执行 v
+     * 备注：—
+     */
     @JvmStatic
     fun v(sub: String, msg: () -> String) {
         if (enabled() && keepClass(sub)) {
@@ -153,6 +177,12 @@ object NeoLog : KoinComponent {
         }
     }
 
+    /**
+     * d
+     * (sub: String, msg: () -> String)
+     * 作用：执行 d
+     * 备注：—
+     */
     @JvmStatic
     fun d(sub: String, msg: () -> String) {
         if (enabled() && keepClass(sub)) {
@@ -163,6 +193,12 @@ object NeoLog : KoinComponent {
         }
     }
 
+    /**
+     * i
+     * (sub: String, msg: () -> String)
+     * 作用：执行 i
+     * 备注：—
+     */
     @JvmStatic
     fun i(sub: String, msg: () -> String) {
         if (enabled() && keepClass(sub)) {
@@ -173,6 +209,12 @@ object NeoLog : KoinComponent {
         }
     }
 
+    /**
+     * w
+     * (sub: String, msg: () -> String)
+     * 作用：执行 w
+     * 备注：—
+     */
     @JvmStatic
     fun w(sub: String, msg: () -> String) {
         if (enabled() && keepClass(sub)) {
@@ -183,6 +225,12 @@ object NeoLog : KoinComponent {
         }
     }
 
+    /**
+     * e
+     * (sub: String, msg: () -> String, tr: Throwable? = null)
+     * 作用：执行 e
+     * 备注：—
+     */
     @JvmStatic
     fun e(sub: String, msg: () -> String, tr: Throwable? = null) {
         if (!enabled() || !keepClass(sub)) return
@@ -199,10 +247,10 @@ object NeoLog : KoinComponent {
     }
 
     /**
-     * 写入缓冲，并按级别决定是否落库。
-     * 精简模式下 V / D 只进内存缓冲（量太大，落库会迅速撑爆表），
-     * 只有 I / W / E 落库；完整模式下全部级别都落库，
-     * 否则导航、主题一类以 V / D 输出的日志在「运行日志」里永远看不到。
+     * onLine
+     * (level: String, sub: String, message: String)
+     * 作用：写入缓冲，并按级别决定是否落库。 精简模式下 V / D 只进内存缓冲（量太大，落库会迅速撑爆表）， 只有 I / W / E 落库；完整模式下全部级别都落库， 否则导航、主题一类以 V / D 输出的日志在「运行日志」里永远看不到。
+     * 备注：仅内部使用
      */
     private fun onLine(level: String, sub: String, message: String) {
         val line = Line(level, sub, message)
@@ -231,14 +279,21 @@ object NeoLog : KoinComponent {
     }
 
     /**
-     * 取缓冲快照，最新的在最前面。
-     * 供调用记录落库时截取「该次调用发生时的运行日志片段」。
+     * snapshot
+     * (limit: Int = 20)
+     * 作用：取缓冲快照，最新的在最前面。 供调用记录落库时截取「该次调用发生时的运行日志片段」。
+     * 备注：挂起函数
      */
     suspend fun snapshot(limit: Int = 20): List<Line> = bufferMutex.withLock {
         buffer.toList().asReversed().take(limit)
     }
 
-    /** 把待落库队列写入数据库 */
+    /**
+     * flush
+     * ()
+     * 作用：把待落库队列写入数据库
+     * 备注：挂起函数
+     */
     suspend fun flush() {
         if (!NeoDhizuku.on(NeoDhizuku.UseRuntimeLogPersist)) return
         val batch: List<RuntimeLogEntity> = pendingMutex.withLock {
@@ -251,7 +306,12 @@ object NeoLog : KoinComponent {
             .onFailure { Log.w(TAG, "[Boot] runtime log flush failed: ${it.message}") }
     }
 
-    /** 非挂起版本：内部自起协程，供非协程上下文调用 */
+    /**
+     * flushAsync
+     * ()
+     * 作用：非挂起版本：内部自起协程，供非协程上下文调用
+     * 备注：—
+     */
     @JvmStatic
     fun flushAsync() {
         ioScope.launch {
@@ -263,7 +323,12 @@ object NeoLog : KoinComponent {
         }
     }
 
-    /** 启动定时 flush；由 App.onCreate 调用一次 */
+    /**
+     * startFlushLoop
+     * ()
+     * 作用：启动定时 flush；由 App.onCreate 调用一次
+     * 备注：—
+     */
     @JvmStatic
     fun startFlushLoop() {
         if (!NeoDhizuku.on(NeoDhizuku.UseRuntimeLogPersist)) return
@@ -276,7 +341,10 @@ object NeoLog : KoinComponent {
     }
 
     /**
-     * 一次性输出全部开关状态，便于复现问题时贴到 issue 里。
+     * dumpSwitches
+     * ()
+     * 作用：一次性输出全部开关状态，便于复现问题时贴到 issue 里。
+     * 备注：—
      */
     @JvmStatic
     fun dumpSwitches() {

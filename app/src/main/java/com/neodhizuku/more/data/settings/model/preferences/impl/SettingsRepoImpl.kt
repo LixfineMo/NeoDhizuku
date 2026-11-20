@@ -54,7 +54,12 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
         target
     }
 
-    /** 一次性把旧的 CE 设置搬到 DE，避免用户升级后开关被重置 */
+    /**
+     * migrateFromCeOnce
+     * (target: SharedPreferences)
+     * 作用：一次性把旧的 CE 设置搬到 DE，避免用户升级后开关被重置
+     * 备注：仅内部使用
+     */
     private fun migrateFromCeOnce(target: SharedPreferences) {
         if (target.getBoolean(KEY_MIGRATED, false)) return
         val legacy = runCatching {
@@ -84,18 +89,48 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
         target.edit(true) { putBoolean(KEY_MIGRATED, true) }
     }
 
+    /**
+     * flowWhitelistMode
+     * ()
+     * 作用：提供 WhitelistMode 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowWhitelistMode(): Flow<Boolean> =
         prefs.asFlow("whitelist_mode", false)
 
+    /**
+     * flowDhizukuEnabled
+     * ()
+     * 作用：提供 DhizukuEnabled 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowDhizukuEnabled(): Flow<Boolean> =
         prefs.asFlow("dhizuku_enabled", true)
 
+    /**
+     * flowDonateButtonHidden
+     * ()
+     * 作用：提供 DonateButtonHidden 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowDonateButtonHidden(): Flow<Boolean> =
         prefs.asFlow("donate_button_hidden", false)
 
+    /**
+     * flowAllowOwnerTransfer
+     * ()
+     * 作用：提供 AllowOwnerTransfer 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowAllowOwnerTransfer(): Flow<Boolean> =
         prefs.asFlow("allow_owner_transfer", false)
 
+    /**
+     * flowServiceStoppedByUser
+     * ()
+     * 作用：提供 ServiceStoppedByUser 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowServiceStoppedByUser(): Flow<Boolean> =
         prefs.asFlow("service_stopped_by_user", false)
 
@@ -136,9 +171,21 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
             putString("insufficient_mode", value)
         }
 
+    /**
+     * flowDenyMode
+     * ()
+     * 作用：提供 DenyMode 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowDenyMode(): Flow<String> =
         prefs.asFlow("deny_mode", DenyMode.DEFAULT.name)
 
+    /**
+     * flowUseLegacyVersion
+     * ()
+     * 作用：提供 UseLegacyVersion 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowUseLegacyVersion(): Flow<Boolean> =
         prefs.asFlow("use_legacy_version", true)
 
@@ -155,24 +202,66 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
             putString("deny_mode", value)
         }
 
+    /**
+     * flowExperimentalQuickActivateFix
+     * ()
+     * 作用：提供 ExperimentalQuickActivateFix 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowExperimentalQuickActivateFix(): Flow<Boolean> =
         prefs.asFlow("exp_quick_activate_fix", false)
 
+    /**
+     * flowExperimentalDelegationCleanup
+     * ()
+     * 作用：提供 ExperimentalDelegationCleanup 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowExperimentalDelegationCleanup(): Flow<Boolean> =
         prefs.asFlow("exp_delegation_cleanup", false)
 
+    /**
+     * flowExperimentalVerboseLog
+     * ()
+     * 作用：提供 ExperimentalVerboseLog 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowExperimentalVerboseLog(): Flow<Boolean> =
         prefs.asFlow("exp_verbose_log", false)
 
+    /**
+     * flowUpdateAllowPreRelease
+     * ()
+     * 作用：提供 UpdateAllowPreRelease 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowUpdateAllowPreRelease(): Flow<Boolean> =
         prefs.asFlow("update_allow_pre_release", false)
 
+    /**
+     * flowStartupUpdateCheck
+     * ()
+     * 作用：提供 StartupUpdateCheck 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowStartupUpdateCheck(): Flow<Boolean> =
         prefs.asFlow("startup_update_check", true)
 
+    /**
+     * flowStrictServiceCheck
+     * ()
+     * 作用：提供 StrictServiceCheck 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowStrictServiceCheck(): Flow<Boolean> =
         prefs.asFlow("strict_service_check", false)
 
+    /**
+     * flowExperimentalStrictWhitelist
+     * ()
+     * 作用：提供 ExperimentalStrictWhitelist 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowExperimentalStrictWhitelist(): Flow<Boolean> =
         prefs.asFlow("exp_strict_whitelist", false)
 
@@ -188,21 +277,57 @@ class SettingsRepoImpl : SettingsRepo, KoinComponent {
             putBoolean("startup_update_check", value)
         }
 
+    /**
+     * flowUpdateSource
+     * ()
+     * 作用：提供 UpdateSource 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowUpdateSource(): Flow<String> =
         prefs.asFlow("update_source", DEFAULT_UPDATE_SOURCE)
 
+    /**
+     * flowUpdateAllowInsecure
+     * ()
+     * 作用：提供 UpdateAllowInsecure 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowUpdateAllowInsecure(): Flow<Boolean> =
         prefs.asFlow("update_allow_insecure", false)
 
+    /**
+     * flowUpdateCustomUrl
+     * ()
+     * 作用：提供 UpdateCustomUrl 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowUpdateCustomUrl(): Flow<String> =
         prefs.asFlow("update_custom_url", "")
 
+    /**
+     * flowDebugOfficialBase
+     * ()
+     * 作用：提供 DebugOfficialBase 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowDebugOfficialBase(): Flow<String> =
         prefs.asFlow("debug_official_base", DEFAULT_DEBUG_OFFICIAL_BASE)
 
+    /**
+     * flowDebugBuildIndex
+     * ()
+     * 作用：提供 DebugBuildIndex 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowDebugBuildIndex(): Flow<String> =
         prefs.asFlow("debug_build_index", "")
 
+    /**
+     * flowDebugTimeoutMs
+     * ()
+     * 作用：提供 DebugTimeoutMs 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowDebugTimeoutMs(): Flow<Int> =
         prefs.asFlow("debug_timeout_ms", DEFAULT_DEBUG_TIMEOUT_MS)
 

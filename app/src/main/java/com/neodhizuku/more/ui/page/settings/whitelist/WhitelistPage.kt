@@ -47,8 +47,10 @@ import com.neodhizuku.more.ui.theme.exclude
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * 白名单管理：手动勾选允许使用本服务的应用。
- * 分两组展示 —— 已加入的在前面便于复查，其余候选在后面供勾选。
+ * WhitelistPage
+ * (windowInsets: WindowInsets, navController: NavController, viewModel: WhitelistViewModel = koinViewModel())
+ * 作用：白名单管理：手动勾选允许使用本服务的应用。 分两组展示 —— 已加入的在前面便于复查，其余候选在后面供勾选。
+ * 备注：Compose 组件；使用了实验性 API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,6 +159,12 @@ fun WhitelistPage(
     }
 }
 
+/**
+ * SectionTitle
+ * (text: String)
+ * 作用：执行 SectionTitle
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -167,7 +175,12 @@ private fun SectionTitle(text: String) {
     )
 }
 
-/** 一张应用卡片：图标 + 名称 + 包名，最右侧是勾选框，整行可点。 */
+/**
+ * AppCheckCard
+ * (item: WhitelistAppItem, onToggle: () -> Unit)
+ * 作用：一张应用卡片：图标 + 名称 + 包名，最右侧是勾选框，整行可点。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun AppCheckCard(
     item: WhitelistAppItem,

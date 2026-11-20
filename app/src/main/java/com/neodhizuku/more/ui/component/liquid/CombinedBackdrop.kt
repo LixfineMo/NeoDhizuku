@@ -26,6 +26,12 @@ class CombinedBackdrop(
     override val offsetResidualX: Float get() = first.offsetResidualX
     override val offsetResidualY: Float get() = first.offsetResidualY
 
+    /**
+     * drawBackdrop
+     * (density: Density, coordinates: LayoutCoordinates?, layerBlock: (GraphicsLayerScope.() -> Unit)?, downscaleFactor: Int,)
+     * 作用：执行 drawBackdrop
+     * 备注：重写父类 / 接口方法
+     */
     override fun DrawScope.drawBackdrop(
         density: Density,
         coordinates: LayoutCoordinates?,
@@ -37,6 +43,12 @@ class CombinedBackdrop(
     }
 }
 
+/**
+ * rememberCombinedBackdrop
+ * (first: Backdrop, second: Backdrop)
+ * 作用：执行 rememberCombinedBackdrop
+ * 备注：Compose 组件
+ */
 @Composable
 fun rememberCombinedBackdrop(first: Backdrop, second: Backdrop): Backdrop =
     remember(first, second) { CombinedBackdrop(first, second) }

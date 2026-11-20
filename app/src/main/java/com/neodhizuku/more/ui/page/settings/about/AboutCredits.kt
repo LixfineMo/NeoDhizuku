@@ -79,7 +79,12 @@ val CREDITS: List<Credit> = listOf(
     )
 )
 
-/** 引用项目卡：点击后列出全部项目。 */
+/**
+ * CreditsCard
+ * ()
+ * 作用：引用项目卡：点击后列出全部项目。
+ * 备注：Compose 组件
+ */
 @Composable
 fun CreditsCard() {
     var showDialog by remember { mutableStateOf(false) }
@@ -108,6 +113,12 @@ fun CreditsCard() {
     }
 }
 
+/**
+ * CreditsDialog
+ * (onDismiss: () -> Unit)
+ * 作用：执行 CreditsDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun CreditsDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
@@ -135,6 +146,12 @@ private fun CreditsDialog(onDismiss: () -> Unit) {
     )
 }
 
+/**
+ * CreditRow
+ * (credit: Credit, onClick: () -> Unit)
+ * 作用：执行 CreditRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun CreditRow(credit: Credit, onClick: () -> Unit) {
     CreditRow(
@@ -144,6 +161,12 @@ private fun CreditRow(credit: Credit, onClick: () -> Unit) {
     )
 }
 
+/**
+ * CreditRow
+ * (name: String, desc: String, onClick: () -> Unit)
+ * 作用：执行 CreditRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun CreditRow(name: String, desc: String, onClick: () -> Unit) {
     Row(

@@ -14,6 +14,12 @@ import com.neodhizuku.more.NeoLog
  */
 object RecentsVisibility {
 
+    /**
+     * apply
+     * (context: Context, exclude: Boolean)
+     * 作用：应用
+     * 备注：—
+     */
     fun apply(context: Context, exclude: Boolean) {
         val am = runCatching {
             context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager

@@ -53,10 +53,10 @@ internal val DeviceTilt.directionY: Float
     }
 
 /**
- * 监听加速度计得到重力方向。
- * 两点与「每帧刷新」的写法不同：
- * 一是低通滤波只保留重力分量，手抖不会让高光抖；
- * 二是变化小于阈值就不更新状态，避免高频重组（传感器默认是 60Hz）。
+ * rememberDeviceTilt
+ * (enabled: Boolean = true)
+ * 作用：监听加速度计得到重力方向。 两点与「每帧刷新」的写法不同： 一是低通滤波只保留重力分量，手抖不会让高光抖； 二是变化小于阈值就不更新状态，避免高频重组（传感器默认是 60Hz）。
+ * 备注：Compose 组件
  */
 @Composable
 internal fun rememberDeviceTilt(enabled: Boolean = true): DeviceTilt {
@@ -77,6 +77,12 @@ internal fun rememberDeviceTilt(enabled: Boolean = true): DeviceTilt {
         var gx = 0f
         var gy = 0f
         val listener = object : SensorEventListener {
+            /**
+             * onSensorChanged
+             * (event: SensorEvent)
+             * 作用：处理 SensorChanged 回调
+             * 备注：重写父类 / 接口方法
+             */
             override fun onSensorChanged(event: SensorEvent) {
                 if (event.values.size < 2) return
                 gx += (event.values[0] - gx) * 0.12f
@@ -87,6 +93,12 @@ internal fun rememberDeviceTilt(enabled: Boolean = true): DeviceTilt {
                 }
             }
 
+            /**
+             * onAccuracyChanged
+             * (sensor: Sensor?, accuracy: Int)
+             * 作用：处理 AccuracyChanged 回调
+             * 备注：重写父类 / 接口方法
+             */
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
         }
 

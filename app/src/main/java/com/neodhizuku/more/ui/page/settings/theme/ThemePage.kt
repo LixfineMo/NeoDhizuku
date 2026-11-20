@@ -77,7 +77,12 @@ import com.neodhizuku.more.ui.theme.UiEngine
 import com.neodhizuku.more.ui.theme.UiEngineStore
 import com.neodhizuku.more.ui.util.RecentsVisibility
 
-/** 主题设置页：大标题分组 + 卡片，含深色模式四档与动态取色开关。 */
+/**
+ * ThemePage
+ * (context: Context, navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp))
+ * 作用：主题设置页：大标题分组 + 卡片，含深色模式四档与动态取色开关。
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemePage(
@@ -531,6 +536,12 @@ private val ThemePalettes: List<Pair<Int, Int>> = listOf(
     0xFFE91E63.toInt() to R.string.theme_color_rose
 )
 
+/**
+ * ThemeColorChip
+ * (color: Color, label: String, selected: Boolean, onClick: () -> Unit)
+ * 作用：执行 ThemeColorChip
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ThemeColorChip(
     color: Color,
@@ -576,6 +587,12 @@ private fun ThemeColorChip(
     }
 }
 
+/**
+ * labelResOf
+ * (mode: ThemeMode)
+ * 作用：执行 labelResOf
+ * 备注：仅内部使用
+ */
 private fun labelResOf(mode: ThemeMode): Int = when (mode) {
     ThemeMode.SYSTEM -> R.string.theme_mode_system
     ThemeMode.LIGHT -> R.string.theme_mode_light
@@ -583,6 +600,12 @@ private fun labelResOf(mode: ThemeMode): Int = when (mode) {
     ThemeMode.AMOLED -> R.string.theme_mode_amoled
 }
 
+/**
+ * descResOf
+ * (mode: ThemeMode)
+ * 作用：执行 descResOf
+ * 备注：仅内部使用
+ */
 private fun descResOf(mode: ThemeMode): Int = when (mode) {
     ThemeMode.SYSTEM -> R.string.theme_mode_system_desc
     ThemeMode.LIGHT -> R.string.theme_mode_light_desc
@@ -591,8 +614,10 @@ private fun descResOf(mode: ThemeMode): Int = when (mode) {
 }
 
 /**
- * 折叠选择器头部：常态只显示当前选中的模式，右侧是展开箭头。
- * 点击整行切换展开/收起。
+ * ThemeModeSelector
+ * (current: ThemeMode, expanded: Boolean, onToggle: () -> Unit)
+ * 作用：折叠选择器头部：常态只显示当前选中的模式，右侧是展开箭头。 点击整行切换展开/收起。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun ThemeModeSelector(
@@ -633,6 +658,12 @@ private fun ThemeModeSelector(
     }
 }
 
+/**
+ * ThemeModeItem
+ * (label: String, desc: String, selected: Boolean, onClick: () -> Unit)
+ * 作用：执行 ThemeModeItem
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ThemeModeItem(
     label: String,
@@ -675,7 +706,12 @@ private fun ThemeModeItem(
     }
 }
 
-/** 「UI 引擎」：原版 / miuix，切换后立即生效。 */
+/**
+ * EngineEntry
+ * (title: String, desc: String, current: UiEngine, onSelect: (UiEngine) -> Unit)
+ * 作用：「UI 引擎」：原版 / miuix，切换后立即生效。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EngineEntry(
     title: String,

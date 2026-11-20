@@ -53,18 +53,47 @@ class WhitelistRepoImpl : WhitelistRepo, KoinComponent {
 
     private val state = MutableStateFlow<List<WhitelistEntry>>(loadFromDisk())
 
-    /** 私有配置文件被外部直接改写后，重新载入内存镜像（服务配置修改页用）。 */
+    /**
+     * reload
+     * ()
+     * 作用：私有配置文件被外部直接改写后，重新载入内存镜像（服务配置修改页用）。
+     * 备注：—
+     */
     fun reload() {
         state.value = loadFromDisk()
     }
 
+    /**
+     * flowAll
+     * ()
+     * 作用：提供 All 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowAll(): Flow<List<WhitelistEntry>> = state.asStateFlow()
 
+    /**
+     * snapshot
+     * ()
+     * 作用：执行 snapshot
+     * 备注：重写父类 / 接口方法
+     */
     override fun snapshot(): List<WhitelistEntry> = state.value
 
+    /**
+     * contains
+     * (packageName: String)
+     * 作用：判断
+     * 备注：重写父类 / 接口方法
+     */
     override fun contains(packageName: String): Boolean =
         state.value.any { it.packageName == packageName }
 
+    /**
+     * isWhitelisted
+     * (packageName: String, signatures: Set<String>, strict: Boolean)
+     * 作用：判断 Whitelisted
+     * 备注：重写父类 / 接口方法
+     */
     override fun isWhitelisted(
         packageName: String,
         signatures: Set<String>,
@@ -85,6 +114,12 @@ class WhitelistRepoImpl : WhitelistRepo, KoinComponent {
         return signatures.contains(recorded)
     }
 
+    /**
+     * add
+     * (packageName: String, signature: String?)
+     * 作用：添加
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun add(packageName: String, signature: String?) {
         mutex.withLock {
             val current = state.value
@@ -103,6 +138,12 @@ class WhitelistRepoImpl : WhitelistRepo, KoinComponent {
         NeoLog.d(NeoLog.PERM) { "白名单 +$packageName" }
     }
 
+    /**
+     * remove
+     * (packageName: String)
+     * 作用：移除
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun remove(packageName: String) {
         mutex.withLock {
             val merged = state.value
@@ -116,6 +157,12 @@ class WhitelistRepoImpl : WhitelistRepo, KoinComponent {
 
 
     // 显式标注类型：lambda 内的 return@runCatching 会让编译器无法推断 R
+    /**
+     * loadFromDisk
+     * ()
+     * 作用：加载 FromDisk
+     * 备注：仅内部使用
+     */
     private fun loadFromDisk(): List<WhitelistEntry> = runCatching<List<WhitelistEntry>> {
         if (!file.exists()) return@runCatching emptyList()
         val text = file.readText()
@@ -140,6 +187,12 @@ class WhitelistRepoImpl : WhitelistRepo, KoinComponent {
         NeoLog.e(NeoLog.PERM, { "白名单读取失败，按空名单处理" }, it)
     }.getOrDefault(emptyList())
 
+    /**
+     * saveToDisk
+     * (list: List<WhitelistEntry>)
+     * 作用：保存 ToDisk
+     * 备注：仅内部使用
+     */
     private fun saveToDisk(list: List<WhitelistEntry>) {
         runCatching {
             val array = JSONArray()

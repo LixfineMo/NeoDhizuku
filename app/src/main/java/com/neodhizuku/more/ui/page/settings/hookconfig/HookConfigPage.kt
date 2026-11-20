@@ -54,11 +54,10 @@ private val QUERIES_SNIPPET = """<queries>
 </queries>"""
 
 /**
- * 模块设置。
- * 作用范围完全由框架决定：LSPosed 里勾选哪些应用、LSPatch 修补哪些应用，
- * 模块就只在这些进程里生效。框架本身就是作用域选择器。
- * 本页只做两件事：显示当前接管状态，以及调整「接管之后做哪些事」。
- * 行为开关走 configVersion 心跳，已运行的应用不需要重启。
+ * HookConfigPage
+ * (windowInsets: WindowInsets, navController: NavController)
+ * 作用：模块设置。 作用范围完全由框架决定：LSPosed 里勾选哪些应用、LSPatch 修补哪些应用， 模块就只在这些进程里生效。框架本身就是作用域选择器。 本页只做两件事：显示当前接管状态，以及调整「接管之后做哪些事」。 行为开关走 configVersion 心跳，已运行的应用不需要重启。
+ * 备注：Compose 组件；使用了实验性 API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -315,6 +314,12 @@ fun HookConfigPage(windowInsets: WindowInsets, navController: NavController) {
     }
 }
 
+/**
+ * FlagRow
+ * (labelRes: Int, descRes: Int, checked: Boolean, onChange: (Boolean) -> Unit)
+ * 作用：执行 FlagRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun FlagRow(labelRes: Int, descRes: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
     Row(

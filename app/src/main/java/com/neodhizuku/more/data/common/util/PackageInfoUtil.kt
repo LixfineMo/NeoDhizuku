@@ -9,9 +9,21 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 
+/**
+ * getPackageNameForUid
+ * (uid: Int)
+ * 作用：读取 PackageNameForUid
+ * 备注：—
+ */
 fun PackageManager.getPackageNameForUid(uid: Int): String? =
     getPackagesForUid(uid)?.first()
 
+/**
+ * getPackageInfoForUid
+ * (uid: Int, flags: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES)
+ * 作用：读取 PackageInfoForUid
+ * 备注：—
+ */
 fun PackageManager.getPackageInfoForUid(
     uid: Int,
     flags: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) PackageManager.GET_SIGNING_CERTIFICATES

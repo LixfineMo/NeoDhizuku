@@ -6,6 +6,12 @@ import android.content.Intent
 import com.neodhizuku.more.NeoLog
 
 class DaemonReceiver : BroadcastReceiver() {
+    /**
+     * onReceive
+     * (context: Context?, intent: Intent?)
+     * 作用：处理 Receive 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onReceive(context: Context?, intent: Intent?) {
         val ctx = context ?: return
         val action = intent?.action

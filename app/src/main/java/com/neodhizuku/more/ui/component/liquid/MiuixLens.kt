@@ -65,6 +65,12 @@ fun BackdropEffectScope.lens(
     }
 }
 
+/**
+ * roundedRectCornerRadii
+ * ()
+ * 作用：执行 roundedRectCornerRadii
+ * 备注：仅内部使用
+ */
 private fun BackdropEffectScope.roundedRectCornerRadii(): FloatArray? {
     val cornerShape = shape as? CornerBasedShape ?: return null
     val sizePx = size

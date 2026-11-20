@@ -15,7 +15,12 @@ import com.neodhizuku.more.R
  */
 object DpmPolicyStrings {
 
-    /** 接口名资源；未收录返回 null */
+    /**
+     * nameRes
+     * (id: String)
+     * 作用：接口名资源；未收录返回 null
+     * 备注：—
+     */
     fun nameRes(id: String): Int? = when (id) {
         "lockNow" -> R.string.dpm_lockNow
         "lockNowWithOptions" -> R.string.dpm_lockNowWithOptions
@@ -106,7 +111,12 @@ object DpmPolicyStrings {
         else -> null
     }
 
-    /** 接口说明资源；未收录返回 null */
+    /**
+     * descRes
+     * (id: String)
+     * 作用：接口说明资源；未收录返回 null
+     * 备注：—
+     */
     fun descRes(id: String): Int? = when (id) {
         "lockNow" -> R.string.dpm_lockNow_d
         "lockNowWithOptions" -> R.string.dpm_lockNowWithOptions_d
@@ -197,7 +207,12 @@ object DpmPolicyStrings {
         else -> null
     }
 
-    /** 分组名资源；key 已带 dpm_group_ 前缀 */
+    /**
+     * groupRes
+     * (key: String)
+     * 作用：分组名资源；key 已带 dpm_group_ 前缀
+     * 备注：—
+     */
     fun groupRes(key: String): Int? = when (key) {
         "dpm_group_lock" -> R.string.dpm_group_lock
         "dpm_group_app" -> R.string.dpm_group_app
@@ -209,22 +224,48 @@ object DpmPolicyStrings {
         else -> null
     }
 
+    /**
+     * text
+     * (context: Context, resId: Int?)
+     * 作用：执行 text
+     * 备注：仅内部使用
+     */
     private fun text(context: Context, resId: Int?): String? =
         resId?.let { runCatching { context.getString(it) }.getOrNull() }
 
-    /** 人话名称；取不到时回退方法名，绝不会显示资源键 */
+    /**
+     * name
+     * (context: Context, id: String)
+     * 作用：人话名称；取不到时回退方法名，绝不会显示资源键
+     * 备注：—
+     */
     fun name(context: Context, id: String): String =
         text(context, nameRes(id)) ?: id
 
-    /** 一句话功能说明；取不到时返回空串 */
+    /**
+     * desc
+     * (context: Context, id: String)
+     * 作用：一句话功能说明；取不到时返回空串
+     * 备注：—
+     */
     fun desc(context: Context, id: String): String =
         text(context, descRes(id)) ?: ""
 
-    /** 分组标题 */
+    /**
+     * group
+     * (context: Context, key: String)
+     * 作用：分组标题
+     * 备注：—
+     */
     fun group(context: Context, key: String): String =
         text(context, groupRes(key)) ?: key
 
-    /** 日志用：人话在前、方法名括注在后，便于和 AIDL 对照 */
+    /**
+     * readable
+     * (context: Context, id: String?)
+     * 作用：日志用：人话在前、方法名括注在后，便于和 AIDL 对照
+     * 备注：—
+     */
     fun readable(context: Context, id: String?): String {
         if (id.isNullOrBlank()) return "未知接口"
         val n = text(context, nameRes(id)) ?: return id

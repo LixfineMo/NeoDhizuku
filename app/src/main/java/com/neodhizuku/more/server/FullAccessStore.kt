@@ -48,7 +48,12 @@ object FullAccessStore : KoinComponent {
 
     private val file: File by lazy { File(storageContext.filesDir, FILE_NAME) }
 
-    /** 首次访问时才读盘；Koin 尚未就绪时保持未加载，下次再试，不会崩。 */
+    /**
+     * ensureLoaded
+     * ()
+     * 作用：首次访问时才读盘；Koin 尚未就绪时保持未加载，下次再试，不会崩。
+     * 备注：仅内部使用
+     */
     private fun ensureLoaded() {
         if (loaded) return
         synchronized(this) {
@@ -62,13 +67,23 @@ object FullAccessStore : KoinComponent {
         }
     }
 
-    /** 仅按 uid 判断，用于 binder 线程上的快速判定。 */
+    /**
+     * isFullUid
+     * (uid: Int)
+     * 作用：仅按 uid 判断，用于 binder 线程上的快速判定。
+     * 备注：—
+     */
     fun isFullUid(uid: Int): Boolean {
         ensureLoaded()
         return snapshot.containsKey(uid)
     }
 
-    /** 带签名校验，防止 uid 复用。 */
+    /**
+     * isFull
+     * (uid: Int, signature: String?)
+     * 作用：带签名校验，防止 uid 复用。
+     * 备注：—
+     */
     fun isFull(uid: Int, signature: String?): Boolean {
         ensureLoaded()
         val grant = snapshot[uid] ?: return false
@@ -76,11 +91,23 @@ object FullAccessStore : KoinComponent {
         return grant.signature == signature
     }
 
+    /**
+     * allUids
+     * ()
+     * 作用：执行 allUids
+     * 备注：—
+     */
     fun allUids(): Set<Int> {
         ensureLoaded()
         return snapshot.keys.toSet()
     }
 
+    /**
+     * grant
+     * (uid: Int, signature: String?)
+     * 作用：执行 grant
+     * 备注：—
+     */
     @Synchronized
     fun grant(uid: Int, signature: String?) {
         ensureLoaded()
@@ -91,6 +118,12 @@ object FullAccessStore : KoinComponent {
         NeoLog.i(NeoLog.PERM) { "完全体记录：已授予 uid=$uid" }
     }
 
+    /**
+     * revoke
+     * (uid: Int)
+     * 作用：执行 revoke
+     * 备注：—
+     */
     @Synchronized
     fun revoke(uid: Int) {
         ensureLoaded()
@@ -101,7 +134,12 @@ object FullAccessStore : KoinComponent {
         NeoLog.i(NeoLog.PERM) { "完全体记录：已撤销 uid=$uid" }
     }
 
-    /** 供配置变更页手动刷新；正常路径由 grant / revoke 同步维护内存镜像。 */
+    /**
+     * reload
+     * ()
+     * 作用：供配置变更页手动刷新；正常路径由 grant / revoke 同步维护内存镜像。
+     * 备注：—
+     */
     fun reload() {
         synchronized(this) {
             runCatching { snapshot = loadFromDisk() }
@@ -109,6 +147,12 @@ object FullAccessStore : KoinComponent {
         }
     }
 
+    /**
+     * loadFromDisk
+     * ()
+     * 作用：加载 FromDisk
+     * 备注：仅内部使用
+     */
     private fun loadFromDisk(): Map<Int, Grant> {
         if (!file.exists()) return emptyMap()
         val text = file.readText()
@@ -129,6 +173,12 @@ object FullAccessStore : KoinComponent {
         return map
     }
 
+    /**
+     * saveToDisk
+     * ()
+     * 作用：保存 ToDisk
+     * 备注：仅内部使用
+     */
     private fun saveToDisk() {
         runCatching {
             val array = JSONArray()

@@ -48,6 +48,34 @@ val releaseKeystoreProps: Properties? = loadKeystoreProps("release.properties", 
  */
 val testOnlyFlag: Boolean = (project.findProperty("neoTestOnly") as? String)?.toBoolean() ?: false
 
+/**
+ * 签名白名单归一化。放在 android { defaultConfig { } } 之外，
+ * 免得 Gradle Kotlin DSL 把链上的 Iterable 扩展按 ApplicationDefaultConfig
+ * 的 receiver 去解析（IDE 报 "Suspicious receiver type"，不影响编译）。
+ */
+fun normalizeSignatureAllowlist(raw: String?): String {
+    val source = raw.orEmpty()
+    if (source.isEmpty()) return ""
+    val seen = LinkedHashSet<String>()
+    for (part in source.split(',', ';', ' ', '\n', '\r', '\t')) {
+        val token = part.trim().uppercase()
+        if (token.isNotEmpty()) seen.add(token)
+    }
+    val joined = StringBuilder()
+    for (token in seen) {
+        if (joined.isNotEmpty()) joined.append(',')
+        joined.append(token)
+    }
+    return joined.toString()
+}
+
+val signatureAllowlist: String = normalizeSignatureAllowlist(
+    System.getenv("DHIZUKU_SIGNATURE_SHA256")
+        ?: project.findProperty("dhizukuSignatureSha256")?.toString()
+)
+
+
+
 android {
     namespace = "com.neodhizuku.more"
     compileSdk = 37
@@ -69,7 +97,6 @@ android {
     defaultConfig {
         minSdk = 26
         targetSdk = compileSdk
-        ndkVersion = "29.0.14206865"
 
         applicationId = "com.neodhizuku.more"
         manifestPlaceholders["dhizukuAuthorities"] =
@@ -83,16 +110,6 @@ android {
 
         // D-04：构建期注入自身签名白名单，供启动时完整性校验使用。
         // 未配置时为空字符串，ManagerIntegrity 会自动跳过校验（方便自行编译调试）。
-        val signatureAllowlist = (
-            System.getenv("DHIZUKU_SIGNATURE_SHA256")
-                ?: project.findProperty("dhizukuSignatureSha256")?.toString()
-                ?: ""
-            )
-            .split(',', ';', ' ', '\n', '\r', '\t')
-            .map { it.trim().uppercase() }
-            .filter { it.isNotEmpty() }
-            .distinct()
-            .joinToString(",")
         buildConfigField("String", "SIGNATURE_SHA256_ALLOWLIST", "\"$signatureAllowlist\"")
 
         // TEST ONLY：manifest 属性与关于页测试版徽标共用这一个构建期开关
@@ -151,13 +168,6 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
         }
     }
 

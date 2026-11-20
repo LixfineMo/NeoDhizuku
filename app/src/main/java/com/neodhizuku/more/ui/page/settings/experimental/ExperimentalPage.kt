@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowBack
-import androidx.compose.material.icons.automirrored.twotone.ArrowForward
 import androidx.compose.material.icons.twotone.Warning
 import com.neodhizuku.more.ui.component.NeoAlertDialog as AlertDialog
 import com.neodhizuku.more.ui.component.NeoCard
@@ -23,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,17 +30,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 import com.neodhizuku.more.R
-import com.neodhizuku.more.ui.page.settings.SettingsRoute
 import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * ExperimentalPage
+ * (windowInsets: WindowInsets, navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp), viewModel: ExperimentalViewModel = koinViewModel())
+ * 作用：执行 ExperimentalPage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExperimentalPage(
@@ -96,41 +98,6 @@ fun ExperimentalPage(
         ) {
             item("experimental_note") {
                 NoteCard()
-            }
-
-            item("experimental_cve_98432") {
-                NeoCard {
-                    Surface(
-                        onClick = { navController.navigate(SettingsRoute.Cve98432.route) },
-                        color = Color.Transparent,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.experimental_cve_98432),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = stringResource(R.string.experimental_cve_98432_desc),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Icon(
-                                imageVector = Icons.AutoMirrored.TwoTone.ArrowForward,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
             }
 
             item("experimental_card") {
@@ -195,6 +162,12 @@ fun ExperimentalPage(
     }
 }
 
+/**
+ * featureTitle
+ * (feature: ExperimentalFeature)
+ * 作用：执行 featureTitle
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun featureTitle(feature: ExperimentalFeature): String = stringResource(
     when (feature) {
@@ -205,7 +178,12 @@ private fun featureTitle(feature: ExperimentalFeature): String = stringResource(
     }
 )
 
-/** 顶部说明：这些功能默认关闭，且未经充分验证。 */
+/**
+ * NoteCard
+ * ()
+ * 作用：顶部说明：这些功能默认关闭，且未经充分验证。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun NoteCard() {
     NeoCard {
@@ -235,7 +213,12 @@ private fun NoteCard() {
     }
 }
 
-/** 一个带说明文字的开关行 */
+/**
+ * SwitchEntry
+ * (title: String, desc: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+ * 作用：一个带说明文字的开关行
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SwitchEntry(
     title: String,
@@ -262,7 +245,12 @@ private fun SwitchEntry(
     }
 }
 
-/** 开启前的确认弹窗。 */
+/**
+ * EnableWarningDialog
+ * (featureTitle: String, onConfirm: () -> Unit, onDismiss: () -> Unit)
+ * 作用：开启前的确认弹窗。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EnableWarningDialog(
     featureTitle: String,

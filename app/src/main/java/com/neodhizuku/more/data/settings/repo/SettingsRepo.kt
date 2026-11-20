@@ -3,53 +3,150 @@ package com.neodhizuku.more.data.settings.repo
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepo {
+    /**
+     * flowWhitelistMode
+     * ()
+     * 作用：提供 WhitelistMode 数据流
+     * 备注：—
+     */
     fun flowWhitelistMode(): Flow<Boolean>
+    /**
+     * flowDhizukuEnabled
+     * ()
+     * 作用：提供 DhizukuEnabled 数据流
+     * 备注：—
+     */
     fun flowDhizukuEnabled(): Flow<Boolean>
+    /**
+     * flowDonateButtonHidden
+     * ()
+     * 作用：提供 DonateButtonHidden 数据流
+     * 备注：—
+     */
     fun flowDonateButtonHidden(): Flow<Boolean>
+    /**
+     * flowAllowOwnerTransfer
+     * ()
+     * 作用：提供 AllowOwnerTransfer 数据流
+     * 备注：—
+     */
     fun flowAllowOwnerTransfer(): Flow<Boolean>
+    /**
+     * flowServiceStoppedByUser
+     * ()
+     * 作用：提供 ServiceStoppedByUser 数据流
+     * 备注：—
+     */
     fun flowServiceStoppedByUser(): Flow<Boolean>
+    /**
+     * flowDenyMode
+     * ()
+     * 作用：提供 DenyMode 数据流
+     * 备注：—
+     */
     fun flowDenyMode(): Flow<String>
     /**
-     * 更严格的服务校验，默认关闭。
-     * 关闭时只按包名放行 —— 只认上游权限名的硬编码客户端同样可用；
-     * 开启后额外要求调用方持有本应用自身声明的权限，仅持有上游权限名的会被拒绝。
+     * flowStrictServiceCheck
+     * ()
+     * 作用：更严格的服务校验，默认关闭。 关闭时只按包名放行 —— 只认上游权限名的硬编码客户端同样可用； 开启后额外要求调用方持有本应用自身声明的权限，仅持有上游权限名的会被拒绝。
+     * 备注：—
      */
     fun flowStrictServiceCheck(): Flow<Boolean>
 
-    /** 向客户端返回上游 Dhizuku 的版本号，默认开启。见 [isUseLegacyVersion] */
+    /**
+     * flowUseLegacyVersion
+     * ()
+     * 作用：向客户端返回上游 Dhizuku 的版本号，默认开启。见 [isUseLegacyVersion]
+     * 备注：—
+     */
     fun flowUseLegacyVersion(): Flow<Boolean>
 
-    /** 实验性：免删账号激活缺陷修复，默认关闭。见 [isExperimentalQuickActivateFix] */
+    /**
+     * flowExperimentalQuickActivateFix
+     * ()
+     * 作用：实验性：免删账号激活缺陷修复，默认关闭。见 [isExperimentalQuickActivateFix]
+     * 备注：—
+     */
     fun flowExperimentalQuickActivateFix(): Flow<Boolean>
 
-    /** 实验性：权限委派残留清理，默认关闭。见 [isExperimentalDelegationCleanup] */
+    /**
+     * flowExperimentalDelegationCleanup
+     * ()
+     * 作用：实验性：权限委派残留清理，默认关闭。见 [isExperimentalDelegationCleanup]
+     * 备注：—
+     */
     fun flowExperimentalDelegationCleanup(): Flow<Boolean>
 
-    /** 完整运行日志，默认关闭。见 [isExperimentalVerboseLog] */
+    /**
+     * flowExperimentalVerboseLog
+     * ()
+     * 作用：完整运行日志，默认关闭。见 [isExperimentalVerboseLog]
+     * 备注：—
+     */
     fun flowExperimentalVerboseLog(): Flow<Boolean>
 
-    /** 检测更新时把非正式版本也算作可更新，默认关闭。见 [isUpdateAllowPreRelease] */
+    /**
+     * flowUpdateAllowPreRelease
+     * ()
+     * 作用：检测更新时把非正式版本也算作可更新，默认关闭。见 [isUpdateAllowPreRelease]
+     * 备注：—
+     */
     fun flowUpdateAllowPreRelease(): Flow<Boolean>
 
-    /** 每次打开应用时从官网检查更新，默认开启。见 [isStartupUpdateCheck] */
+    /**
+     * flowStartupUpdateCheck
+     * ()
+     * 作用：每次打开应用时从官网检查更新，默认开启。见 [isStartupUpdateCheck]
+     * 备注：—
+     */
     fun flowStartupUpdateCheck(): Flow<Boolean>
 
-    /** 更新拉取来源，见 [updateSource] */
+    /**
+     * flowUpdateSource
+     * ()
+     * 作用：更新拉取来源，见 [updateSource]
+     * 备注：—
+     */
     fun flowUpdateSource(): Flow<String>
 
-    /** 允许明文 HTTP 的更新地址，见 [isUpdateAllowInsecure] */
+    /**
+     * flowUpdateAllowInsecure
+     * ()
+     * 作用：允许明文 HTTP 的更新地址，见 [isUpdateAllowInsecure]
+     * 备注：—
+     */
     fun flowUpdateAllowInsecure(): Flow<Boolean>
 
-    /** 自定义来源的版本清单地址，见 [updateCustomUrl] */
+    /**
+     * flowUpdateCustomUrl
+     * ()
+     * 作用：自定义来源的版本清单地址，见 [updateCustomUrl]
+     * 备注：—
+     */
     fun flowUpdateCustomUrl(): Flow<String>
 
-    /** 调试：官方服务器地址，见 [debugOfficialBase] */
+    /**
+     * flowDebugOfficialBase
+     * ()
+     * 作用：调试：官方服务器地址，见 [debugOfficialBase]
+     * 备注：—
+     */
     fun flowDebugOfficialBase(): Flow<String>
 
-    /** 调试：Build 索引地址，留空时由官方地址推导。见 [debugBuildIndex] */
+    /**
+     * flowDebugBuildIndex
+     * ()
+     * 作用：调试：Build 索引地址，留空时由官方地址推导。见 [debugBuildIndex]
+     * 备注：—
+     */
     fun flowDebugBuildIndex(): Flow<String>
 
-    /** 调试：网络超时（毫秒），见 [debugTimeoutMs] */
+    /**
+     * flowDebugTimeoutMs
+     * ()
+     * 作用：调试：网络超时（毫秒），见 [debugTimeoutMs]
+     * 备注：—
+     */
     fun flowDebugTimeoutMs(): Flow<Int>
 
     /** 服务拒绝模式，见 [DenyMode] */
@@ -82,9 +179,10 @@ interface SettingsRepo {
     var isExperimentalVerboseLog: Boolean
 
     /**
-     * 实验性：使用更严格的白名单校验，默认关闭。
-     * 关闭时判定白名单只比对包名；开启后连加入白名单时记录的签名一并比对，
-     * 同一个包名被重新签名后即不在白名单内。
+     * flowExperimentalStrictWhitelist
+     * ()
+     * 作用：实验性：使用更严格的白名单校验，默认关闭。 关闭时判定白名单只比对包名；开启后连加入白名单时记录的签名一并比对， 同一个包名被重新签名后即不在白名单内。
+     * 备注：—
      */
     fun flowExperimentalStrictWhitelist(): Flow<Boolean>
 

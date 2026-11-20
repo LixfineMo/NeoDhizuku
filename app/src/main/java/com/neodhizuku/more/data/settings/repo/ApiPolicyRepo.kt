@@ -18,22 +18,43 @@ data class ApiDecision(val allowed: Boolean, val fromApp: Boolean)
  * 全局也没有配置过就取该接口的默认值（高危默认关闭）。
  */
 interface ApiPolicyRepo {
-    /** 全局配置：接口 id -> 是否允许 */
+    /**
+     * flowGlobal
+     * ()
+     * 作用：全局配置：接口 id -> 是否允许
+     * 备注：—
+     */
     fun flowGlobal(): Flow<Map<String, Boolean>>
 
-    /** 全部应用的单独配置：包名 -> (接口 id -> 是否允许) */
+    /**
+     * flowApps
+     * ()
+     * 作用：全部应用的单独配置：包名 -> (接口 id -> 是否允许)
+     * 备注：—
+     */
     fun flowApps(): Flow<Map<String, Map<String, Boolean>>>
 
-    /** 全局配置同步快照 */
+    /**
+     * globalSnapshot
+     * ()
+     * 作用：全局配置同步快照
+     * 备注：—
+     */
     fun globalSnapshot(): Map<String, Boolean>
 
-    /** 某个应用的单独配置同步快照；无配置时返回空表 */
+    /**
+     * appSnapshot
+     * (packageName: String)
+     * 作用：某个应用的单独配置同步快照；无配置时返回空表
+     * 备注：—
+     */
     fun appSnapshot(packageName: String): Map<String, Boolean>
 
     /**
-     * 判定某个应用能否调用某个接口。
-     * 服务端在 binder 线程上调用，不能挂起等待，因此是同步方法。
-     * [defaultAllowed] 由调用方从接口定义传入，避免这里反向依赖 server 层。
+     * decide
+     * (packageName: String?, apiId: String, defaultAllowed: Boolean)
+     * 作用：判定某个应用能否调用某个接口。 服务端在 binder 线程上调用，不能挂起等待，因此是同步方法。 [defaultAllowed] 由调用方从接口定义传入，避免这里反向依赖 server 层。
+     * 备注：—
      */
     fun decide(
         packageName: String?,
@@ -41,16 +62,43 @@ interface ApiPolicyRepo {
         defaultAllowed: Boolean
     ): ApiDecision
 
+    /**
+     * setGlobal
+     * (apiId: String, allowed: Boolean)
+     * 作用：设置 Global
+     * 备注：挂起函数
+     */
     suspend fun setGlobal(apiId: String, allowed: Boolean)
 
+    /**
+     * setApp
+     * (packageName: String, apiId: String, allowed: Boolean)
+     * 作用：设置 App
+     * 备注：挂起函数
+     */
     suspend fun setApp(packageName: String, apiId: String, allowed: Boolean)
 
-    /** 撤掉某个应用的某一项配置，使其回到跟随全局 */
+    /**
+     * clearApp
+     * (packageName: String, apiId: String)
+     * 作用：撤掉某个应用的某一项配置，使其回到跟随全局
+     * 备注：挂起函数
+     */
     suspend fun clearApp(packageName: String, apiId: String)
 
-    /** 撤掉某个应用的全部单独配置 */
+    /**
+     * clearAppAll
+     * (packageName: String)
+     * 作用：撤掉某个应用的全部单独配置
+     * 备注：挂起函数
+     */
     suspend fun clearAppAll(packageName: String)
 
-    /** 清空全局配置，全部回到默认值 */
+    /**
+     * resetGlobal
+     * ()
+     * 作用：清空全局配置，全部回到默认值
+     * 备注：挂起函数
+     */
     suspend fun resetGlobal()
 }

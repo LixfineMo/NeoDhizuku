@@ -69,7 +69,12 @@ import com.neodhizuku.more.data.common.util.toast
 import com.neodhizuku.more.server.ServiceStatus
 import org.koin.androidx.compose.koinViewModel
 
-/** 关于页：顶部动态图标、两张信息卡、底部外链。 */
+/**
+ * AboutPage
+ * (windowInsets: WindowInsets, navController: NavController)
+ * 作用：关于页：顶部动态图标、两张信息卡、底部外链。
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutPage(
@@ -241,9 +246,10 @@ private fun AdminResidueCard(navController: NavController) {
 }
 
 /**
- * 底部反馈卡：点开弹窗填表，发到更新配置里那一台服务器。
- * 整张卡片就是一个点击区 —— 一行标题加一行说明已经够长，
- * 再放一个按钮会把它挤成三行。
+ * FeedbackCard
+ * (viewModel: AboutViewModel = koinViewModel())
+ * 作用：底部反馈卡：点开弹窗填表，发到更新配置里那一台服务器。 整张卡片就是一个点击区 —— 一行标题加一行说明已经够长， 再放一个按钮会把它挤成三行。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun FeedbackCard(viewModel: AboutViewModel = koinViewModel()) {
@@ -332,7 +338,12 @@ private fun FeedbackCard(viewModel: AboutViewModel = koinViewModel()) {
     }
 }
 
-/** 反馈弹窗：标题、内容、联系方式（可选）。 */
+/**
+ * FeedbackDialog
+ * (sending: Boolean, onDismiss: () -> Unit, onSend: (String, String, String) -> Unit)
+ * 作用：反馈弹窗：标题、内容、联系方式（可选）。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun FeedbackDialog(
     sending: Boolean,
@@ -395,7 +406,12 @@ private fun FeedbackDialog(
     )
 }
 
-/** 底部更新卡：开关、检查按钮与结果提示。 */
+/**
+ * UpdateCard
+ * (viewModel: AboutViewModel = koinViewModel())
+ * 作用：底部更新卡：开关、检查按钮与结果提示。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun UpdateCard(viewModel: AboutViewModel = koinViewModel()) {
     val context = LocalContext.current
@@ -522,6 +538,12 @@ private fun UpdateCard(viewModel: AboutViewModel = koinViewModel()) {
     }
 }
 
+/**
+ * UpdateDialog
+ * (title: String, version: String, changelog: String, onDismiss: () -> Unit, onDownload: () -> Unit, confirmLabel: String)
+ * 作用：执行 UpdateDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun UpdateDialog(
     title: String,
@@ -564,7 +586,12 @@ private fun UpdateDialog(
 }
 
 
-/** 左卡：版本相关 */
+/**
+ * VersionCard
+ * (modifier: Modifier = Modifier)
+ * 作用：左卡：版本相关
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun VersionCard(modifier: Modifier = Modifier) {
     InfoCard(
@@ -608,7 +635,12 @@ private fun VersionCard(modifier: Modifier = Modifier) {
     }
 }
 
-/** 右卡：设备与运行状态 */
+/**
+ * DetailCard
+ * (modifier: Modifier = Modifier)
+ * 作用：右卡：设备与运行状态
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun DetailCard(modifier: Modifier = Modifier) {
     val activation = stringResource(
@@ -649,6 +681,12 @@ private fun DetailCard(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * InfoCard
+ * (modifier: Modifier = Modifier, title: String, content: @Composable () -> Unit)
+ * 作用：执行 InfoCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun InfoCard(
     modifier: Modifier = Modifier,
@@ -670,6 +708,12 @@ private fun InfoCard(
     }
 }
 
+/**
+ * InfoRow
+ * (label: String, value: String)
+ * 作用：执行 InfoRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun InfoRow(label: String, value: String) {
     Column {
@@ -685,7 +729,12 @@ private fun InfoRow(label: String, value: String) {
     }
 }
 
-/** 底部外链：GitHub、QQ 反馈群与 Telegram 群 */
+/**
+ * LinkRow
+ * ()
+ * 作用：底部外链：GitHub、QQ 反馈群与 Telegram 群
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LinkRow() {
     val context = LocalContext.current
@@ -724,6 +773,12 @@ private fun LinkRow() {
     }
 }
 
+/**
+ * LinkButton
+ * (painter: androidx.compose.ui.graphics.painter.Painter? = null, letter: String? = null, label: String, tint: Color = MaterialTheme.colorScheme.onSurface, onClick: () -> Unit)
+ * 作用：执行 LinkButton
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LinkButton(
     painter: androidx.compose.ui.graphics.painter.Painter? = null,

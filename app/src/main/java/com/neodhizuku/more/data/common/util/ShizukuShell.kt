@@ -94,9 +94,10 @@ object ShizukuShell {
     }
 
     /**
-     * 带超时地等待进程结束。
-     * `RemoteProcess.waitFor()` 内部是 `Process.waitFor()`，进程卡住时会一直阻塞。
-     * 这里把它放到单独线程里等，超时后 destroy 让对端退出，避免整条链路挂死。
+     * waitForWithTimeout
+     * (process: RemoteProcess, timeoutMillis: Long)
+     * 作用：带超时地等待进程结束。 `RemoteProcess.waitFor()` 内部是 `Process.waitFor()`，进程卡住时会一直阻塞。 这里把它放到单独线程里等，超时后 destroy 让对端退出，避免整条链路挂死。
+     * 备注：仅内部使用
      */
     private fun waitForWithTimeout(process: RemoteProcess, timeoutMillis: Long): Int {
         val exit = java.util.concurrent.atomic.AtomicInteger(-1)
@@ -115,10 +116,10 @@ object ShizukuShell {
     }
 
     /**
-     * 创建远程进程。
-     * `Shizuku.newProcess` 在 API 13.x 里是 **private static**，直接调用编译不过，
-     * 因此这里用反射取。返回的是 `ShizukuRemoteProcess`，
-     * 不一定能直接转型为 `java.lang.Process`，所以统一走反射访问流与方法。
+     * createProcess
+     * (script: String)
+     * 作用：创建远程进程。 `Shizuku.newProcess` 在 API 13.x 里是 **private static**，直接调用编译不过， 因此这里用反射取。返回的是 `ShizukuRemoteProcess`， 不一定能直接转型为 `java.lang.Process`，所以统一走反射访问流与方法。
+     * 备注：仅内部使用
      */
     private fun createProcess(script: String): RemoteProcess? = runCatching {
         val method = Shizuku::class.java.getDeclaredMethod(
@@ -142,14 +143,44 @@ object ShizukuShell {
      * 继承来的，`getMethod` 都能取到，因此不必关心它到底继承关系如何。
      */
     private class RemoteProcess(private val obj: Any) {
+        /**
+         * call
+         * (name: String)
+         * 作用：调用
+         * 备注：仅内部使用
+         */
         @Suppress("UNCHECKED_CAST")
         private fun <T> call(name: String): T? = runCatching {
             obj.javaClass.getMethod(name).invoke(obj) as? T
         }.getOrNull()
 
+        /**
+         * openStdout
+         * ()
+         * 作用：打开 Stdout
+         * 备注：—
+         */
         fun openStdout(): InputStream? = call("getInputStream")
+        /**
+         * openStderr
+         * ()
+         * 作用：打开 Stderr
+         * 备注：—
+         */
         fun openStderr(): InputStream? = call("getErrorStream")
+        /**
+         * waitFor
+         * ()
+         * 作用：等待 For
+         * 备注：—
+         */
         fun waitFor(): Int = call<Int>("waitFor") ?: -1
+        /**
+         * destroy
+         * ()
+         * 作用：执行 destroy
+         * 备注：—
+         */
         fun destroy() = runCatching { obj.javaClass.getMethod("destroy").invoke(obj) }
     }
 }

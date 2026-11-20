@@ -66,6 +66,12 @@ object RequestPermissionToken {
         val remainingMs: Long
     )
 
+    /**
+     * snapshot
+     * ()
+     * 作用：执行 snapshot
+     * 备注：—
+     */
     fun snapshot(): List<Snapshot> {
         val now = System.currentTimeMillis()
         return tokens.entries.map { (token, record) ->
@@ -80,10 +86,22 @@ object RequestPermissionToken {
         }.sortedByDescending { it.issuedAt }
     }
 
+    /**
+     * clearAll
+     * ()
+     * 作用：清空 All
+     * 备注：—
+     */
     fun clearAll() {
         tokens.clear()
     }
 
+    /**
+     * issue
+     * (uid: Int, listener: IDhizukuRequestPermissionListener?)
+     * 作用：执行 issue
+     * 备注：—
+     */
     fun issue(uid: Int, listener: IDhizukuRequestPermissionListener?): String {
         // 顺带清理过期记录：签发是低频操作，在这里兜底比另起定时任务简单可靠
         purgeExpired()
@@ -110,15 +128,22 @@ object RequestPermissionToken {
         return record.uid
     }
 
+    /**
+     * revoke
+     * (token: String?)
+     * 作用：执行 revoke
+     * 备注：—
+     */
     fun revoke(token: String?) {
         if (token.isNullOrEmpty()) return
         tokens.remove(token)
     }
 
     /**
-     * 回调授权结果并移除记录。
-     * 必须**先移除再回调**：回调是跨进程调用，对端可能立刻再次发起请求，
-     * 晚移除会让这条已完成的记录多留一会儿。
+     * dispatchResult
+     * (token: String?, grantResult: Int)
+     * 作用：回调授权结果并移除记录。 必须**先移除再回调**：回调是跨进程调用，对端可能立刻再次发起请求， 晚移除会让这条已完成的记录多留一会儿。
+     * 备注：—
      */
     fun dispatchResult(token: String?, grantResult: Int) {
         if (token.isNullOrEmpty()) return
@@ -129,17 +154,33 @@ object RequestPermissionToken {
         }
     }
 
-    /** token 是否仍未被取用（用于判断弹窗有没有真的被拉起来） */
+    /**
+     * isPending
+     * (token: String?)
+     * 作用：token 是否仍未被取用（用于判断弹窗有没有真的被拉起来）
+     * 备注：—
+     */
     fun isPending(token: String?): Boolean {
         if (token.isNullOrEmpty()) return false
         val record = tokens[token] ?: return false
         return !record.consumed && !isExpired(record)
     }
 
+    /**
+     * isExpired
+     * (record: Record)
+     * 作用：判断 Expired
+     * 备注：仅内部使用
+     */
     private fun isExpired(record: Record): Boolean =
         System.currentTimeMillis() - record.issuedAt > TTL_MILLIS
 
-    /** 清理过期 token，避免长期持有 listener 引用 */
+    /**
+     * purgeExpired
+     * ()
+     * 作用：清理过期 token，避免长期持有 listener 引用
+     * 备注：—
+     */
     fun purgeExpired() {
         val now = System.currentTimeMillis()
         tokens.entries.removeIf { now - it.value.issuedAt > TTL_MILLIS }

@@ -168,8 +168,10 @@ fun DhizukuTheme(
 }
 
 /**
- * 把当前 Material 配色注入 miuix 组件库。只覆盖主色相关角色，
- * 背景/表面取自未透明化的 [colorScheme]，背景图模式下 miuix 卡片也不会变透明。
+ * miuixEngineColors
+ * (scheme: ColorScheme, dark: Boolean)
+ * 作用：把当前 Material 配色注入 miuix 组件库。只覆盖主色相关角色， 背景/表面取自未透明化的 [colorScheme]，背景图模式下 miuix 卡片也不会变透明。
+ * 备注：仅内部使用
  */
 private fun miuixEngineColors(scheme: ColorScheme, dark: Boolean) =
     if (dark) miuixDarkColorScheme(
@@ -190,13 +192,24 @@ private fun miuixEngineColors(scheme: ColorScheme, dark: Boolean) =
         surface = scheme.surface
     )
 
-/** miuix 风格是折叠大标题：把 titleLarge 放大即可让所有 TopAppBar 跟着变。 */
+/**
+ * miuixTypography
+ * (base: androidx.compose.material3.Typography)
+ * 作用：miuix 风格是折叠大标题：把 titleLarge 放大即可让所有 TopAppBar 跟着变。
+ * 备注：仅内部使用
+ */
 private fun miuixTypography(base: androidx.compose.material3.Typography) =
     base.copy(
         titleLarge = base.titleLarge.copy(fontSize = 26.sp, lineHeight = 32.sp),
         headlineMedium = base.headlineMedium.copy(fontSize = 30.sp)
     )
 
+/**
+ * translucentScheme
+ * (scheme: ColorScheme)
+ * 作用：执行 translucentScheme
+ * 备注：仅内部使用
+ */
 private fun translucentScheme(scheme: ColorScheme): ColorScheme = scheme.copy(
     // Scaffold / Surface / TopAppBar 都要完全透明，否则浅色主题下那层白会把
     // 背景图整片盖掉，只剩卡片里看得出模糊。

@@ -34,6 +34,12 @@ enum class ThemeMode(val value: Int) {
     AMOLED(3);
 
     companion object {
+        /**
+         * fromValue
+         * (value: Int)
+         * 作用：执行 fromValue
+         * 备注：—
+         */
         fun fromValue(value: Int): ThemeMode =
             entries.firstOrNull { it.value == value } ?: SYSTEM
     }
@@ -111,52 +117,141 @@ object ThemeConfig {
     private const val KEY_BACKGROUND_OFFSET_X = "background_offset_x"
     private const val KEY_BACKGROUND_OFFSET_Y = "background_offset_y"
 
-    /** 动态取色的最低系统版本（Android 12） */
+    /**
+     * isMonetSupported
+     * ()
+     * 作用：动态取色的最低系统版本（Android 12）
+     * 备注：—
+     */
     fun isMonetSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
+    /**
+     * prefs
+     * (context: Context)
+     * 作用：执行 prefs
+     * 备注：仅内部使用
+     */
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    /**
+     * getThemeMode
+     * (context: Context)
+     * 作用：读取 ThemeMode
+     * 备注：—
+     */
     fun getThemeMode(context: Context): ThemeMode =
         ThemeMode.fromValue(prefs(context).getInt(KEY_THEME_MODE, ThemeMode.SYSTEM.value))
 
+    /**
+     * getUseMonet
+     * (context: Context)
+     * 作用：读取 UseMonet
+     * 备注：—
+     */
     fun getUseMonet(context: Context): Boolean =
         prefs(context).getBoolean(KEY_USE_MONET, true)
 
+    /**
+     * getUseLiquidGlass
+     * (context: Context)
+     * 作用：读取 UseLiquidGlass
+     * 备注：—
+     */
     fun getUseLiquidGlass(context: Context): Boolean =
         prefs(context).getBoolean(KEY_USE_LIQUID_GLASS, true)
 
+    /**
+     * getHideFromRecents
+     * (context: Context)
+     * 作用：读取 HideFromRecents
+     * 备注：—
+     */
     fun getHideFromRecents(context: Context): Boolean =
         prefs(context).getBoolean(KEY_HIDE_FROM_RECENTS, false)
 
+    /**
+     * getCustomColor
+     * (context: Context)
+     * 作用：读取 CustomColor
+     * 备注：—
+     */
     fun getCustomColor(context: Context): Int =
         prefs(context).getInt(KEY_CUSTOM_COLOR, DEFAULT_CUSTOM_COLOR)
 
+    /**
+     * getBackgroundImageSet
+     * (context: Context)
+     * 作用：读取 BackgroundImageSet
+     * 备注：—
+     */
     fun getBackgroundImageSet(context: Context): Boolean =
         prefs(context).getBoolean(KEY_BACKGROUND_IMAGE_SET, false)
 
+    /**
+     * getBackgroundBlur
+     * (context: Context)
+     * 作用：读取 BackgroundBlur
+     * 备注：—
+     */
     fun getBackgroundBlur(context: Context): Float =
         prefs(context).getFloat(KEY_BACKGROUND_BLUR, DEFAULT_BACKGROUND_BLUR)
 
+    /**
+     * getBackgroundDim
+     * (context: Context)
+     * 作用：读取 BackgroundDim
+     * 备注：—
+     */
     fun getBackgroundDim(context: Context): Float =
         prefs(context).getFloat(KEY_BACKGROUND_DIM, DEFAULT_BACKGROUND_DIM)
 
+    /**
+     * getCardBlur
+     * (context: Context)
+     * 作用：读取 CardBlur
+     * 备注：—
+     */
     fun getCardBlur(context: Context): Float =
         prefs(context).getFloat(KEY_CARD_BLUR, DEFAULT_CARD_BLUR)
 
+    /**
+     * getTabletShowPill
+     * (context: Context)
+     * 作用：读取 TabletShowPill
+     * 备注：—
+     */
     fun getTabletShowPill(context: Context): Boolean =
         prefs(context).getBoolean(KEY_TABLET_SHOW_PILL, false)
 
+    /**
+     * setTabletShowPill
+     * (context: Context, enabled: Boolean)
+     * 作用：设置 TabletShowPill
+     * 备注：—
+     */
     fun setTabletShowPill(context: Context, enabled: Boolean) {
         NeoLog.d(NeoLog.THEME) { "tabletShowPill -> $enabled" }
         prefs(context).edit().putBoolean(KEY_TABLET_SHOW_PILL, enabled).apply()
     }
 
+    /**
+     * setThemeMode
+     * (context: Context, mode: ThemeMode)
+     * 作用：设置 ThemeMode
+     * 备注：—
+     */
     fun setThemeMode(context: Context, mode: ThemeMode) {
         NeoLog.d(NeoLog.THEME) { "setThemeMode -> $mode (value=${mode.value})" }
         prefs(context).edit().putInt(KEY_THEME_MODE, mode.value).apply()
     }
 
+    /**
+     * setUseMonet
+     * (context: Context, enabled: Boolean)
+     * 作用：设置 UseMonet
+     * 备注：—
+     */
     fun setUseMonet(context: Context, enabled: Boolean) {
         if (enabled && !isMonetSupported()) {
             NeoLog.w(NeoLog.THEME) { "Monet 不支持（SDK ${Build.VERSION.SDK_INT} < 31），忽略开启请求" }
@@ -166,52 +261,116 @@ object ThemeConfig {
         prefs(context).edit().putBoolean(KEY_USE_MONET, enabled).apply()
     }
 
+    /**
+     * setUseLiquidGlass
+     * (context: Context, enabled: Boolean)
+     * 作用：设置 UseLiquidGlass
+     * 备注：—
+     */
     fun setUseLiquidGlass(context: Context, enabled: Boolean) {
         NeoLog.d(NeoLog.THEME) { "setUseLiquidGlass -> $enabled" }
         prefs(context).edit().putBoolean(KEY_USE_LIQUID_GLASS, enabled).apply()
     }
 
+    /**
+     * setHideFromRecents
+     * (context: Context, enabled: Boolean)
+     * 作用：设置 HideFromRecents
+     * 备注：—
+     */
     fun setHideFromRecents(context: Context, enabled: Boolean) {
         NeoLog.d(NeoLog.THEME) { "setHideFromRecents -> $enabled" }
         prefs(context).edit().putBoolean(KEY_HIDE_FROM_RECENTS, enabled).apply()
     }
 
+    /**
+     * setCustomColor
+     * (context: Context, color: Int)
+     * 作用：设置 CustomColor
+     * 备注：—
+     */
     fun setCustomColor(context: Context, color: Int) {
         NeoLog.d(NeoLog.THEME) { "setCustomColor -> #${Integer.toHexString(color)}" }
         prefs(context).edit().putInt(KEY_CUSTOM_COLOR, color).apply()
     }
 
-    /** 导入或清除背景图后调用，用来把「是否有背景图」变成一个可观察的状态。 */
+    /**
+     * setBackgroundImageSet
+     * (context: Context, exists: Boolean)
+     * 作用：导入或清除背景图后调用，用来把「是否有背景图」变成一个可观察的状态。
+     * 备注：—
+     */
     fun setBackgroundImageSet(context: Context, exists: Boolean) {
         NeoLog.d(NeoLog.THEME) { "backgroundImageSet -> $exists" }
         prefs(context).edit().putBoolean(KEY_BACKGROUND_IMAGE_SET, exists).apply()
     }
 
+    /**
+     * setBackgroundBlur
+     * (context: Context, radius: Float)
+     * 作用：设置 BackgroundBlur
+     * 备注：—
+     */
     fun setBackgroundBlur(context: Context, radius: Float) {
         val value = radius.coerceIn(0f, MAX_BACKGROUND_BLUR)
         prefs(context).edit().putFloat(KEY_BACKGROUND_BLUR, value).apply()
     }
 
+    /**
+     * setBackgroundDim
+     * (context: Context, amount: Float)
+     * 作用：设置 BackgroundDim
+     * 备注：—
+     */
     fun setBackgroundDim(context: Context, amount: Float) {
         val value = amount.coerceIn(0f, 1f)
         prefs(context).edit().putFloat(KEY_BACKGROUND_DIM, value).apply()
     }
 
+    /**
+     * setCardBlur
+     * (context: Context, radius: Float)
+     * 作用：设置 CardBlur
+     * 备注：—
+     */
     fun setCardBlur(context: Context, radius: Float) {
         val value = radius.coerceIn(0f, MAX_CARD_BLUR)
         prefs(context).edit().putFloat(KEY_CARD_BLUR, value).apply()
     }
 
+    /**
+     * getBackgroundScale
+     * (context: Context)
+     * 作用：读取 BackgroundScale
+     * 备注：—
+     */
     fun getBackgroundScale(context: Context): Float =
         prefs(context).getFloat(KEY_BACKGROUND_SCALE, DEFAULT_BACKGROUND_SCALE)
 
+    /**
+     * getBackgroundOffsetX
+     * (context: Context)
+     * 作用：读取 BackgroundOffsetX
+     * 备注：—
+     */
     fun getBackgroundOffsetX(context: Context): Float =
         prefs(context).getFloat(KEY_BACKGROUND_OFFSET_X, 0f)
 
+    /**
+     * getBackgroundOffsetY
+     * (context: Context)
+     * 作用：读取 BackgroundOffsetY
+     * 备注：—
+     */
     fun getBackgroundOffsetY(context: Context): Float =
         prefs(context).getFloat(KEY_BACKGROUND_OFFSET_Y, 0f)
 
-    /** 一次写入三项，保证预览与实际背景读到的是同一组值。 */
+    /**
+     * setBackgroundTransform
+     * (context: Context, scale: Float, offsetX: Float, offsetY: Float)
+     * 作用：一次写入三项，保证预览与实际背景读到的是同一组值。
+     * 备注：—
+     */
     fun setBackgroundTransform(
         context: Context,
         scale: Float,
@@ -225,7 +384,12 @@ object ThemeConfig {
             .apply()
     }
 
-    /** 组合成单个 Flow；主题开关关闭时直接发射系统默认 */
+    /**
+     * getThemeFlow
+     * (context: Context)
+     * 作用：组合成单个 Flow；主题开关关闭时直接发射系统默认
+     * 备注：—
+     */
     fun getThemeFlow(context: Context): Flow<ThemeSettings> {
         val p = prefs(context)
         val modeFlow = p.asFlow(KEY_THEME_MODE, ThemeMode.SYSTEM.value)
@@ -281,8 +445,10 @@ object ThemeConfig {
 }
 
 /**
- * 根据 [ThemeSettings] 计算是否使用深色。
- * [systemDark] 传入 `isSystemInDarkTheme()`，便于预览与测试。
+ * shouldUseDarkTheme
+ * (settings: ThemeSettings, systemDark: Boolean = isSystemInDarkTheme())
+ * 作用：根据 [ThemeSettings] 计算是否使用深色。 [systemDark] 传入 `isSystemInDarkTheme()`，便于预览与测试。
+ * 备注：Compose 组件
  */
 @Composable
 fun shouldUseDarkTheme(settings: ThemeSettings, systemDark: Boolean = isSystemInDarkTheme()): Boolean =

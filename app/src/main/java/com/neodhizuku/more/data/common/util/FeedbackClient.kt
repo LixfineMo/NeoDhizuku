@@ -32,7 +32,12 @@ object FeedbackClient {
         data class Failed(val message: String?) : Result
     }
 
-    /** 去掉清单路径，只留 `scheme://host:port`。 */
+    /**
+     * baseOf
+     * (config: UpdateConfig)
+     * 作用：去掉清单路径，只留 `scheme://host:port`。
+     * 备注：—
+     */
     fun baseOf(config: UpdateConfig): String {
         val raw = when (config.source) {
             UpdateSource.Official -> config.officialBase
@@ -48,7 +53,12 @@ object FeedbackClient {
         return (if (cut >= 0) withScheme.substring(0, cut) else withScheme).trimEnd('/')
     }
 
-    /** 反馈地址；来源不可用或地址为空时返回空串。 */
+    /**
+     * endpointOf
+     * (config: UpdateConfig)
+     * 作用：反馈地址；来源不可用或地址为空时返回空串。
+     * 备注：—
+     */
     fun endpointOf(config: UpdateConfig): String {
         val base = baseOf(config)
         if (base.isBlank()) return ""
@@ -56,9 +66,10 @@ object FeedbackClient {
     }
 
     /**
-     * 提交一条反馈。
-     * 明文地址不额外拦截：这正是用户在更新设置里亲手填的服务器，
-     * 与"允许不安全的链接"那个开关（管的是 APK 下载地址）不是一回事。
+     * send
+     * (config: UpdateConfig, title: String, content: String, contact: String)
+     * 作用：提交一条反馈。 明文地址不额外拦截：这正是用户在更新设置里亲手填的服务器， 与"允许不安全的链接"那个开关（管的是 APK 下载地址）不是一回事。
+     * 备注：—
      */
     fun send(
         config: UpdateConfig,

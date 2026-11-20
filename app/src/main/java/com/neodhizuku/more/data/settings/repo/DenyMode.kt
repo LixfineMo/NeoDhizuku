@@ -51,7 +51,12 @@ enum class DenyMode {
         /** 默认值：拒绝危险服务并返回失败 */
         val DEFAULT = DENY_DANGEROUS_FAIL
 
-        /** 从持久化值还原；无法识别时回退到 [DEFAULT] */
+        /**
+         * from
+         * (value: String?)
+         * 作用：从持久化值还原；无法识别时回退到 [DEFAULT]
+         * 备注：—
+         */
         fun from(value: String?): DenyMode =
             entries.firstOrNull { it.name == value } ?: DEFAULT
     }

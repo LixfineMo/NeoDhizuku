@@ -20,6 +20,12 @@ class SettingsViewModel : ViewModel(), KoinComponent {
     var state by mutableStateOf(SettingsViewState())
         private set
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.flowWhitelistMode().collect { whitelistMode ->
@@ -33,12 +39,24 @@ class SettingsViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setWhitelistMode
+     * (enabled: Boolean)
+     * 作用：设置 WhitelistMode
+     * 备注：—
+     */
     fun setWhitelistMode(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isWhitelistMode = enabled
         }
     }
 
+    /**
+     * setDhizukuEnabled
+     * (enabled: Boolean)
+     * 作用：设置 DhizukuEnabled
+     * 备注：—
+     */
     fun setDhizukuEnabled(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isDhizukuEnabled = enabled

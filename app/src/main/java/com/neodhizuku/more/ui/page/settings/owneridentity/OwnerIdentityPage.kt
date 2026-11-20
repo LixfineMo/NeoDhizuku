@@ -46,9 +46,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * 设备身份：对被改过包名的同项目实例做「移除 / 转移」。
- * 只做这两件事，不猜当前 applicationId —— 候选全部来自系统实际声明的
- * 设备管理员组件，所以两个实例都显示「未激活」时也能列出来。
+ * OwnerIdentityPage
+ * (navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp))
+ * 作用：设备身份：对被改过包名的同项目实例做「移除 / 转移」。 只做这两件事，不猜当前 applicationId —— 候选全部来自系统实际声明的 设备管理员组件，所以两个实例都显示「未激活」时也能列出来。
+ * 备注：Compose 组件；使用了实验性 API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +67,12 @@ fun OwnerIdentityPage(
     // 1 = 第一道确认，2 = 第二道确认
     var pendingStage by remember { mutableIntStateOf(1) }
 
+    /**
+     * reload
+     * ()
+     * 作用：重新加载
+     * 备注：—
+     */
     fun reload() {
         scope.launch {
             val list = withContext(Dispatchers.IO) { OwnerIdentityTools.candidates(context) }
@@ -74,6 +81,12 @@ fun OwnerIdentityPage(
     }
     LaunchedEffect(Unit) { reload() }
 
+    /**
+     * show
+     * (r: OwnerIdentityTools.ActionResult)
+     * 作用：显示
+     * 备注：—
+     */
     fun show(r: OwnerIdentityTools.ActionResult) {
         result = (if (r.ok) "OK  " else "FAIL  ") + r.detail
         reload()
@@ -148,6 +161,12 @@ fun OwnerIdentityPage(
     }
 
     // 确认后才执行：移除 / 强清 / 转移都是不可逆的设备身份变更。
+    /**
+     * runAction
+     * (e: OwnerIdentityTools.Entry, action: String)
+     * 作用：执行 Action
+     * 备注：—
+     */
     fun runAction(e: OwnerIdentityTools.Entry, action: String) {
         scope.launch {
             val r = when (action) {
@@ -231,6 +250,12 @@ fun OwnerIdentityPage(
     }
 }
 
+/**
+ * EntryCard
+ * (entry: OwnerIdentityTools.Entry, onRemove: () -> Unit, onShell: () -> Unit, onTransfer: () -> Unit)
+ * 作用：执行 EntryCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EntryCard(
     entry: OwnerIdentityTools.Entry,

@@ -17,8 +17,10 @@ import com.neodhizuku.more.R
 import com.neodhizuku.more.server.ClientApiVersion
 
 /**
- * 应用名下方的 API 版本药丸：API 1 / API 2。
- * Legacy（原版 Dhizuku 客户端）没有上报版本号，直接不渲染，也不占位。
+ * ClientApiVersionBadge
+ * (version: Int, modifier: Modifier = Modifier,)
+ * 作用：应用名下方的 API 版本药丸：API 1 / API 2。 Legacy（原版 Dhizuku 客户端）没有上报版本号，直接不渲染，也不占位。
+ * 备注：Compose 组件
  */
 @Composable
 fun ClientApiVersionBadge(
@@ -48,8 +50,10 @@ fun ClientApiVersionBadge(
 }
 
 /**
- * 「完全」药丸：共享服务页勾选后的标识，跟随主题主色与动态取色。
- * 用于应用管理页应用名旁、单项接口页应用卡片上。
+ * FullAccessBadge
+ * (modifier: Modifier = Modifier)
+ * 作用：「完全」药丸：共享服务页勾选后的标识，跟随主题主色与动态取色。 用于应用管理页应用名旁、单项接口页应用卡片上。
+ * 备注：Compose 组件
  */
 @Composable
 fun FullAccessBadge(modifier: Modifier = Modifier) {

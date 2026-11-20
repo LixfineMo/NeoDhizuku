@@ -88,7 +88,12 @@ enum class CapabilityLevel(
             "getActiveAdmins"
         )
 
-        /** 判定当前等级 */
+        /**
+         * resolve
+         * (isDeviceOwner: Boolean, isProfileOwner: Boolean, isDeviceAdmin: Boolean)
+         * 作用：判定当前等级
+         * 备注：—
+         */
         fun resolve(
             isDeviceOwner: Boolean,
             isProfileOwner: Boolean,
@@ -100,7 +105,12 @@ enum class CapabilityLevel(
             else -> NONE
         }
 
-        /** 查询本应用是否为设备管理员 */
+        /**
+         * isAdminActive
+         * (context: Context, admin: ComponentName)
+         * 作用：查询本应用是否为设备管理员
+         * 备注：—
+         */
         fun isAdminActive(context: Context, admin: ComponentName): Boolean {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE)
                 as? DevicePolicyManager ?: return false
@@ -116,7 +126,12 @@ enum class CapabilityLevel(
             return if (method in ADMIN_ALLOWED_METHODS) DEVICE_ADMIN else DEVICE_OWNER
         }
 
-        /** 当前等级是否足以执行该方法 */
+        /**
+         * canExecute
+         * (level: CapabilityLevel, method: String?)
+         * 作用：当前等级是否足以执行该方法
+         * 备注：—
+         */
         fun canExecute(level: CapabilityLevel, method: String?): Boolean =
             level.rank >= requiredLevel(method).rank
     }

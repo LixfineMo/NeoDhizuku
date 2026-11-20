@@ -31,10 +31,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 自定义背景图。
- * 图片本身做一次整体模糊，再压一层中性黑遮罩让四周略深、文字仍可读。
- * 卡片采样的是遮罩之前的图片层，所以同是模糊玻璃但比四周亮一点。
- * 模糊走 RenderEffect（Android 12 起可用），更低版本就不做模糊。
+ * AppBackground
+ * (blurRadiusDp: Float, dimAmount: Float, modifier: Modifier = Modifier, imageScale: Float = 1f, imageOffsetX: Float = 0f, imageOffsetY: Float = 0f, imageLayer: Modifier = Modifier)
+ * 作用：自定义背景图。 图片本身做一次整体模糊，再压一层中性黑遮罩让四周略深、文字仍可读。 卡片采样的是遮罩之前的图片层，所以同是模糊玻璃但比四周亮一点。 模糊走 RenderEffect（Android 12 起可用），更低版本就不做模糊。
+ * 备注：Compose 组件
  */
 @Composable
 fun AppBackground(

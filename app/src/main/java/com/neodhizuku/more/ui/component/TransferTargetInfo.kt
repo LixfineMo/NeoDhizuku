@@ -19,7 +19,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.neodhizuku.more.ui.theme.AppIconCache
 
-/** 转移确认弹窗里的目标应用信息：图标、应用名称、包名（不含接收器名）。 */
+/**
+ * TransferTargetInfo
+ * (packageName: String, appLabel: String, modifier: Modifier = Modifier)
+ * 作用：转移确认弹窗里的目标应用信息：图标、应用名称、包名（不含接收器名）。
+ * 备注：Compose 组件
+ */
 @Composable
 fun TransferTargetInfo(
     packageName: String,

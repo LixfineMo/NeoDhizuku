@@ -17,10 +17,20 @@ class PermissionStrikes(private val dir: File) {
 
     private val file get() = File(dir, FILE_NAME)
 
-    /** 该应用当前累计的「超时未处理」次数 */
+    /**
+     * count
+     * (pkg: String)
+     * 作用：该应用当前累计的「超时未处理」次数
+     * 备注：—
+     */
     fun count(pkg: String): Int = read().optInt(pkg, 0).coerceAtLeast(0)
 
-    /** 记一次超时未处理，返回累加后的次数 */
+    /**
+     * increment
+     * (pkg: String)
+     * 作用：记一次超时未处理，返回累加后的次数
+     * 备注：—
+     */
     fun increment(pkg: String): Int {
         val obj = read()
         val next = obj.optInt(pkg, 0) + 1
@@ -29,7 +39,12 @@ class PermissionStrikes(private val dir: File) {
         return next
     }
 
-    /** 清零：用户已明确表态，或该应用已被拉黑 */
+    /**
+     * reset
+     * (pkg: String)
+     * 作用：清零：用户已明确表态，或该应用已被拉黑
+     * 备注：—
+     */
     fun reset(pkg: String) {
         val obj = read()
         if (obj.has(pkg)) {
@@ -38,6 +53,12 @@ class PermissionStrikes(private val dir: File) {
         }
     }
 
+    /**
+     * read
+     * ()
+     * 作用：读取
+     * 备注：仅内部使用
+     */
     private fun read(): JSONObject {
         val f = file
         if (!f.exists()) return JSONObject()
@@ -46,6 +67,12 @@ class PermissionStrikes(private val dir: File) {
             .getOrDefault(JSONObject())
     }
 
+    /**
+     * write
+     * (obj: JSONObject)
+     * 作用：写入
+     * 备注：仅内部使用
+     */
     private fun write(obj: JSONObject) {
         runCatching {
             dir.mkdirs()

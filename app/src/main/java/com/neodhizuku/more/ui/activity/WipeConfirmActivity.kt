@@ -64,6 +64,12 @@ class WipeConfirmActivity : ComponentActivity() {
         const val EXTRA_LABEL = "label"
     }
 
+    /**
+     * onCreate
+     * (savedInstanceState: Bundle?)
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -87,6 +93,12 @@ class WipeConfirmActivity : ComponentActivity() {
     }
 }
 
+/**
+ * WipeConfirmScreen
+ * (uid: Int, label: String, onFinish: () -> Unit)
+ * 作用：执行 WipeConfirmScreen
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun WipeConfirmScreen(
     uid: Int,
@@ -225,6 +237,12 @@ private fun WipeConfirmScreen(
     }
 }
 
+/**
+ * WarnDialog
+ * (title: String, text: String, confirmText: String, dismissText: String, onConfirm: () -> Unit, onDismiss: () -> Unit)
+ * 作用：执行 WarnDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun WarnDialog(
     title: String,

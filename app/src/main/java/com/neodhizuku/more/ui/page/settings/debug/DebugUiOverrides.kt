@@ -29,23 +29,46 @@ object DebugUiOverrides {
         private set
 
     // 名称避开委托属性自动生成的 JVM setter，防止签名冲突
+    /**
+     * applyForceActivatedDisplay
+     * (value: Boolean)
+     * 作用：应用 ForceActivatedDisplay
+     * 备注：—
+     */
     fun applyForceActivatedDisplay(value: Boolean) {
         forceActivatedDisplay = value
     }
 
     // 同理，保留 trim / lowercase / 白名单归一化，不能直接赋值
+    /**
+     * applyForceActivationKind
+     * (value: String)
+     * 作用：应用 ForceActivationKind
+     * 备注：—
+     */
     fun applyForceActivationKind(value: String) {
         val v = value.trim().lowercase()
         forceActivationKind = if (v in setOf("device_owner", "profile_owner", "device_admin"))
             v else "device_owner"
     }
 
+    /**
+     * reset
+     * ()
+     * 作用：复位
+     * 备注：—
+     */
     fun reset() {
         forceActivatedDisplay = false
         forceActivationKind = "device_owner"
     }
 
-    /** 显示层专用：伪装状态或真实状态。读取即订阅，改开关会立即重组。 */
+    /**
+     * displayState
+     * ()
+     * 作用：显示层专用：伪装状态或真实状态。读取即订阅，改开关会立即重组。
+     * 备注：—
+     */
     fun displayState(): DhizukuState.State {
         if (!forceActivatedDisplay) return DhizukuState.state
         return when (forceActivationKind) {

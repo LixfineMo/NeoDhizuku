@@ -43,6 +43,12 @@ class AboutViewModel : ViewModel(), KoinComponent {
     var updateState by mutableStateOf<UpdateState>(UpdateState.Idle)
         private set
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.flowUpdateAllowPreRelease().collect {
@@ -76,6 +82,12 @@ class AboutViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * updateAllowPreRelease
+     * (enabled: Boolean)
+     * 作用：更新 AllowPreRelease
+     * 备注：—
+     */
     fun updateAllowPreRelease(enabled: Boolean) {
         NeoLog.i(NeoLog.UI) { "更新：灰度与非正式更新 -> $enabled" }
         viewModelScope.launch(Dispatchers.IO) {
@@ -83,7 +95,12 @@ class AboutViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 手动检测更新。 */
+    /**
+     * check
+     * ()
+     * 作用：手动检测更新。
+     * 备注：—
+     */
     fun check() {
         if (updateState is UpdateState.Checking) return
         viewModelScope.launch {
@@ -113,7 +130,12 @@ class AboutViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 关掉更新提示。 */
+    /**
+     * dismissUpdate
+     * ()
+     * 作用：关掉更新提示。
+     * 备注：—
+     */
     fun dismissUpdate() {
         updateState = UpdateState.Idle
     }
@@ -125,8 +147,10 @@ class AboutViewModel : ViewModel(), KoinComponent {
         private set
 
     /**
-     * 提交反馈。
-     * 走的是更新配置里那一台服务器，所以地址不用用户再填一次。
+     * submitFeedback
+     * (title: String, content: String, contact: String)
+     * 作用：提交反馈。 走的是更新配置里那一台服务器，所以地址不用用户再填一次。
+     * 备注：—
      */
     fun submitFeedback(title: String, content: String, contact: String) {
         if (feedbackState is FeedbackState.Sending) return
@@ -145,7 +169,12 @@ class AboutViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 反馈结束后回到初始态，弹窗据此关闭。 */
+    /**
+     * resetFeedback
+     * ()
+     * 作用：反馈结束后回到初始态，弹窗据此关闭。
+     * 备注：—
+     */
     fun resetFeedback() {
         feedbackState = FeedbackState.Idle
     }

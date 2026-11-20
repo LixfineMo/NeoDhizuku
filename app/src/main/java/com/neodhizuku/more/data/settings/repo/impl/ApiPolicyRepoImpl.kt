@@ -57,22 +57,57 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         reload()
     }
 
-    /** 私有配置文件被外部直接改写后，重新载入内存镜像（服务配置修改页用）。 */
+    /**
+     * reload
+     * ()
+     * 作用：私有配置文件被外部直接改写后，重新载入内存镜像（服务配置修改页用）。
+     * 备注：—
+     */
     fun reload() {
         val loaded = loadFromDisk()
         globalState.value = loaded.first
         appsState.value = loaded.second
     }
 
+    /**
+     * flowGlobal
+     * ()
+     * 作用：提供 Global 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowGlobal(): Flow<Map<String, Boolean>> = globalState.asStateFlow()
 
+    /**
+     * flowApps
+     * ()
+     * 作用：提供 Apps 数据流
+     * 备注：重写父类 / 接口方法
+     */
     override fun flowApps(): Flow<Map<String, Map<String, Boolean>>> = appsState.asStateFlow()
 
+    /**
+     * globalSnapshot
+     * ()
+     * 作用：执行 globalSnapshot
+     * 备注：重写父类 / 接口方法
+     */
     override fun globalSnapshot(): Map<String, Boolean> = globalState.value
 
+    /**
+     * appSnapshot
+     * (packageName: String)
+     * 作用：执行 appSnapshot
+     * 备注：重写父类 / 接口方法
+     */
     override fun appSnapshot(packageName: String): Map<String, Boolean> =
         appsState.value[packageName] ?: emptyMap()
 
+    /**
+     * decide
+     * (packageName: String?, apiId: String, defaultAllowed: Boolean)
+     * 作用：执行 decide
+     * 备注：重写父类 / 接口方法
+     */
     override fun decide(
         packageName: String?,
         apiId: String,
@@ -86,6 +121,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         return ApiDecision(defaultAllowed, fromApp = false)
     }
 
+    /**
+     * setGlobal
+     * (apiId: String, allowed: Boolean)
+     * 作用：设置 Global
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun setGlobal(apiId: String, allowed: Boolean) {
         mutex.withLock {
             globalState.value = globalState.value.toMutableMap().apply { put(apiId, allowed) }
@@ -93,6 +134,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         }
     }
 
+    /**
+     * setApp
+     * (packageName: String, apiId: String, allowed: Boolean)
+     * 作用：设置 App
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun setApp(packageName: String, apiId: String, allowed: Boolean) {
         mutex.withLock {
             val apps = appsState.value.toMutableMap()
@@ -104,6 +151,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         }
     }
 
+    /**
+     * clearApp
+     * (packageName: String, apiId: String)
+     * 作用：清空 App
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun clearApp(packageName: String, apiId: String) {
         mutex.withLock {
             val apps = appsState.value.toMutableMap()
@@ -115,6 +168,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         }
     }
 
+    /**
+     * clearAppAll
+     * (packageName: String)
+     * 作用：清空 AppAll
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun clearAppAll(packageName: String) {
         mutex.withLock {
             appsState.value = appsState.value.toMutableMap().apply { remove(packageName) }
@@ -122,6 +181,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
         }
     }
 
+    /**
+     * resetGlobal
+     * ()
+     * 作用：复位 Global
+     * 备注：挂起函数；重写父类 / 接口方法
+     */
     override suspend fun resetGlobal() {
         mutex.withLock {
             globalState.value = emptyMap()
@@ -130,6 +195,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
     }
 
 
+    /**
+     * loadFromDisk
+     * ()
+     * 作用：加载 FromDisk
+     * 备注：仅内部使用
+     */
     private fun loadFromDisk(): Pair<Map<String, Boolean>, Map<String, Map<String, Boolean>>> =
         runCatching {
             if (!file.exists()) return@runCatching Pair(emptyMap<String, Boolean>(), emptyMap<String, Map<String, Boolean>>())
@@ -158,6 +229,12 @@ class ApiPolicyRepoImpl : ApiPolicyRepo, KoinComponent {
             Pair(emptyMap<String, Boolean>(), emptyMap<String, Map<String, Boolean>>())
         )
 
+    /**
+     * saveToDisk
+     * ()
+     * 作用：保存 ToDisk
+     * 备注：仅内部使用
+     */
     private fun saveToDisk() {
         runCatching {
             val root = JSONObject()

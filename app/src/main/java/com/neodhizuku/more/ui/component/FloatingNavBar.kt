@@ -439,7 +439,12 @@ fun FloatingNavBar(
     }
 }
 
-/** 按下位置落在第几页。RTL 下横坐标要镜像。 */
+/**
+ * indexAt
+ * (x: Float, tabWidthPx: Float, count: Int, isLtr: Boolean, totalWidthPx: Float, insetPx: Float)
+ * 作用：按下位置落在第几页。RTL 下横坐标要镜像。
+ * 备注：仅内部使用
+ */
 private fun indexAt(
     x: Float,
     tabWidthPx: Float,
@@ -454,10 +459,10 @@ private fun indexAt(
 }
 
 /**
- * 单个页签。底栏与药丸里各渲染一份，都用 `weight(1f)` 均分，宽度完全一致。
- * `onSelect` 为空表示这是药丸内的镜像内容，不参与无障碍语义。
- * 图标只由 [activeLook] 决定：底栏一份恒用描边图标，药丸一份恒用填充图标，
- * 中途半覆盖时不会出现同一项两种描边混在一起。
+ * NavTab
+ * (destination: NavDestination, current: Boolean = false, activeLook: Boolean = false, scale: () -> Float = { 1f }, alpha: () -> Float = { 1f }, modifier: Modifier = Modifier, onSelect: (() -> Unit)? = null)
+ * 作用：单个页签。底栏与药丸里各渲染一份，都用 `weight(1f)` 均分，宽度完全一致。 `onSelect` 为空表示这是药丸内的镜像内容，不参与无障碍语义。 图标只由 [activeLook] 决定：底栏一份恒用描边图标，药丸一份恒用填充图标， 中途半覆盖时不会出现同一项两种描边混在一起。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun NavTab(

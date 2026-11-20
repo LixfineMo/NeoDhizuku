@@ -38,9 +38,10 @@ import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
 
 /**
- * 全应用统一的下拉菜单。
- * miuix 引擎走组件库的 WindowListPopup + ListPopupColumn，条目也是 miuix 的
- * Text / Icon / DropdownDefaults 配色；原版引擎保留自绘的深色大圆角菜单。
+ * NeoDropdownMenu
+ * (expanded: Boolean, onDismissRequest: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit)
+ * 作用：全应用统一的下拉菜单。 miuix 引擎走组件库的 WindowListPopup + ListPopupColumn，条目也是 miuix 的 Text / Icon / DropdownDefaults 配色；原版引擎保留自绘的深色大圆角菜单。
+ * 备注：Compose 组件
  */
 @Composable
 fun NeoDropdownMenu(

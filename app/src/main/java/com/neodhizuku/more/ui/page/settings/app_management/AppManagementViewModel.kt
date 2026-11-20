@@ -45,15 +45,33 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
     var state by mutableStateOf(AppManagementViewState())
         private set
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         collectRepo()
     }
 
     private var collectRepoJob: Job? = null
 
+    /**
+     * hookedPackages
+     * ()
+     * 作用：执行 hookedPackages
+     * 备注：仅内部使用
+     */
     private fun hookedPackages(): Set<String> =
         (HookConfigStore.snapshot().map { it.pkg } + HookConfigStore.scope).toHashSet()
 
+    /**
+     * sortApps
+     * (data: List<AppManagementViewData>, hooked: Set<String>)
+     * 作用：执行 sortApps
+     * 备注：仅内部使用
+     */
     private fun sortApps(
         data: List<AppManagementViewData>,
         hooked: Set<String>
@@ -66,6 +84,12 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
                     .thenBy { it.applicationInfo.packageName }
             )
 
+    /**
+     * collectRepo
+     * ()
+     * 作用：收集 Repo
+     * 备注：—
+     */
     fun collectRepo() {
         state = state.copy(loading = true)
         collectRepoJob?.cancel()
@@ -187,6 +211,12 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setEnabled
+     * (uid: Int, bool: Boolean)
+     * 作用：设置 Enabled
+     * 备注：—
+     */
     fun setEnabled(uid: Int, bool: Boolean) {
         NeoLog.d(NeoLog.APPS) { "setEnabled: uid=$uid -> $bool" }
         viewModelScope.launch(Dispatchers.IO) {
@@ -208,6 +238,12 @@ class AppManagementViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setBlocked
+     * (uid: Int, bool: Boolean)
+     * 作用：设置 Blocked
+     * 备注：—
+     */
     fun setBlocked(uid: Int, bool: Boolean) {
         NeoLog.d(NeoLog.APPS) { "setBlocked: uid=$uid -> $bool" }
         viewModelScope.launch(Dispatchers.IO) {

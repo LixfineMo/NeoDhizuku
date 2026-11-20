@@ -26,30 +26,63 @@ data object ServiceStatus {
     var startElapsedRealtime by mutableLongStateOf(-1L)
         private set
 
+    /**
+     * markStarted
+     * ()
+     * 作用：执行 markStarted
+     * 备注：—
+     */
     fun markStarted() {
         startElapsedRealtime = SystemClock.elapsedRealtime()
         NeoLog.i(NeoLog.DAEMON) { "ServiceStatus: 已启动，计时归零" }
     }
 
+    /**
+     * markStopped
+     * ()
+     * 作用：执行 markStopped
+     * 备注：—
+     */
     fun markStopped() {
         startElapsedRealtime = -1L
         NeoLog.i(NeoLog.DAEMON) { "ServiceStatus: 已停止" }
     }
 
+    /**
+     * updateAuthorizedCount
+     * (count: Int)
+     * 作用：更新 AuthorizedCount
+     * 备注：—
+     */
     fun updateAuthorizedCount(count: Int) {
         authorizedCount = count
     }
 
-    /** 调试用：直接覆盖运行态数值，仅改内存，不触碰服务本身。 */
+    /**
+     * setDebugValues
+     * (count: Int? = null, startElapsed: Long? = null)
+     * 作用：调试用：直接覆盖运行态数值，仅改内存，不触碰服务本身。
+     * 备注：—
+     */
     fun setDebugValues(count: Int? = null, startElapsed: Long? = null) {
         count?.let { authorizedCount = it }
         startElapsed?.let { startElapsedRealtime = it }
     }
 
-    /** 服务是否在运行（计时基准 >= 0 即运行中） */
+    /**
+     * isRunning
+     * ()
+     * 作用：服务是否在运行（计时基准 >= 0 即运行中）
+     * 备注：—
+     */
     fun isRunning(): Boolean = startElapsedRealtime >= 0L
 
-    /** 运行毫秒数；服务未运行时返回 -1 */
+    /**
+     * uptimeMillis
+     * ()
+     * 作用：运行毫秒数；服务未运行时返回 -1
+     * 备注：—
+     */
     fun uptimeMillis(): Long {
         val start = startElapsedRealtime
         if (start < 0) return -1L
@@ -57,9 +90,10 @@ data object ServiceStatus {
     }
 
     /**
-     * 格式化为 HH:MM:SS。
-     * 用固定宽度数字而非中文短句：中文会导致卡片宽度随内容跳动、三卡错位。
-     * 小时数**不取模 24**，超过 24 小时直接显示 25、100……（无 24h 上限）。
+     * formatUptime
+     * (millis: Long)
+     * 作用：格式化为 HH:MM:SS。 用固定宽度数字而非中文短句：中文会导致卡片宽度随内容跳动、三卡错位。 小时数**不取模 24**，超过 24 小时直接显示 25、100……（无 24h 上限）。
+     * 备注：—
      */
     fun formatUptime(millis: Long): String {
         if (millis < 0) return "00:00:00"

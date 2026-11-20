@@ -17,13 +17,24 @@ object ManagerIntegrity {
 
     private const val DEFAULT_ALLOWLIST = BuildConfig.SIGNATURE_SHA256_ALLOWLIST
 
-    /** 构建期通过 SIGNATURE_SHA256_ALLOWLIST 注入，多个指纹用 ',' 分隔 */
+    /**
+     * allowlist
+     * ()
+     * 作用：构建期通过 SIGNATURE_SHA256_ALLOWLIST 注入，多个指纹用 ',' 分隔
+     * 备注：仅内部使用
+     */
     private fun allowlist(): List<String> =
         DEFAULT_ALLOWLIST.split(',', ';', ' ', '\n', '\r', '\t')
             .map { it.trim().uppercase() }
             .filter { it.isNotEmpty() }
 
     fun interface IntegrityListener {
+        /**
+         * onUntrusted
+         * (reason: String)
+         * 作用：处理 Untrusted 回调
+         * 备注：—
+         */
         fun onUntrusted(reason: String)
     }
 
@@ -34,6 +45,12 @@ object ManagerIntegrity {
     var lastResult: Boolean = true
         private set
 
+    /**
+     * verifyOnStartup
+     * (context: Context)
+     * 作用：校验 OnStartup
+     * 备注：—
+     */
     fun verifyOnStartup(context: Context) {
         if (!NeoDhizuku.on(NeoDhizuku.HardenIntegrityCheck)) {
             lastResult = true
@@ -57,6 +74,12 @@ object ManagerIntegrity {
         }
     }
 
+    /**
+     * selfSignatureSha256
+     * (context: Context)
+     * 作用：执行 selfSignatureSha256
+     * 备注：仅内部使用
+     */
     private fun selfSignatureSha256(context: Context): String? {
         val info = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             context.packageManager.getPackageInfo(

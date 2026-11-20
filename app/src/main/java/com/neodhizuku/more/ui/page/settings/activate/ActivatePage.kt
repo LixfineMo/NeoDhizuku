@@ -80,6 +80,12 @@ import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * ActivatePage
+ * (windowInsets: WindowInsets, navController: NavController, mode: SettingsRoute.Activate.Mode, viewModel: ActivateViewModel = koinViewModel())
+ * 作用：执行 ActivatePage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivatePage(
@@ -437,6 +443,12 @@ fun ActivatePage(
     })
 }
 
+/**
+ * ActivateFab
+ * (modifier: Modifier = Modifier, textRes: Int, onClick: () -> Unit)
+ * 作用：执行 ActivateFab
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ActivateFab(
     modifier: Modifier = Modifier,
@@ -458,6 +470,12 @@ private fun ActivateFab(
     )
 }
 
+/**
+ * ItemsWidget
+ * (viewModel: ActivateViewModel, contentPadding: PaddingValues, state: MutableState<ComponentName?>)
+ * 作用：执行 ItemsWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ItemsWidget(
     viewModel: ActivateViewModel,
@@ -487,6 +505,12 @@ private fun ItemsWidget(
     }
 }
 
+/**
+ * ItemWidget
+ * (viewModel: ActivateViewModel, data: ActivateViewData, state: MutableState<ComponentName?>)
+ * 作用：执行 ItemWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.ItemWidget(
     viewModel: ActivateViewModel,
@@ -495,6 +519,12 @@ private fun LazyItemScope.ItemWidget(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
+    /**
+     * setCheckedChange
+     * (bool: Boolean = state.value?.compareTo(data.admin.component) != 0)
+     * 作用：设置 CheckedChange
+     * 备注：—
+     */
     fun setCheckedChange(bool: Boolean = state.value?.compareTo(data.admin.component) != 0) {
         state.value = if (bool) data.admin.component
         else null
@@ -538,7 +568,10 @@ private fun LazyItemScope.ItemWidget(
 }
 
 /**
- * 把异常翻译成中文原因 + 建议，并提供"查看技术详情"折叠区与复制诊断信息。
+ * ActivateErrorText
+ * (error: Throwable?)
+ * 作用：把异常翻译成中文原因 + 建议，并提供"查看技术详情"折叠区与复制诊断信息。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun ActivateErrorText(error: Throwable?) {
@@ -583,12 +616,10 @@ private fun ActivateErrorText(error: Throwable?) {
 }
 
 /**
- * 以设备管理员身份激活。
- * 设备所有者门槛高（ADB / Shizuku / 清账号 / Android 13+），
- * 而设备管理员只需系统设置里点一下，**全版本可用**。
- * 代价是能力有限，但"能跑一部分"好过"完全用不了"。
- * 这里直接发起系统授权页；若设备上找不到该页面（少见），
- * 回退到打开设备管理器列表让用户手动勾选。
+ * DeviceAdminEntry
+ * ()
+ * 作用：以设备管理员身份激活。 设备所有者门槛高（ADB / Shizuku / 清账号 / Android 13+）， 而设备管理员只需系统设置里点一下，**全版本可用**。 代价是能力有限，但"能跑一部分"好过"完全用不了"。 这里直接发起系统授权页；若设备上找不到该页面（少见）， 回退到打开设备管理器列表让用户手动勾选。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun DeviceAdminEntry() {
@@ -651,8 +682,20 @@ private fun DeviceAdminEntry() {
 /** 图标按项目既有习惯统一取：没有先例的符号会编译不过，这里用已验证存在的 */
 private val deviceAdminIcon = androidx.compose.material.icons.Icons.TwoTone.Shield
 
+/**
+ * AdminPanelSettingsIconSafe
+ * ()
+ * 作用：执行 AdminPanelSettingsIconSafe
+ * 备注：仅内部使用
+ */
 private fun Icons.TwoTone.AdminPanelSettingsIconSafe() = deviceAdminIcon
 
+/**
+ * requestDeviceAdmin
+ * (context: android.content.Context)
+ * 作用：请求 DeviceAdmin
+ * 备注：仅内部使用
+ */
 private fun requestDeviceAdmin(context: android.content.Context) {
     val admin = DhizukuState.admin
     val intent = android.content.Intent(
@@ -674,9 +717,10 @@ private fun requestDeviceAdmin(context: android.content.Context) {
 }
 
 /**
- * Shizuku 模式但检测不到服务时的提示卡。
- * 检测不到服务时留在页面说明：用户多半只是没启动 Shizuku / Sui，
- * 或者装了但服务没跑起来。留在页面里给出说明和「重新检测」更直接。
+ * ShizukuUnavailableCard
+ * (modifier: Modifier = Modifier, onRecheck: () -> Unit)
+ * 作用：Shizuku 模式但检测不到服务时的提示卡。 检测不到服务时留在页面说明：用户多半只是没启动 Shizuku / Sui， 或者装了但服务没跑起来。留在页面里给出说明和「重新检测」更直接。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun ShizukuUnavailableCard(

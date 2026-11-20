@@ -59,7 +59,12 @@ private const val LIGHT_REF_X = 0.5f
 private const val LIGHT_REF_Y = 0.7f
 private const val GRAVITY_DIR_THRESHOLD_SQ = 0.01f
 
-/** 高光主光源跟着重力方向旋转，再叠一个固定偏转，手机倾斜时光斑会跟着走。 */
+/**
+ * rememberGravityRotatedHighlight
+ * (base: Highlight, tilt: DeviceTilt, extraDegrees: Float,)
+ * 作用：高光主光源跟着重力方向旋转，再叠一个固定偏转，手机倾斜时光斑会跟着走。
+ * 备注：Compose 组件
+ */
 @Composable
 internal fun rememberGravityRotatedHighlight(
     base: Highlight,
@@ -169,7 +174,12 @@ internal class GlassInteractiveHighlight(
     }
 }
 
-/** 与拖动检测同样的非消费式手势观察，只用来驱动光斑位置。 */
+/**
+ * inspectHighlightGestures
+ * (onDragStart: (PointerInputChange) -> Unit, onDragEnd: () -> Unit, onDragCancel: () -> Unit, onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,)
+ * 作用：与拖动检测同样的非消费式手势观察，只用来驱动光斑位置。
+ * 备注：挂起函数；仅内部使用
+ */
 private suspend fun PointerInputScope.inspectHighlightGestures(
     onDragStart: (PointerInputChange) -> Unit,
     onDragEnd: () -> Unit,

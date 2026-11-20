@@ -41,6 +41,12 @@ data class GlassInnerShadow(
     }
 }
 
+/**
+ * glassInnerShadow
+ * (shape: Shape, shadow: () -> GlassInnerShadow?,)
+ * 作用：执行 glassInnerShadow
+ * 备注：—
+ */
 @Suppress("UNUSED_PARAMETER")
 internal fun Modifier.glassInnerShadow(
     shape: Shape,

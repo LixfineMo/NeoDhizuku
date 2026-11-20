@@ -70,9 +70,21 @@ class ApiPolicyViewModel : ViewModel(), KoinComponent {
     private val permissionLegacy by lazy { "com.rosan.dhizuku.permission.API" }
     private val permissionSelf by lazy { "${context.packageName}.permission.API" }
 
+    /**
+     * hookedPackages
+     * ()
+     * 作用：执行 hookedPackages
+     * 备注：仅内部使用
+     */
     private fun hookedPackages(): Set<String> =
         (HookConfigStore.snapshot().map { it.pkg } + HookConfigStore.scope).toHashSet()
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         state = state.copy(loading = true)
         runCatching { HookConfigStore.init(context.applicationContext) }
@@ -154,27 +166,61 @@ class ApiPolicyViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setGlobal
+     * (apiId: String, allowed: Boolean)
+     * 作用：设置 Global
+     * 备注：—
+     */
     fun setGlobal(apiId: String, allowed: Boolean) {
         viewModelScope.launch(Dispatchers.IO) { apiPolicyRepo.setGlobal(apiId, allowed) }
     }
 
+    /**
+     * setApp
+     * (packageName: String, apiId: String, allowed: Boolean)
+     * 作用：设置 App
+     * 备注：—
+     */
     fun setApp(packageName: String, apiId: String, allowed: Boolean) {
         viewModelScope.launch(Dispatchers.IO) { apiPolicyRepo.setApp(packageName, apiId, allowed) }
     }
 
-    /** 撤掉单项，回到跟随全局 */
+    /**
+     * clearApp
+     * (packageName: String, apiId: String)
+     * 作用：撤掉单项，回到跟随全局
+     * 备注：—
+     */
     fun clearApp(packageName: String, apiId: String) {
         viewModelScope.launch(Dispatchers.IO) { apiPolicyRepo.clearApp(packageName, apiId) }
     }
 
+    /**
+     * clearAppAll
+     * (packageName: String)
+     * 作用：清空 AppAll
+     * 备注：—
+     */
     fun clearAppAll(packageName: String) {
         viewModelScope.launch(Dispatchers.IO) { apiPolicyRepo.clearAppAll(packageName) }
     }
 
+    /**
+     * resetGlobal
+     * ()
+     * 作用：复位 Global
+     * 备注：—
+     */
     fun resetGlobal() {
         viewModelScope.launch(Dispatchers.IO) { apiPolicyRepo.resetGlobal() }
     }
 
-    /** 全部可配置项，按高危在后排序 */
+    /**
+     * allApis
+     * ()
+     * 作用：全部可配置项，按高危在后排序
+     * 备注：—
+     */
     fun allApis() = DpmPolicyCatalog.ALL
 }

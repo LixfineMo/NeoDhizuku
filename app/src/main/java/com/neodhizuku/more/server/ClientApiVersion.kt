@@ -40,25 +40,52 @@ object ClientApiVersion {
         if (!packageName.isNullOrEmpty()) byPackage[packageName] = normalized
     }
 
-    /** 查询某 uid 的客户端版本，未登记则按原版 API（Legacy）处理。 */
+    /**
+     * of
+     * (uid: Int)
+     * 作用：查询某 uid 的客户端版本，未登记则按原版 API（Legacy）处理。
+     * 备注：—
+     */
     fun of(uid: Int): Int = byUid[uid] ?: LEGACY
 
-    /** 查询某包名的客户端版本。用于只有包名、没有 uid 的界面。 */
+    /**
+     * ofPackage
+     * (packageName: String)
+     * 作用：查询某包名的客户端版本。用于只有包名、没有 uid 的界面。
+     * 备注：—
+     */
     fun ofPackage(packageName: String): Int = byPackage[packageName] ?: LEGACY
 
-    /** 是否为新版客户端。供需要按版本决定是否启用新逻辑的分支使用。 */
+    /**
+     * isModern
+     * (version: Int)
+     * 作用：是否为新版客户端。供需要按版本决定是否启用新逻辑的分支使用。
+     * 备注：—
+     */
     fun isModern(version: Int): Boolean = version > 0
 
     /**
-     * 卡片右上角的类型标签。
-     * Legacy / Modern 是 API 协商层面的技术标识，刻意不做国际化。
+     * typeLabel
+     * (version: Int)
+     * 作用：卡片右上角的类型标签。 Legacy / Modern 是 API 协商层面的技术标识，刻意不做国际化。
+     * 备注：—
      */
     fun typeLabel(version: Int): String = if (isModern(version)) "Modern" else "Legacy"
 
-    /** 应用名下方的版本药丸文本；Legacy 返回空串，由调用方决定不渲染。 */
+    /**
+     * apiLabel
+     * (version: Int)
+     * 作用：应用名下方的版本药丸文本；Legacy 返回空串，由调用方决定不渲染。
+     * 备注：—
+     */
     fun apiLabel(version: Int): String = if (isModern(version)) "API $version" else ""
 
-    /** 运行日志里读起来直观的写法。 */
+    /**
+     * label
+     * (version: Int)
+     * 作用：运行日志里读起来直观的写法。
+     * 备注：—
+     */
     fun label(version: Int): String =
         if (isModern(version)) apiLabel(version) else typeLabel(version)
 }

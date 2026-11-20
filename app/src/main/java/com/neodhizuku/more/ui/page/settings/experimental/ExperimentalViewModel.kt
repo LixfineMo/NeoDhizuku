@@ -34,6 +34,12 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
     var pendingEnable by mutableStateOf<ExperimentalFeature?>(null)
         private set
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.flowExperimentalQuickActivateFix().collect {
@@ -58,8 +64,10 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 请求切换某个开关。
-     * 开启会先弹警告（[pendingEnable]），确认后才真正写入。
+     * requestToggle
+     * (feature: ExperimentalFeature, enabled: Boolean)
+     * 作用：请求切换某个开关。 开启会先弹警告（[pendingEnable]），确认后才真正写入。
+     * 备注：—
      */
     fun requestToggle(feature: ExperimentalFeature, enabled: Boolean) {
         if (enabled) {
@@ -69,18 +77,34 @@ class ExperimentalViewModel : ViewModel(), KoinComponent {
         apply(feature, false)
     }
 
-    /** 警告弹窗点了确认。 */
+    /**
+     * confirmPending
+     * ()
+     * 作用：警告弹窗点了确认。
+     * 备注：—
+     */
     fun confirmPending() {
         val feature = pendingEnable ?: return
         pendingEnable = null
         apply(feature, true)
     }
 
-    /** 警告弹窗取消或关闭。 */
+    /**
+     * dismissPending
+     * ()
+     * 作用：警告弹窗取消或关闭。
+     * 备注：—
+     */
     fun dismissPending() {
         pendingEnable = null
     }
 
+    /**
+     * apply
+     * (feature: ExperimentalFeature, enabled: Boolean)
+     * 作用：应用
+     * 备注：仅内部使用
+     */
     private fun apply(feature: ExperimentalFeature, enabled: Boolean) {
         NeoLog.i(NeoLog.UI) { "实验性功能 ${feature.name} -> $enabled" }
         viewModelScope.launch(Dispatchers.IO) {

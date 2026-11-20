@@ -21,6 +21,12 @@ import org.koin.dsl.module
 import rikka.sui.Sui
 
 class App : Application(), KoinComponent {
+    /**
+     * onCreate
+     * ()
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate() {
         super.onCreate()
         startKoin {
@@ -69,8 +75,10 @@ class App : Application(), KoinComponent {
     }
 
     /**
-     * 新的激活路径直接调用 android.app.admin.IDevicePolicyManager（隐藏接口）。
-     * Android 9+ 的非 SDK 接口限制会拦截它，这里沿用项目已引入的 HiddenApiBypass 解除限制。
+     * exemptHiddenApiIfNeeded
+     * ()
+     * 作用：新的激活路径直接调用 android.app.admin.IDevicePolicyManager（隐藏接口）。 Android 9+ 的非 SDK 接口限制会拦截它，这里沿用项目已引入的 HiddenApiBypass 解除限制。
+     * 备注：仅内部使用
      */
     private fun exemptHiddenApiIfNeeded() {
         if (!NeoDhizuku.on(NeoDhizuku.FixReflectionDpm)) return
@@ -112,6 +120,12 @@ class App : Application(), KoinComponent {
         )
     }
 
+    /**
+     * applySwitches
+     * (className: String, values: Map<String, Boolean>)
+     * 作用：应用 Switches
+     * 备注：仅内部使用
+     */
     private fun applySwitches(className: String, values: Map<String, Boolean>) {
         val clazz = runCatching { Class.forName(className) }.getOrNull() ?: return
         values.forEach { (name, value) ->

@@ -61,6 +61,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
     var state by mutableStateOf(ActivateViewState())
         private set
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         // 进入激活页先同步一次真实所有者状态。
         // 若上次激活成功但状态未刷新（例如 Shizuku 路径漏了 sync），
@@ -70,8 +76,10 @@ class ActivateViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 本应用自身是否已是设备所有者 / 资料所有者。用于把「already set」这类
-     * 成功态异常从失败提示里摘掉，只作用于 Shizuku 自身激活路径。
+     * selfIsOwner
+     * ()
+     * 作用：本应用自身是否已是设备所有者 / 资料所有者。用于把「already set」这类 成功态异常从失败提示里摘掉，只作用于 Shizuku 自身激活路径。
+     * 备注：仅内部使用
      */
     private fun selfIsOwner(): Boolean = runCatching {
         DhizukuState.sync(context)
@@ -90,6 +98,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
     var ownerType: OwnerType? = null
         private set
 
+    /**
+     * collectData
+     * ()
+     * 作用：收集 Data
+     * 备注：—
+     */
     fun collectData() {
         state = state.copy(loading = true)
         collectDataJob?.cancel()
@@ -131,11 +145,23 @@ class ActivateViewModel : ViewModel(), KoinComponent {
 
     private var activateJob: Job? = null
 
+    /**
+     * cancel
+     * ()
+     * 作用：取消
+     * 备注：—
+     */
     fun cancel() {
         activateJob?.cancel()
         state = state.copy(status = ActivateViewState.Status.Waiting)
     }
 
+    /**
+     * activateAsDeviceOwner
+     * (mode: SettingsRoute.Activate.Mode, comp: ComponentName)
+     * 作用：激活 AsDeviceOwner
+     * 备注：—
+     */
     fun activateAsDeviceOwner(
         mode: SettingsRoute.Activate.Mode,
         comp: ComponentName
@@ -165,6 +191,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * activateAsProfileOwner
+     * (mode: SettingsRoute.Activate.Mode, comp: ComponentName)
+     * 作用：激活 AsProfileOwner
+     * 备注：—
+     */
     fun activateAsProfileOwner(
         mode: SettingsRoute.Activate.Mode,
         comp: ComponentName
@@ -194,6 +226,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * activateByDhizuku
+     * (comp: ComponentName)
+     * 作用：激活 ByDhizuku
+     * 备注：挂起函数；仅内部使用
+     */
     @SuppressLint("NewApi")
     private suspend fun activateByDhizuku(comp: ComponentName) =
         requireDhizukuPermissionGranted {
@@ -205,6 +243,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
             DhizukuState.sync(context)
         }
 
+    /**
+     * activateAsDeviceOwnerByShizuku
+     * (who: ComponentName)
+     * 作用：激活 AsDeviceOwnerByShizuku
+     * 备注：挂起函数；仅内部使用
+     */
     @SuppressLint("PrivateApi")
     private suspend fun activateAsDeviceOwnerByShizuku(who: ComponentName) =
         requireShizukuPermissionGranted() {
@@ -257,6 +301,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
             }
         }
 
+    /**
+     * activateAsProfileOwnerByShizuku
+     * (who: ComponentName)
+     * 作用：激活 AsProfileOwnerByShizuku
+     * 备注：挂起函数；仅内部使用
+     */
     @SuppressLint("PrivateApi")
     private suspend fun activateAsProfileOwnerByShizuku(who: ComponentName) =
         requireShizukuPermissionGranted() {
@@ -291,20 +341,33 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         }
 
     /**
-     * 是否已经是指定的设备所有者。
-     * 用公开 API 判定，不依赖反射；失败一律返回 false（按"还不是"处理，
-     * 走正常激活流程，最坏情况是系统回报 OWNER_ALREADY_SET）。
+     * isAlreadyDeviceOwner
+     * (who: ComponentName)
+     * 作用：是否已经是指定的设备所有者。 用公开 API 判定，不依赖反射；失败一律返回 false（按"还不是"处理， 走正常激活流程，最坏情况是系统回报 OWNER_ALREADY_SET）。
+     * 备注：仅内部使用
      */
     private fun isAlreadyDeviceOwner(who: ComponentName): Boolean = runCatching {
         val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
         dpm != null && dpm.isDeviceOwnerApp(who.packageName)
     }.getOrDefault(false)
 
+    /**
+     * isAlreadyProfileOwner
+     * (who: ComponentName)
+     * 作用：判断 AlreadyProfileOwner
+     * 备注：仅内部使用
+     */
     private fun isAlreadyProfileOwner(who: ComponentName): Boolean = runCatching {
         val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
         dpm != null && dpm.isProfileOwnerApp(who.packageName)
     }.getOrDefault(false)
 
+    /**
+     * setActiveAdmin
+     * (policyReceiver: ComponentName, refreshing: Boolean, userHandle: Int)
+     * 作用：设置 ActiveAdmin
+     * 备注：仅内部使用
+     */
     private fun DevicePolicyManager.setActiveAdmin(
         policyReceiver: ComponentName,
         refreshing: Boolean,
@@ -319,6 +382,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         .also { it.isAccessible = true }
         .invoke(this, policyReceiver, refreshing, userHandle)
 
+    /**
+     * setDeviceOwner
+     * (who: ComponentName, ownerName: String?, userId: Int)
+     * 作用：设置 DeviceOwner
+     * 备注：仅内部使用
+     */
     private fun DevicePolicyManager.setDeviceOwner(
         who: ComponentName,
         ownerName: String?,
@@ -343,6 +412,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
             .also { it.isAccessible = true }.invoke(this, who, ownerName)
     }
 
+    /**
+     * setProfileOwner
+     * (who: ComponentName, ownerName: String?, userId: Int)
+     * 作用：设置 ProfileOwner
+     * 备注：仅内部使用
+     */
     private fun DevicePolicyManager.setProfileOwner(
         who: ComponentName,
         ownerName: String?,
@@ -368,8 +443,10 @@ class ActivateViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 轮询等待账户缓存刷新，最多 8 秒；期间可通过 [onAccountWaitProgress] 上报进度。
-     * 失败不抛异常（账户数量只是 setDeviceOwner 的软性前置条件），由调用方继续尝试。
+     * waitAccountsReady
+     * ()
+     * 作用：轮询等待账户缓存刷新，最多 8 秒；期间可通过 [onAccountWaitProgress] 上报进度。 失败不抛异常（账户数量只是 setDeviceOwner 的软性前置条件），由调用方继续尝试。
+     * 备注：挂起函数；仅内部使用
      */
     private suspend fun waitAccountsReady() {
         val manager = runCatching {
@@ -391,6 +468,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
     // 不篡改系统单例 DevicePolicyManager 的 mService 字段，
     // 而是直接把包装后的 binder 转成 IDevicePolicyManager 调用。
 
+    /**
+     * requireWrappedDevicePolicyManager
+     * (wrapper: (IBinder) -> IBinder, action: (IDevicePolicyManager) -> Unit)
+     * 作用：执行 requireWrappedDevicePolicyManager
+     * 备注：仅内部使用
+     */
     private fun requireWrappedDevicePolicyManager(
         wrapper: (IBinder) -> IBinder,
         action: (IDevicePolicyManager) -> Unit
@@ -401,6 +484,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         action.invoke(IDevicePolicyManager.Stub.asInterface(wrapped))
     }
 
+    /**
+     * setActiveAdminV2
+     * (policyReceiver: ComponentName, refreshing: Boolean, userHandle: Int)
+     * 作用：设置 ActiveAdminV2
+     * 备注：仅内部使用
+     */
     private fun IDevicePolicyManager.setActiveAdminV2(
         policyReceiver: ComponentName,
         refreshing: Boolean,
@@ -413,6 +502,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         setActiveAdmin(policyReceiver, refreshing, userHandle)
     }
 
+    /**
+     * setDeviceOwnerV2
+     * (who: ComponentName, ownerName: String?, userId: Int)
+     * 作用：设置 DeviceOwnerV2
+     * 备注：仅内部使用
+     */
     private fun IDevicePolicyManager.setDeviceOwnerV2(
         who: ComponentName,
         ownerName: String?,
@@ -440,6 +535,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setProfileOwnerV2
+     * (who: ComponentName, ownerName: String?, userId: Int)
+     * 作用：设置 ProfileOwnerV2
+     * 备注：仅内部使用
+     */
     private fun IDevicePolicyManager.setProfileOwnerV2(
         who: ComponentName,
         ownerName: String?,
@@ -543,7 +644,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         )
     }
 
-    /** 形参类型与实参是否兼容（含基本类型装箱判定） */
+    /**
+     * assignable
+     * (type: Class<*>, value: Any?)
+     * 作用：形参类型与实参是否兼容（含基本类型装箱判定）
+     * 备注：仅内部使用
+     */
     private fun assignable(type: Class<*>, value: Any?): Boolean {
         if (value == null) return !type.isPrimitive
         return when (type) {
@@ -556,7 +662,12 @@ class ActivateViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 尾部多余形参的默认值；返回 NO_DEFAULT 表示该类型无法自动填充 */
+    /**
+     * defaultValueOf
+     * (type: Class<*>)
+     * 作用：尾部多余形参的默认值；返回 NO_DEFAULT 表示该类型无法自动填充
+     * 备注：仅内部使用
+     */
     private fun defaultValueOf(type: Class<*>): Any? = when (type) {
         java.lang.Boolean.TYPE -> false
         Integer.TYPE -> 0
@@ -569,9 +680,21 @@ class ActivateViewModel : ViewModel(), KoinComponent {
 
     private val NO_DEFAULT = Any()
 
+    /**
+     * asRuntime
+     * (t: Throwable?)
+     * 作用：执行 asRuntime
+     * 备注：仅内部使用
+     */
     private fun asRuntime(t: Throwable?): RuntimeException =
         t as? RuntimeException ?: RuntimeException(t)
 
+    /**
+     * requireBinderWrapperDevicePolicyManager
+     * (wrapper: (IBinder) -> IBinder, action: (DevicePolicyManager) -> Unit)
+     * 作用：执行 requireBinderWrapperDevicePolicyManager
+     * 备注：仅内部使用
+     */
     @SuppressLint("PrivateApi")
     private fun requireBinderWrapperDevicePolicyManager(
         wrapper: (IBinder) -> IBinder,

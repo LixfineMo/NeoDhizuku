@@ -15,9 +15,10 @@ import androidx.compose.ui.unit.dp
 import com.neodhizuku.more.server.ClientApiVersion
 
 /**
- * 客户端类型标签，放在应用卡片右上角。
- * Modern 用主题主色，Legacy 用主题的中性容器色，两者都跟随动态取色；
- * 不再用写死的灰，避免浅色/深色主题下与卡片底色混成一片。
+ * ClientApiBadge
+ * (version: Int, modifier: Modifier = Modifier,)
+ * 作用：客户端类型标签，放在应用卡片右上角。 Modern 用主题主色，Legacy 用主题的中性容器色，两者都跟随动态取色； 不再用写死的灰，避免浅色/深色主题下与卡片底色混成一片。
+ * 备注：Compose 组件
  */
 @Composable
 fun ClientApiBadge(

@@ -91,13 +91,19 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
      */
     // Dhizuku 自身的 AIDL 接口一律放行，不参与单项配置：
     // 能单独配置的是系统接口本身（见 DpmPolicyCatalog / enforceDpmPolicy）。
+    /**
+     * getVersionCode
+     * ()
+     * 作用：读取 VersionCode
+     * 备注：重写父类 / 接口方法
+     */
     override fun getVersionCode(): Int = super.getVersionCode()
 
     /**
-     * 单项系统接口策略判定；返回 true 表示继续执行，false 表示本次调用已处理完毕。
-     * 只作用于设备策略接口（[DpmPolicyCatalog] 收录的方法），
-     * 未收录的方法一律放行 —— 不以"认不出"为由拦截正常调用。
-     * 排除本应用自身、完全体，且首页停服时不介入（交给既有的拒绝模式处理）。
+     * enforceDpmPolicy
+     * (method: String?, uid: Int, pkg: String?, label: String, reply: Parcel?, fullAccess: Boolean)
+     * 作用：单项系统接口策略判定；返回 true 表示继续执行，false 表示本次调用已处理完毕。 只作用于设备策略接口（[DpmPolicyCatalog] 收录的方法）， 未收录的方法一律放行 —— 不以"认不出"为由拦截正常调用。 排除本应用自身、完全体，且首页停服时不介入（交给既有的拒绝模式处理）。
+     * 备注：仅内部使用
      */
     private fun enforceDpmPolicy(
         method: String?,
@@ -142,6 +148,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
     }
 
+    /**
+     * getVersionName
+     * ()
+     * 作用：读取 VersionName
+     * 备注：重写父类 / 接口方法
+     */
     override fun getVersionName(): String {
         if (!NeoDhizuku.on(NeoDhizuku.FixVersionName)) return "$versionCode"
         val legacy = runCatching { settingsRepo.isUseLegacyVersion }.getOrDefault(true)
@@ -160,6 +172,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     // 与「拒绝危险服务并返回成功」的区别是：后者只拦危险操作，只读查询仍返回真实值。
     // 判定口径与 checkCallingPermission 里的拒绝分支保持一致：
     // 用户已停止服务，且调用方不是本应用自身。
+    /**
+     * isSilentSuccessMode
+     * (uid: Int)
+     * 作用：判断 SilentSuccessMode
+     * 备注：仅内部使用
+     */
     private fun isSilentSuccessMode(uid: Int): Boolean {
         if (!runCatching { settingsRepo.isServiceStoppedByUser }.getOrDefault(false)) return false
         if (uid == Process.myUid()) return false
@@ -177,6 +195,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         runCatching { context.checkPermission(permission, pid, uid) }
             .getOrDefault(-1)
 
+    /**
+     * remoteProcess
+     * (cmd: Array<out String>?, env: Array<out String>?, dir: String?)
+     * 作用：执行 remoteProcess
+     * 备注：重写父类 / 接口方法
+     */
     override fun remoteProcess(
         cmd: Array<out String>?,
         env: Array<out String>?,
@@ -199,6 +223,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         return super.remoteProcess(cmd, env, dir)
     }
 
+    /**
+     * bindUserService
+     * (connection: IDhizukuUserServiceConnection?, bundle: Bundle?)
+     * 作用：绑定 UserService
+     * 备注：重写父类 / 接口方法
+     */
     override fun bindUserService(
         connection: IDhizukuUserServiceConnection?,
         bundle: Bundle?
@@ -211,6 +241,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         super.bindUserService(connection, bundle)
     }
 
+    /**
+     * unbindUserService
+     * (bundle: Bundle?)
+     * 作用：解绑 UserService
+     * 备注：重写父类 / 接口方法
+     */
     override fun unbindUserService(bundle: Bundle?) {
         val uid = Binder.getCallingUid()
         if (isSilentSuccessMode(uid)) {
@@ -220,6 +256,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         super.unbindUserService(bundle)
     }
 
+    /**
+     * unbindUserServiceByConnection
+     * (connection: IDhizukuUserServiceConnection?, bundle: Bundle?)
+     * 作用：解绑 UserServiceByConnection
+     * 备注：重写父类 / 接口方法
+     */
     override fun unbindUserServiceByConnection(
         connection: IDhizukuUserServiceConnection?,
         bundle: Bundle?
@@ -232,6 +274,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         super.unbindUserServiceByConnection(connection, bundle)
     }
 
+    /**
+     * getDelegatedScopes
+     * (packageName: String?)
+     * 作用：读取 DelegatedScopes
+     * 备注：重写父类 / 接口方法
+     */
     override fun getDelegatedScopes(packageName: String?): Array<out String>? {
         val uid = Binder.getCallingUid()
         if (isSilentSuccessMode(uid)) {
@@ -243,6 +291,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         return super.getDelegatedScopes(packageName)
     }
 
+    /**
+     * setDelegatedScopes
+     * (packageName: String?, scopes: Array<out String>?)
+     * 作用：设置 DelegatedScopes
+     * 备注：重写父类 / 接口方法
+     */
     override fun setDelegatedScopes(packageName: String?, scopes: Array<out String>?) {
         val uid = Binder.getCallingUid()
         if (isSilentSuccessMode(uid)) {
@@ -255,8 +309,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * 未开启「加固授权入口」时，事务码 17 不会被 onTransact 拦截，
-     * 而是由 AIDL 直接派发到这里 —— 因此静默判断要在两侧都做一遍。
+     * requestPermission
+     * (listener: IDhizukuRequestPermissionListener?)
+     * 作用：未开启「加固授权入口」时，事务码 17 不会被 onTransact 拦截， 而是由 AIDL 直接派发到这里 —— 因此静默判断要在两侧都做一遍。
+     * 备注：重写父类 / 接口方法
      */
     override fun requestPermission(listener: IDhizukuRequestPermissionListener?) {
         val uid = Binder.getCallingUid()
@@ -275,9 +331,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * 两种静默模式下授权请求的直接结果；非静默场景返回 null（照常弹窗）。
-     * 注意：静默的含义是**全程无界面**，所以连授权弹窗也不能拉起 ——
-     * 否则"静默拒绝"实际上还是会弹一个框，只是点了拒绝。
+     * silentRequestPermissionResult
+     * (uid: Int)
+     * 作用：两种静默模式下授权请求的直接结果；非静默场景返回 null（照常弹窗）。 注意：静默的含义是**全程无界面**，所以连授权弹窗也不能拉起 —— 否则"静默拒绝"实际上还是会弹一个框，只是点了拒绝。
+     * 备注：仅内部使用
      */
     private fun silentRequestPermissionResult(uid: Int): Int? {
         if (!runCatching { settingsRepo.isServiceStoppedByUser }.getOrDefault(false)) return null
@@ -298,6 +355,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     // 因此这里拦截既能兼容两种模式，又能在两种模式下都提供"服务端校验身份"的加固。
     // 但只对本项目的接口布局成立：旧版客户端（原版 API）的 17 号事务未必是
     // requestPermission，参数里也未必有 listener，强行解析只会读出垃圾。
+    /**
+     * onTransact
+     * (code: Int, data: Parcel, reply: Parcel?, flags: Int)
+     * 作用：处理 Transact 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
         // 完全体状态查询。客户端只能读，不能申请或改写。
         if (code == DhizukuVariables.TRANSACT_QUERY_FULL_ACCESS) {
@@ -340,9 +403,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * 把事务交给 AIDL 生成的 Stub 派发，并保证异常不会穿透回客户端。
-     * 旧版客户端会把 SecurityException 一路抛到 Application.onCreate，
-     * 表现为"应用一打开就崩"，比单纯的"无权限"更难定位，所以这里兜住。
+     * dispatchOrRecover
+     * (code: Int, data: Parcel, reply: Parcel?, flags: Int)
+     * 作用：把事务交给 AIDL 生成的 Stub 派发，并保证异常不会穿透回客户端。 旧版客户端会把 SecurityException 一路抛到 Application.onCreate， 表现为"应用一打开就崩"，比单纯的"无权限"更难定位，所以这里兜住。
+     * 备注：仅内部使用
      */
     private fun dispatchOrRecover(
         code: Int,
@@ -357,6 +421,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         true
     }
 
+    /**
+     * handleRequestPermission
+     * (data: Parcel, reply: Parcel?)
+     * 作用：处理 RequestPermission
+     * 备注：仅内部使用
+     */
     private fun handleRequestPermission(data: Parcel, reply: Parcel?): Boolean {
         data.enforceInterface(RequestPermissionToken.IDHIZUKU_DESCRIPTOR)
 
@@ -441,7 +511,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         return true
     }
 
-    /** 完全体状态查询：客户端只读，不能申请或改写。 */
+    /**
+     * handleQueryFullAccess
+     * (data: Parcel, reply: Parcel?)
+     * 作用：完全体状态查询：客户端只读，不能申请或改写。
+     * 备注：仅内部使用
+     */
     private fun handleQueryFullAccess(data: Parcel, reply: Parcel?): Boolean {
         val start = data.dataPosition()
         val magic = runCatching {
@@ -461,9 +536,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * 兜底通知：startActivity 调用成功不代表弹窗真的出现了（BAL 静默拦截）。
-     * 短暂延迟后检查 token 是否仍未被消费；未被消费说明用户根本没看到弹窗，
-     * 此时补发通知。
+     * scheduleFallbackNotify
+     * (uid: Int, token: String?)
+     * 作用：兜底通知：startActivity 调用成功不代表弹窗真的出现了（BAL 静默拦截）。 短暂延迟后检查 token 是否仍未被消费；未被消费说明用户根本没看到弹窗， 此时补发通知。
+     * 备注：仅内部使用
      */
     private fun scheduleFallbackNotify(uid: Int, token: String?) {
         auditScope.launch {
@@ -479,6 +555,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         }
     }
 
+    /**
+     * checkCallingPermission
+     * (func: String?, callingUid: Int, callingPid: Int)
+     * 作用：检查 CallingPermission
+     * 备注：重写父类 / 接口方法
+     */
     override fun checkCallingPermission(func: String?, callingUid: Int, callingPid: Int): Boolean {
         val pkg = runCatching { context.packageManager.getNameForUid(callingUid) }.getOrNull()
         return try {
@@ -771,9 +853,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * remote_transact 的审计。
-     * 基类只给 remote_process 回调 onAudit，remote_transact 没有。
-     * 这条路径能操作 DevicePolicyManager，是最需要留痕的，因此单独记一份。
+     * auditRemoteTransact
+     * (uid: Int, label: String, descriptor: String?, code: Int, extraDetail: String? = null, human: String? = null, excerpt: String? = null)
+     * 作用：remote_transact 的审计。 基类只给 remote_process 回调 onAudit，remote_transact 没有。 这条路径能操作 DevicePolicyManager，是最需要留痕的，因此单独记一份。
+     * 备注：仅内部使用
      */
     private fun auditRemoteTransact(
         uid: Int,
@@ -781,7 +864,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         descriptor: String?,
         code: Int,
         extraDetail: String? = null,
-        human: String? = null
+        human: String? = null,
+        excerpt: String? = null
     ) {
         if (!NeoDhizuku.on(NeoDhizuku.UseCallLogPage)) return
         // 调用方已解析过就直接用（带实参），否则这里再解析一次
@@ -791,10 +875,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
 
         if (!NeoDhizuku.on(NeoDhizuku.UseCallLogPersist)) return
         auditScope.launch {
-            val lines = NeoLog.snapshot(LOG_EXCERPT_LINES)
-            val excerpt = lines.joinToString("\n") {
-                "${formatTime(it.timestamp)} ${it.level}/${it.sub} ${it.message}"
-            }
+            // 传入的是本次请求专属片段时直接用；为空（例如 remote_process 的
+            // onAudit）才回退到全局最近若干行。避免把邻近请求的日志串进来。
+            val excerptText = excerpt ?: NeoLog.snapshot(LOG_EXCERPT_LINES)
+                .joinToString("\n") {
+                    "${formatTime(it.timestamp)} ${it.level}/${it.sub} ${it.message}"
+                }
             runCatching {
                 logRepo.insertAudit(
                     AuditEntity(
@@ -802,7 +888,7 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                         packageName = label,
                         api = "remote_transact",
                         detail = detail,
-                        logExcerpt = excerpt
+                        logExcerpt = excerptText
                     )
                 )
             }
@@ -810,9 +896,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * 审计回调。
-     * DhizukuService 中已存在该方法，必须加 override
-     * （否则 Kotlin 报 VIRTUAL_MEMBER_HIDDEN）。
+     * onAudit
+     * (callingUid: Int, api: String, detail: String)
+     * 作用：审计回调。 DhizukuService 中已存在该方法，必须加 override （否则 Kotlin 报 VIRTUAL_MEMBER_HIDDEN）。
+     * 备注：重写父类 / 接口方法
      */
     override fun onAudit(callingUid: Int, api: String, detail: String) {
         if (!NeoDhizuku.on(NeoDhizuku.HardenRemoteProcessAudit)) return
@@ -846,10 +933,10 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
     }
 
     /**
-     * 拦截设备所有者转移。
-     * 第三方拿到授权后可以用 binderWrapper 包装 DevicePolicyManager，
-     * 以本应用的设备所有者身份调用其任意方法。这里只拦"改变归属"的几类，
-     * 查询类操作照常放行。
+     * onRemoteTransact
+     * (binder: IBinder?, code: Int, data: Parcel?, reply: Parcel?, flags: Int)
+     * 作用：拦截设备所有者转移。 第三方拿到授权后可以用 binderWrapper 包装 DevicePolicyManager， 以本应用的设备所有者身份调用其任意方法。这里只拦"改变归属"的几类， 查询类操作照常放行。
+     * 备注：重写父类 / 接口方法
      */
     override fun onRemoteTransact(
         binder: IBinder?,
@@ -898,18 +985,35 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         val callerLabel = runCatching {
             context.packageManager.getNameForUid(callerUid)
         }.getOrNull() ?: callerUid.toString()
-        NeoLog.i(NeoLog.SERVER) {
-            "remote_transact: uid=$callerUid ($callerLabel) " +
-                "目标=${DpmApiCatalog.targetLabel(descriptor)} " +
-                "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)}"
-        }
         // 解析方法名与一句人话描述，同时供审计、能力判定、高危拦截使用
         val method = DpmApiCatalog.methodName(code)
         val human = DpmApiCatalog.describe(descriptor, code, data, context)
-        NeoLog.d(NeoLog.SERVER) {
-            "remote_transact: 识别 " +
-                "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)} 描述=$human"
+
+        // 本请求专属的日志片段。旧版写两行 SERVER 日志（I + D「识别」），
+        // 且审计落库时取全局最近 20 行缓冲：连续调用时，一条记录会把前几次
+        // 请求的「识别」行一起带进来，看起来像「一个请求被识别成 5 个」。
+        // 现在只写一行，并同步收集本次请求自己的行，落库时不再回看全局缓冲。
+        val requestLog = ArrayList<String>(8)
+        /**
+         * note
+         * (level: String, sub: String, text: String)
+         * 作用：执行 note
+         * 备注：—
+         */
+        fun note(level: String, sub: String, text: String) {
+            requestLog.add("${formatTime(System.currentTimeMillis())} $level/$sub $text")
+            when (level) {
+                "W" -> NeoLog.w(sub) { text }
+                "D" -> NeoLog.d(sub) { text }
+                else -> NeoLog.i(sub) { text }
+            }
         }
+        note(
+            "I", NeoLog.SERVER,
+            "remote_transact: uid=$callerUid ($callerLabel) " +
+                "目标=${DpmApiCatalog.targetLabel(descriptor)} " +
+                "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)} 描述=$human"
+        )
 
         // 单项系统接口策略：用户在「设置 - 服务 - 单项接口配置」里的选择；完全体不参与。
         // 只对设备策略接口生效（descriptor 命中才判），且排在守卫之前 ——
@@ -921,7 +1025,8 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             if (!enforceDpmPolicy(method, callerUid, pkg, callerLabel, reply, fullAccess)) {
                 auditRemoteTransact(
                     callerUid, callerLabel, descriptor, code,
-                    extraDetail = "【已拦截：单项策略】$human"
+                    extraDetail = "【已拦截：单项策略】$human",
+                    excerpt = requestLog.joinToString("\n")
                 )
                 return true
             }
@@ -949,15 +1054,15 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             // 擦除设备数据：不可逆操作，默认一律拦截，需用户多级确认后才放行。
             // 即便当前是设备所有者也拦截 —— 这条规则保护的是"被第三方借身份擦除"。
             val granted = WipeGuard.isGranted(callerUid)
-            NeoLog.w(NeoLog.SERVER) {
-                "wipe guard: uid=$callerUid ($callerLabel) granted=$granted"
-            }
+            note("W", NeoLog.SERVER,
+                "wipe guard: uid=$callerUid ($callerLabel) granted=$granted")
             if (!granted) {
                 WipeGuard.noteRejected(callerUid, callerLabel)
                 // 意图必须留痕：这正是"想测试又不给权限"的用户最关心的信息
                 auditRemoteTransact(
                     callerUid, callerLabel, descriptor, code,
-                    extraDetail = "【已拦截】$human"
+                    extraDetail = "【已拦截】$human",
+                    excerpt = requestLog.joinToString("\n")
                 )
                 runCatching { AlertNotifier.wipeBlocked(context, callerLabel) }
                     .onFailure {
@@ -982,15 +1087,15 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
             if (!CapabilityLevel.canExecute(level, method)) {
                 val mode = InsufficientMode.from(settingsRepo.insufficientMode)
                 val required = CapabilityLevel.requiredLevel(method)
-                NeoLog.w(NeoLog.SERVER) {
+                note("W", NeoLog.SERVER,
                     "能力不足: uid=$callerUid ($callerLabel) " +
                         "接口=${DpmApiCatalog.interfaceLabel(context, descriptor, code)} " +
-                        "当前=${level} 需要=${required} 处理=${mode} 描述=$human"
-                }
+                        "当前=${level} 需要=${required} 处理=${mode} 描述=$human")
                 // 无论放行还是拒绝，意图都完整入账
                 auditRemoteTransact(
                     callerUid, callerLabel, descriptor, code,
-                    extraDetail = "【能力不足(${level}→${required})】$human"
+                    extraDetail = "【能力不足(${level}→${required})】$human",
+                    excerpt = requestLog.joinToString("\n")
                 )
                 when (mode) {
                     InsufficientMode.RETURN_FAIL -> throw SecurityException(
@@ -1029,12 +1134,12 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
                 }
             } else if (!settingsRepo.isAllowOwnerTransfer && !fullAccess) {
                 // 关闭即阻止：只审计并提示去开开关，没有任何确认可以绕过。
-                NeoLog.w(NeoLog.SERVER) {
-                    "owner transfer: 第三方转移开关未开启，拦截 uid=$uid ($label)"
-                }
+                note("W", NeoLog.SERVER,
+                    "owner transfer: 第三方转移开关未开启，拦截 uid=$uid ($label)")
                 auditRemoteTransact(
                     callerUid, callerLabel, descriptor, code,
-                    extraDetail = "【已拦截：第三方转移开关未开启】$human"
+                    extraDetail = "【已拦截：第三方转移开关未开启】$human",
+                    excerpt = requestLog.joinToString("\n")
                 )
                 runCatching { AlertNotifier.transferBlocked(context, label) }
                     .onFailure {
@@ -1059,12 +1164,19 @@ class MyDhizukuService(context: Context, admin: ComponentName?, client: IDhizuku
         // 重新解析会丢参数。
         auditRemoteTransact(
             callerUid, callerLabel, descriptor, code,
-            human = human
+            human = human,
+            excerpt = requestLog.joinToString("\n")
         )
 
         return super.onRemoteTransact(binder, code, data, reply, flags)
     }
 
+    /**
+     * formatTime
+     * (timestamp: Long)
+     * 作用：格式化 Time
+     * 备注：仅内部使用
+     */
     private fun formatTime(timestamp: Long): String =
         java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
             .format(java.util.Date(timestamp))
@@ -1121,15 +1233,69 @@ private class NoOpRemoteProcess : IDhizukuRemoteProcess.Stub() {
         }
     }
 
+    /**
+     * getOutputStream
+     * ()
+     * 作用：读取 OutputStream
+     * 备注：重写父类 / 接口方法
+     */
     override fun getOutputStream(): ParcelFileDescriptor? = outPipe?.get(1)
+    /**
+     * getInputStream
+     * ()
+     * 作用：读取 InputStream
+     * 备注：重写父类 / 接口方法
+     */
     override fun getInputStream(): ParcelFileDescriptor? = inPipe?.get(0)
+    /**
+     * getErrorStream
+     * ()
+     * 作用：读取 ErrorStream
+     * 备注：重写父类 / 接口方法
+     */
     override fun getErrorStream(): ParcelFileDescriptor? = errPipe?.get(0)
+    /**
+     * exitValue
+     * ()
+     * 作用：执行 exitValue
+     * 备注：重写父类 / 接口方法
+     */
     override fun exitValue(): Int = 0
+    /**
+     * destroy
+     * ()
+     * 作用：执行 destroy
+     * 备注：重写父类 / 接口方法
+     */
     override fun destroy() = closeAll()
+    /**
+     * alive
+     * ()
+     * 作用：执行 alive
+     * 备注：重写父类 / 接口方法
+     */
     override fun alive(): Boolean = false
+    /**
+     * waitFor
+     * ()
+     * 作用：等待 For
+     * 备注：重写父类 / 接口方法
+     */
     override fun waitFor(): Int = 0
+    /**
+     * waitForTimeout
+     * (timeout: Long, unit: String?)
+     * 作用：等待 ForTimeout
+     * 备注：重写父类 / 接口方法
+     */
     override fun waitForTimeout(timeout: Long, unit: String?): Boolean = true
 
+    /**
+     * closeAll
+     * ()
+     * 作用：关闭 All
+     * 备注：仅内部使用
+     */
     private fun closeAll() {
         listOf(outPipe, inPipe, errPipe).forEach { pipe ->
             runCatching { pipe?.get(0)?.close() }
@@ -1152,6 +1318,12 @@ private class NoOpRemoteProcess : IDhizukuRemoteProcess.Stub() {
 
         private val activeCount = java.util.concurrent.atomic.AtomicInteger(0)
 
+        /**
+         * available
+         * ()
+         * 作用：判断
+         * 备注：—
+         */
         fun available(): Boolean = activeCount.get() < MAX_ACTIVE
     }
 }

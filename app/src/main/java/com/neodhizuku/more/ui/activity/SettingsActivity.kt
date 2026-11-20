@@ -64,12 +64,24 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
     // 语言必须在界面建立之前套上，否则切换后要等下次冷启动才生效。
     // 放在这里而不是 onCreate 里创建 Context，是因为 attachBaseContext
     // 是唯一早于资源加载的时机。
+    /**
+     * attachBaseContext
+     * (newBase: android.content.Context)
+     * 作用：执行 attachBaseContext
+     * 备注：重写父类 / 接口方法
+     */
     override fun attachBaseContext(newBase: android.content.Context) {
         super.attachBaseContext(
             com.neodhizuku.more.data.common.util.LocaleHelper.wrap(newBase)
         )
     }
 
+    /**
+     * onCreate
+     * (savedInstanceState: Bundle?)
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
 
@@ -102,11 +114,23 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
 
     // 从多任务返回、或在设置里刚改过开关，都要重新套一次：
     // setExcludeFromRecents 只作用于当时存在的任务，新任务不继承。
+    /**
+     * onResume
+     * ()
+     * 作用：处理 Resume 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onResume() {
         super.onResume()
         RecentsVisibility.apply(this, ThemeConfig.getHideFromRecents(this))
     }
 
+    /**
+     * requestPostNotificationPermission
+     * ()
+     * 作用：请求 PostNotificationPermission
+     * 备注：—
+     */
     fun requestPostNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -119,6 +143,12 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
         }
     }
 
+    /**
+     * requestIgnoreBatteryOptimization
+     * ()
+     * 作用：请求 IgnoreBatteryOptimization
+     * 备注：—
+     */
     @SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization() {
         if (NeoDhizuku.on(NeoDhizuku.FixBatteryOptimizationPrompt)) {
@@ -142,6 +172,12 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
         }
     }
 
+    /**
+     * AppRoot
+     * ()
+     * 作用：执行 AppRoot
+     * 备注：Compose 组件；仅内部使用
+     */
     @Composable
     private fun AppRoot() {
         DhizukuTheme {
@@ -152,6 +188,12 @@ class SettingsActivity : ComponentActivity(), KoinComponent {
         }
     }
 
+    /**
+     * AgreementDialog
+     * ()
+     * 作用：执行 AgreementDialog
+     * 备注：Compose 组件；仅内部使用
+     */
     @Composable
     private fun AgreementDialog() {
         val agreement by agreementFlow.collectAsState(false)

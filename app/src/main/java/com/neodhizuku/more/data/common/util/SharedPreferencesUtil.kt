@@ -5,6 +5,12 @@ import com.neodhizuku.more.NeoDhizuku
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 
+/**
+ * asFlow
+ * (key: String, defaultValue: T, crossinline getter: () -> T = { if (NeoDhizuku.on(NeoDhizuku.FixPrefsFlow)) {
+ * 作用：执行 asFlow
+ * 备注：内联函数
+ */
 inline fun <reified T> SharedPreferences.asFlow(
     key: String,
     defaultValue: T,
@@ -34,6 +40,12 @@ inline fun <reified T> SharedPreferences.asFlow(
     awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
 }
 
+/**
+ * readTyped
+ * (prefs: SharedPreferences, key: String, defaultValue: T)
+ * 作用：读取 Typed
+ * 备注：内联函数
+ */
 inline fun <reified T> readTyped(prefs: SharedPreferences, key: String, defaultValue: T): T {
     @Suppress("UNCHECKED_CAST")
     return when (T::class) {
@@ -49,4 +61,10 @@ inline fun <reified T> readTyped(prefs: SharedPreferences, key: String, defaultV
     }
 }
 
+/**
+ * stringFlow
+ * (key: String, defaultValue: String?)
+ * 作用：执行 stringFlow
+ * 备注：—
+ */
 fun SharedPreferences.stringFlow(key: String, defaultValue: String?) = asFlow(key, defaultValue)

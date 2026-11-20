@@ -60,6 +60,12 @@ class WhitelistViewModel : ViewModel(), KoinComponent {
     /** 本应用自身声明的权限名 */
     private val permissionSelf by lazy { "${context.packageName}.permission.API" }
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         state = state.copy(loading = true)
         viewModelScope.launch(Dispatchers.IO) {
@@ -114,9 +120,10 @@ class WhitelistViewModel : ViewModel(), KoinComponent {
     }
 
     /**
-     * 勾选或取消勾选。
-     * 加入时顺带记下签名：严格校验开启后要用它比对，
-     * 这里不采集的话，严格模式下那条记录会永久降级为「按包名判定」。
+     * setWhitelisted
+     * (item: WhitelistAppItem, whitelisted: Boolean)
+     * 作用：勾选或取消勾选。 加入时顺带记下签名：严格校验开启后要用它比对， 这里不采集的话，严格模式下那条记录会永久降级为「按包名判定」。
+     * 备注：—
      */
     fun setWhitelisted(item: WhitelistAppItem, whitelisted: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

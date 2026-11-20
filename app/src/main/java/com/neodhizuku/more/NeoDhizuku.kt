@@ -194,13 +194,20 @@ object NeoDhizuku {
     const val DebugLog: Boolean = true
 
     /**
-     * 判断某个分项开关是否启用。
-     * 总开关关闭时，所有分项一律视为关闭。
+     * on
+     * (feature: Boolean)
+     * 作用：判断某个分项开关是否启用。 总开关关闭时，所有分项一律视为关闭。
+     * 备注：—
      */
     @JvmStatic
     fun on(feature: Boolean): Boolean = UseNeoDhizuku && feature
 
-    /** 便于日志输出当前生效的开关状态 */
+    /**
+     * describe
+     * ()
+     * 作用：便于日志输出当前生效的开关状态
+     * 备注：—
+     */
     @JvmStatic
     fun describe(): String = buildString {
         append("UseNeoDhizuku=").append(UseNeoDhizuku)

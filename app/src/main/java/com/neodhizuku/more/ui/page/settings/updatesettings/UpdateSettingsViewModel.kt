@@ -30,7 +30,12 @@ data class UpdateSettingsState(
     val officialBase: String = "",
     val probing: Boolean = false
 ) {
-    /** 把当前设置拼成检测时用的配置。 */
+    /**
+     * toConfig
+     * ()
+     * 作用：把当前设置拼成检测时用的配置。
+     * 备注：—
+     */
     fun toConfig(): UpdateConfig = UpdateConfig(
         source = source,
         allowInsecure = allowInsecure,
@@ -50,8 +55,10 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
         private set
 
     /**
-     * 重新挑官方域名。
-     * 免费解析随时会挂，挂了之后要能手动换一个，不然只能等它自己恢复。
+     * reprobeOfficial
+     * ()
+     * 作用：重新挑官方域名。 免费解析随时会挂，挂了之后要能手动换一个，不然只能等它自己恢复。
+     * 备注：—
      */
     fun reprobeOfficial() {
         if (_state.value.probing) return
@@ -68,6 +75,12 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.flowUpdateSource().collect {
@@ -96,14 +109,32 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * openSourceDialog
+     * ()
+     * 作用：打开 SourceDialog
+     * 备注：—
+     */
     fun openSourceDialog() {
         showSourceDialog = true
     }
 
+    /**
+     * dismissSourceDialog
+     * ()
+     * 作用：关闭 SourceDialog
+     * 备注：—
+     */
     fun dismissSourceDialog() {
         showSourceDialog = false
     }
 
+    /**
+     * setSource
+     * (source: UpdateSource)
+     * 作用：设置 Source
+     * 备注：—
+     */
     fun setSource(source: UpdateSource) {
         NeoLog.i(NeoLog.UI) { "更新设置：来源 -> ${source.key}" }
         viewModelScope.launch(Dispatchers.IO) {
@@ -112,6 +143,12 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
         showSourceDialog = false
     }
 
+    /**
+     * setAllowInsecure
+     * (enabled: Boolean)
+     * 作用：设置 AllowInsecure
+     * 备注：—
+     */
     fun setAllowInsecure(enabled: Boolean) {
         NeoLog.i(NeoLog.UI) { "更新设置：允许不安全链接 -> $enabled" }
         viewModelScope.launch(Dispatchers.IO) {
@@ -119,6 +156,12 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setStartupUpdateCheck
+     * (enabled: Boolean)
+     * 作用：设置 StartupUpdateCheck
+     * 备注：—
+     */
     fun setStartupUpdateCheck(enabled: Boolean) {
         NeoLog.i(NeoLog.UI) { "更新设置：启动时检查更新 -> $enabled" }
         viewModelScope.launch(Dispatchers.IO) {
@@ -126,6 +169,12 @@ class UpdateSettingsViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * setCustomUrl
+     * (url: String)
+     * 作用：设置 CustomUrl
+     * 备注：—
+     */
     fun setCustomUrl(url: String) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.updateCustomUrl = url

@@ -348,6 +348,12 @@ fun SideNavRail(
     }
 }
 
+/**
+ * RailItem
+ * (destination: NavDestination, current: Boolean, scale: () -> Float, pillMode: Boolean, onSelect: () -> Unit)
+ * 作用：执行 RailItem
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun RailItem(
     destination: NavDestination,
@@ -403,9 +409,10 @@ private fun RailItem(
 }
 
 /**
- * 贴边导航条：没有悬浮胶囊、没有选中药丸，整条贴屏幕边缘铺满高度。
- * 背景与卡片共用同一份采样源，因此同样是模糊玻璃，只压一层中性黑让它比
- * 卡片略深；没设背景图 / 不支持真模糊时退回半透明纯色。当前页只靠主色区分。
+ * PlainSideNavRail
+ * (tabs: List<NavDestination>, selectedIndex: () -> Int, onNavigate: (String) -> Unit, onSettleTab: ((Int) -> Unit)?, modifier: Modifier)
+ * 作用：贴边导航条：没有悬浮胶囊、没有选中药丸，整条贴屏幕边缘铺满高度。 背景与卡片共用同一份采样源，因此同样是模糊玻璃，只压一层中性黑让它比 卡片略深；没设背景图 / 不支持真模糊时退回半透明纯色。当前页只靠主色区分。
+ * 备注：Compose 组件；仅内部使用
  */
 @Composable
 private fun PlainSideNavRail(

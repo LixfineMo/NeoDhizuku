@@ -156,6 +156,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
     private val neoFinishInCompose get() = NeoDhizuku.on(NeoDhizuku.FixPermissionFinishInCompose)
     private val neoHardenedEntry get() = NeoDhizuku.on(NeoDhizuku.HardenPermissionEntry)
 
+    /**
+     * onCreate
+     * (savedInstanceState: Bundle?)
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -272,6 +278,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         }
     }
 
+    /**
+     * onSaveInstanceState
+     * (outState: Bundle)
+     * 作用：处理 SaveInstanceState 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         if (!NeoDhizuku.on(NeoDhizuku.FixPermissionSavedState)) return
@@ -281,12 +293,24 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         outState.putBoolean(KEY_BLOCKLIST_COUNTDOWN, state.blacklistCountdown)
     }
 
+    /**
+     * onNewIntent
+     * (intent: Intent)
+     * 作用：处理 NewIntent 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (registerAppEntity(intent)) return
         finish()
     }
 
+    /**
+     * onDestroy
+     * ()
+     * 作用：处理 Destroy 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onDestroy() {
         // 兜底回收：正常路径下 token 已在 dispatchResult 中移除，
         // 但进程被杀 / 异常退出等路径走不到那里，残留记录会一直持有跨进程
@@ -297,6 +321,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         super.onDestroy()
     }
 
+    /**
+     * onPause
+     * ()
+     * 作用：处理 Pause 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onPause() {
         super.onPause()
         if (neoOnPause) {
@@ -307,6 +337,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         finish()
     }
 
+    /**
+     * finish
+     * ()
+     * 作用：执行 finish
+     * 备注：重写父类 / 接口方法
+     */
     override fun finish() {
         if (neoPermissionWrite) {
             // 同步落库 + 结果只回调一次。
@@ -355,7 +391,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
     private val trustedRequest: Boolean
         get() = !state.serverToken.isNullOrEmpty()
 
-    /** 落库。超时/取消场景不覆盖已有的 allowApi=true 记录（避免被"轰炸"撤销授权）。 */
+    /**
+     * persistResult
+     * (uid: Int, allowApi: Boolean, blocked: Boolean = false)
+     * 作用：落库。超时/取消场景不覆盖已有的 allowApi=true 记录（避免被"轰炸"撤销授权）。
+     * 备注：挂起函数；仅内部使用
+     */
     private suspend fun persistResult(
         uid: Int,
         allowApi: Boolean,
@@ -429,6 +470,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         }
     }
 
+    /**
+     * dispatchResult
+     * (snapshot: ViewState)
+     * 作用：执行 dispatchResult
+     * 备注：仅内部使用
+     */
     private fun dispatchResult(snapshot: ViewState) {
         val result = if (snapshot.allowApi) PackageManager.PERMISSION_GRANTED
         else PackageManager.PERMISSION_DENIED
@@ -449,6 +496,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
             .onFailure { NeoLog.e(NeoLog.PERM, { "result: 回调失败 uid=${snapshot.uid}" }, it) }
     }
 
+    /**
+     * registerAppEntity
+     * (intent: Intent?)
+     * 作用：注册 AppEntity
+     * 备注：仅内部使用
+     */
     private fun registerAppEntity(intent: Intent?): Boolean {
         if (intent == null) return false
         if (neoHardenedEntry) {
@@ -538,6 +591,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
     // 与日常两个按钮平级摆在一起误触代价太高。
     // 包名单独列出是刻意的安全设计：图标和应用名都能伪造，包名不能，
     // 它是判断"到底是谁在申请"的唯一可靠信息。
+    /**
+     * showDialog
+     * ()
+     * 作用：显示 Dialog
+     * 备注：Compose 组件；仅内部使用
+     */
     @Composable
     private fun showDialog(): Boolean {
         val packageInfo = packageManager.getPackageInfoForUid(state.uid) ?: return false
@@ -602,6 +661,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         )
         val sheetOffsetDp = offsetDp + enterOffsetDp
 
+        /**
+         * deny
+         * ()
+         * 作用：执行 deny
+         * 备注：—
+         */
         fun deny() {
             userDecided = true
             state = state.copy(allowApi = false, timedOut = true)
@@ -833,7 +898,12 @@ class RequestPermissionActivity : ComponentActivity(), KoinComponent {
         return true
     }
 
-    /** 授权弹窗里的一行「标签 : 值」。值右对齐，过长时省略。 */
+    /**
+     * InfoRow
+     * (label: String, value: String)
+     * 作用：授权弹窗里的一行「标签 : 值」。值右对齐，过长时省略。
+     * 备注：Compose 组件；仅内部使用
+     */
     @Composable
     private fun InfoRow(label: String, value: String) {
         val gray = MaterialTheme.colorScheme.onSurfaceVariant

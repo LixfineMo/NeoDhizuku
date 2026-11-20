@@ -46,14 +46,20 @@ object DelegationManager {
         )
     )
 
-    /** 当前系统支持的子集。 */
+    /**
+     * supportedScopes
+     * ()
+     * 作用：当前系统支持的子集。
+     * 备注：—
+     */
     fun supportedScopes(): List<ScopeDef> =
         ALL_SCOPES.filter { Build.VERSION.SDK_INT >= it.sinceApi }
 
     /**
-     * 读取某个包当前被委派的作用域；失败返回空列表。
-     * 扫描时会逐包调用，失败用 d 级记录 —— 一次扫描可能碰到上百个包，
-     * 每个都按 w 级落库会把运行日志刷满。真正需要排查时开完整日志即可。
+     * readScopes
+     * (dpm: DevicePolicyManager, admin: ComponentName, pkg: String)
+     * 作用：读取某个包当前被委派的作用域；失败返回空列表。 扫描时会逐包调用，失败用 d 级记录 —— 一次扫描可能碰到上百个包， 每个都按 w 级落库会把运行日志刷满。真正需要排查时开完整日志即可。
+     * 备注：—
      */
     fun readScopes(dpm: DevicePolicyManager, admin: ComponentName, pkg: String): List<String> =
         runCatching { dpm.getDelegatedScopes(admin, pkg) }
@@ -62,7 +68,12 @@ object DelegationManager {
             }
             .getOrDefault(emptyList())
 
-    /** 写入某个包的委派作用域。 */
+    /**
+     * writeScopes
+     * (dpm: DevicePolicyManager, admin: ComponentName, pkg: String, scopes: Collection<String>)
+     * 作用：写入某个包的委派作用域。
+     * 备注：—
+     */
     fun writeScopes(
         dpm: DevicePolicyManager,
         admin: ComponentName,
@@ -98,6 +109,12 @@ object DelegationManager {
         writeScopes(dpm, admin, pkg, emptyList())
     }
 
+    /**
+     * restoreHidden
+     * (dpm: DevicePolicyManager, admin: ComponentName, pkg: String)
+     * 作用：恢复 Hidden
+     * 备注：仅内部使用
+     */
     private fun restoreHidden(dpm: DevicePolicyManager, admin: ComponentName, pkg: String) {
         runCatching {
             if (dpm.isApplicationHidden(admin, pkg)) {
@@ -109,6 +126,12 @@ object DelegationManager {
         }
     }
 
+    /**
+     * restoreSuspended
+     * (dpm: DevicePolicyManager, admin: ComponentName, pkg: String)
+     * 作用：恢复 Suspended
+     * 备注：仅内部使用
+     */
     private fun restoreSuspended(dpm: DevicePolicyManager, admin: ComponentName, pkg: String) {
         runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && dpm.isPackageSuspended(admin, pkg)) {

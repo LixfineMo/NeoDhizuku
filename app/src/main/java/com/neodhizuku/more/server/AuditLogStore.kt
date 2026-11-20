@@ -27,6 +27,12 @@ object AuditLogStore {
     private val _entries = MutableStateFlow<List<Entry>>(emptyList())
     val entries: StateFlow<List<Entry>> = _entries.asStateFlow()
 
+    /**
+     * record
+     * (uid: Int, packageName: String, api: String, detail: String)
+     * 作用：执行 record
+     * 备注：—
+     */
     fun record(uid: Int, packageName: String, api: String, detail: String) {
         val next = ArrayList<Entry>(_entries.value)
         next.add(0, Entry(uid, packageName, api, detail))
@@ -34,13 +40,21 @@ object AuditLogStore {
         _entries.value = next
     }
 
+    /**
+     * clear
+     * ()
+     * 作用：清空
+     * 备注：—
+     */
     fun clear() {
         _entries.value = emptyList()
     }
 
     /**
-     * 把内部 API 名映射为用户看得懂的中文短句。
-     * 未知 API 统一返回通用描述，绝不回显英文字段名。
+     * describe
+     * (api: String)
+     * 作用：把内部 API 名映射为用户看得懂的中文短句。 未知 API 统一返回通用描述，绝不回显英文字段名。
+     * 备注：—
      */
     fun describe(api: String): String = when (api) {
         "remote_process" -> "执行了一条系统命令"

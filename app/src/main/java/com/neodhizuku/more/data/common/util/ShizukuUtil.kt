@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.first
 import rikka.shizuku.Shizuku
 import rikka.sui.Sui
 
+/**
+ * blockingRequestShizukuPermission
+ * ()
+ * 作用：执行 blockingRequestShizukuPermission
+ * 备注：挂起函数；仅内部使用
+ */
 private suspend fun blockingRequestShizukuPermission() = callbackFlow {
     val requestCode = (Int.MIN_VALUE..Int.MAX_VALUE).random()
     val listener =
@@ -29,6 +35,12 @@ private suspend fun blockingRequestShizukuPermission() = callbackFlow {
     throw it as? ShizukuNotWorkException ?: ShizukuNotWorkException(cause = it)
 }.first()
 
+/**
+ * requireShizukuPermissionGranted
+ * (action: suspend () -> T)
+ * 作用：执行 requireShizukuPermissionGranted
+ * 备注：挂起函数
+ */
 suspend fun <T> requireShizukuPermissionGranted(action: suspend () -> T): T {
     // 包名为 com.neodhizuku.more，这里传自身包名，
     // 与 App.onCreate() 中的 Sui.init(packageName) 保持一致。
@@ -41,6 +53,12 @@ suspend fun <T> requireShizukuPermissionGranted(action: suspend () -> T): T {
     return action()
 }
 
+/**
+ * checkShizukuWorked
+ * ()
+ * 作用：检查 ShizukuWorked
+ * 备注：—
+ */
 fun checkShizukuWorked(): Boolean {
     // NeoDhizuku：同上，使用自身包名
     val sui: Boolean = Sui.init(BuildConfig.APPLICATION_ID)

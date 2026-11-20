@@ -46,21 +46,41 @@ object StartupUpdateChecker {
 
     private val started = AtomicBoolean(false)
 
-    /** 调试用：本次进程是否已经发起过检查 */
+    /**
+     * isStarted
+     * ()
+     * 作用：调试用：本次进程是否已经发起过检查
+     * 备注：—
+     */
     fun isStarted(): Boolean = started.get()
 
-    /** 调试用：清掉一次性标记并回到 Idle，允许再次触发检查 */
+    /**
+     * resetForDebug
+     * ()
+     * 作用：调试用：清掉一次性标记并回到 Idle，允许再次触发检查
+     * 备注：—
+     */
     fun resetForDebug() {
         started.set(false)
         _state.value = State.Idle
     }
 
-    /** 调试用：手动改状态显示，不触发网络请求 */
+    /**
+     * forceState
+     * (state: State)
+     * 作用：调试用：手动改状态显示，不触发网络请求
+     * 备注：—
+     */
     fun forceState(state: State) {
         _state.value = state
     }
 
-    /** 调试用：直接改一次性标记 */
+    /**
+     * setStartedForDebug
+     * (value: Boolean)
+     * 作用：调试用：直接改一次性标记
+     * 备注：—
+     */
     fun setStartedForDebug(value: Boolean) {
         started.set(value)
     }

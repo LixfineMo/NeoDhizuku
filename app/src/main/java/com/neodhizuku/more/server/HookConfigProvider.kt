@@ -16,12 +16,24 @@ import android.os.Bundle
  */
 class HookConfigProvider : ContentProvider() {
 
+    /**
+     * onCreate
+     * ()
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate(): Boolean {
         val ctx = context ?: return false
         HookConfigStore.init(ctx)
         return true
     }
 
+    /**
+     * call
+     * (method: String, arg: String?, extras: Bundle?)
+     * 作用：调用
+     * 备注：重写父类 / 接口方法
+     */
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
         val e = extras ?: Bundle()
         return runCatching {
@@ -47,18 +59,48 @@ class HookConfigProvider : ContentProvider() {
         }.getOrNull()
     }
 
+    /**
+     * query
+     * (uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?)
+     * 作用：查询
+     * 备注：重写父类 / 接口方法
+     */
     override fun query(
         uri: Uri, projection: Array<out String>?, selection: String?,
         selectionArgs: Array<out String>?, sortOrder: String?
     ): Cursor? = null
 
+    /**
+     * insert
+     * (uri: Uri, values: ContentValues?)
+     * 作用：写入
+     * 备注：重写父类 / 接口方法
+     */
     override fun insert(uri: Uri, values: ContentValues?): Uri? = null
 
+    /**
+     * update
+     * (uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?)
+     * 作用：更新
+     * 备注：重写父类 / 接口方法
+     */
     override fun update(
         uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?
     ): Int = 0
 
+    /**
+     * delete
+     * (uri: Uri, selection: String?, selectionArgs: Array<out String>?)
+     * 作用：删除
+     * 备注：重写父类 / 接口方法
+     */
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int = 0
 
+    /**
+     * getType
+     * (uri: Uri)
+     * 作用：读取 Type
+     * 备注：重写父类 / 接口方法
+     */
     override fun getType(uri: Uri): String? = null
 }

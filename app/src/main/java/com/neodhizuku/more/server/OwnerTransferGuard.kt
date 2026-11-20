@@ -53,10 +53,10 @@ object OwnerTransferGuard {
     private var cachedCodes: Set<Int>? = null
 
     /**
-     * 判定本次 remote_transact 是否属于设备所有者转移。
-     * 判定顺序：事务码命中 → 方法名命中 → 无法还原方法名时按 fail-closed 拦截。
-     * 第 3 步会让守卫在反射失效期间拦下所有设备策略调用，这是刻意的取舍：
-     * 所有者一旦被转移出去就不可逆，宁可临时不可用，也不能静默放行。
+     * isOwnerTransfer
+     * (binder: IBinder?, code: Int)
+     * 作用：判定本次 remote_transact 是否属于设备所有者转移。 判定顺序：事务码命中 → 方法名命中 → 无法还原方法名时按 fail-closed 拦截。 第 3 步会让守卫在反射失效期间拦下所有设备策略调用，这是刻意的取舍： 所有者一旦被转移出去就不可逆，宁可临时不可用，也不能静默放行。
+     * 备注：—
      */
     fun isOwnerTransfer(binder: IBinder?, code: Int): Boolean {
         val descriptor = runCatching { binder?.interfaceDescriptor }.getOrNull()
@@ -74,9 +74,10 @@ object OwnerTransferGuard {
     }
 
     /**
-     * 反射读取系统 Stub 类中的事务码常量。
-     * 用 HiddenApiBypass 解除非 SDK 接口限制后再 Class.forName，
-     * 保证能拿到系统真实实现（而不是本项目 hidden-api 的存根）。
+     * resolveCodes
+     * ()
+     * 作用：反射读取系统 Stub 类中的事务码常量。 用 HiddenApiBypass 解除非 SDK 接口限制后再 Class.forName， 保证能拿到系统真实实现（而不是本项目 hidden-api 的存根）。
+     * 备注：仅内部使用
      */
     private fun resolveCodes(): Set<Int> {
         cachedCodes?.let { return it }

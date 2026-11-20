@@ -40,8 +40,20 @@ object AppIconCache : KoinComponent {
             // 这里统一成 KB，并留出 1/8 堆给图标。
             val availableCacheSize = (maxMemory / 8).toInt()
             object : LruCache<String, Bitmap>(availableCacheSize) {
+                /**
+                 * sizeOf
+                 * (key: String, value: Bitmap)
+                 * 作用：执行 sizeOf
+                 * 备注：重写父类 / 接口方法
+                 */
                 override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
 
+                /**
+                 * entryRemoved
+                 * (evicted: Boolean, key: String, oldValue: Bitmap, newValue: Bitmap?)
+                 * 作用：执行 entryRemoved
+                 * 备注：重写父类 / 接口方法
+                 */
                 override fun entryRemoved(
                     evicted: Boolean,
                     key: String,
@@ -54,6 +66,12 @@ object AppIconCache : KoinComponent {
         } else {
             val availableCacheSize = (maxMemory / 4).toInt()
             object : LruCache<String, Bitmap>(availableCacheSize) {
+                /**
+                 * sizeOf
+                 * (key: String, value: Bitmap)
+                 * 作用：执行 sizeOf
+                 * 备注：重写父类 / 接口方法
+                 */
                 override fun sizeOf(key: String, value: Bitmap): Int {
                     return value.byteCount / 4
                 }
@@ -61,6 +79,12 @@ object AppIconCache : KoinComponent {
         }
     }
 
+    /**
+     * rememberImageBitmapState
+     * (applicationInfo: ApplicationInfo)
+     * 作用：执行 rememberImageBitmapState
+     * 备注：Compose 组件
+     */
     @Composable
     fun rememberImageBitmapState(applicationInfo: ApplicationInfo): MutableState<ImageBitmap> {
         val key = "${applicationInfo.packageName}_${applicationInfo.uid}"
@@ -80,6 +104,12 @@ object AppIconCache : KoinComponent {
         return state
     }
 
+    /**
+     * rememberImageBitmapState
+     * (admin: DeviceAdminInfo)
+     * 作用：执行 rememberImageBitmapState
+     * 备注：Compose 组件
+     */
     @Composable
     fun rememberImageBitmapState(admin: DeviceAdminInfo): MutableState<ImageBitmap> {
         val key = "${admin.component.flattenToShortString()}_${admin.activityInfo.applicationInfo.uid}"

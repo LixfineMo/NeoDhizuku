@@ -26,16 +26,40 @@ object PermissionCache : KoinComponent {
     var ready: Boolean = false
         private set
 
+    /**
+     * get
+     * (uid: Int)
+     * 作用：读取
+     * 备注：—
+     */
     fun get(uid: Int): AppEntity? = cache[uid]
 
+    /**
+     * put
+     * (entity: AppEntity)
+     * 作用：写入
+     * 备注：—
+     */
     fun put(entity: AppEntity) {
         cache[entity.uid] = entity
     }
 
+    /**
+     * remove
+     * (uid: Int)
+     * 作用：移除
+     * 备注：—
+     */
     fun remove(uid: Int) {
         cache.remove(uid)
     }
 
+    /**
+     * refresh
+     * ()
+     * 作用：刷新
+     * 备注：挂起函数
+     */
     suspend fun refresh() {
         mutex.withLock {
             val all = runCatching { appRepo.all() }.getOrNull()
@@ -49,6 +73,12 @@ object PermissionCache : KoinComponent {
         }
     }
 
+    /**
+     * refreshOne
+     * (uid: Int)
+     * 作用：刷新 One
+     * 备注：挂起函数
+     */
     suspend fun refreshOne(uid: Int) {
         mutex.withLock {
             val entity = runCatching { appRepo.findByUID(uid) }.getOrNull()

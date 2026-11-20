@@ -4,9 +4,10 @@ import top.yukonga.miuix.kmp.blur.BackdropEffectScope
 import top.yukonga.miuix.kmp.blur.colorControls
 
 /**
- * 提饱和。
- * 玻璃透出来的背景通常偏灰，提一点饱和度让它更接近系统玻璃观感。
- * 底栏要更通透时传更小的 saturation，避免颜色被拉浓显得发闷。
+ * vibrancy
+ * (saturation: Float = 1.5f)
+ * 作用：提饱和。 玻璃透出来的背景通常偏灰，提一点饱和度让它更接近系统玻璃观感。 底栏要更通透时传更小的 saturation，避免颜色被拉浓显得发闷。
+ * 备注：—
  */
 fun BackdropEffectScope.vibrancy(saturation: Float = 1.5f) {
     colorControls(

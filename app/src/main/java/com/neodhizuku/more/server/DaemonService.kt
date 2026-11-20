@@ -32,6 +32,12 @@ class DaemonService : Service(), KoinComponent {
     private val settingsRepo by inject<SettingsRepo>()
 
     private val packageReceiver = object : BroadcastReceiver() {
+        /**
+         * onReceive
+         * (context: Context?, intent: Intent?)
+         * 作用：处理 Receive 回调
+         * 备注：重写父类 / 接口方法
+         */
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent == null) return
             val uid = intent.getIntExtra(Intent.EXTRA_UID, -1)
@@ -66,6 +72,12 @@ class DaemonService : Service(), KoinComponent {
         }
     }
 
+    /**
+     * onBind
+     * (intent: Intent?)
+     * 作用：处理 Bind 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
@@ -74,6 +86,12 @@ class DaemonService : Service(), KoinComponent {
         private const val NOTIFICATION_CHANNEL_ID = "daemon_service"
     }
 
+    /**
+     * onCreate
+     * ()
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate() {
         super.onCreate()
         registerPackageReceiver()
@@ -108,9 +126,10 @@ class DaemonService : Service(), KoinComponent {
     }
 
     /**
-     * 服务启动时把影响"第三方能否识别"的关键状态一次性打全。
-     * 这些值分散在 DhizukuState / SettingsRepo / 授权表三处，
-     * 分别查看很容易漏，集中输出便于一眼定位。
+     * dumpState
+     * ()
+     * 作用：服务启动时把影响"第三方能否识别"的关键状态一次性打全。 这些值分散在 DhizukuState / SettingsRepo / 授权表三处， 分别查看很容易漏，集中输出便于一眼定位。
+     * 备注：仅内部使用
      */
     private fun dumpState() {
         val state = DhizukuState.state
@@ -134,6 +153,12 @@ class DaemonService : Service(), KoinComponent {
         }
     }
 
+    /**
+     * onStartCommand
+     * (intent: Intent?, flags: Int, startId: Int)
+     * 作用：处理 StartCommand 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val stoppedByUser = runCatching { settingsRepo.isServiceStoppedByUser }
             .getOrDefault(false)
@@ -182,6 +207,12 @@ class DaemonService : Service(), KoinComponent {
             }
     }
 
+    /**
+     * onDestroy
+     * ()
+     * 作用：处理 Destroy 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onDestroy() {
         foreground(false)
         unregisterReceiver(packageReceiver)
@@ -192,6 +223,12 @@ class DaemonService : Service(), KoinComponent {
         super.onDestroy()
     }
 
+    /**
+     * registerPackageReceiver
+     * ()
+     * 作用：注册 PackageReceiver
+     * 备注：仅内部使用
+     */
     private fun registerPackageReceiver() {
         if (NeoDhizuku.on(NeoDhizuku.FixPermissionMemoryCache)) {
             scope.launch { PermissionCache.refresh() }
@@ -222,8 +259,10 @@ class DaemonService : Service(), KoinComponent {
     }
 
     /**
-     * 只有"包已卸载"或"签名已变化"才算失效。
-     * 与 [verify] 的差别是：blocked / allowApi=false 不作为可删除条件。
+     * isStale
+     * (entity: AppEntity)
+     * 作用：只有"包已卸载"或"签名已变化"才算失效。 与 [verify] 的差别是：blocked / allowApi=false 不作为可删除条件。
+     * 备注：仅内部使用
      */
     private fun isStale(entity: AppEntity): Boolean {
         val packageInfo = packageManager.getPackageInfoForUid(entity.uid) ?: return true
@@ -236,6 +275,12 @@ class DaemonService : Service(), KoinComponent {
         return entity.signature != packageInfo.signature
     }
 
+    /**
+     * verify
+     * (entity: AppEntity)
+     * 作用：校验
+     * 备注：仅内部使用
+     */
     private fun verify(entity: AppEntity): Boolean {
         val packageInfo = packageManager.getPackageInfoForUid(entity.uid) ?: return false
 
@@ -246,7 +291,12 @@ class DaemonService : Service(), KoinComponent {
         return true
     }
 
-    /** 刷新首页「授权应用」计数 */
+    /**
+     * refreshAuthorizedCount
+     * ()
+     * 作用：刷新首页「授权应用」计数
+     * 备注：仅内部使用
+     */
     private fun refreshAuthorizedCount() {
         scope.launch {
             runCatching {
@@ -258,6 +308,12 @@ class DaemonService : Service(), KoinComponent {
         }
     }
 
+    /**
+     * foreground
+     * (enabled: Boolean)
+     * 作用：执行 foreground
+     * 备注：仅内部使用
+     */
     private fun foreground(enabled: Boolean) {
         if (!enabled) {
             stopForeground(STOP_FOREGROUND_REMOVE)

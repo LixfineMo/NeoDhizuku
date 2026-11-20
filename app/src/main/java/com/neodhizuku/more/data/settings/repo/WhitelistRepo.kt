@@ -21,16 +21,28 @@ data class WhitelistEntry(
  * 因此白名单统一存放在应用私有目录的独立文件里。
  */
 interface WhitelistRepo {
-    /** 全部记录，按包名排序 */
+    /**
+     * flowAll
+     * ()
+     * 作用：全部记录，按包名排序
+     * 备注：—
+     */
     fun flowAll(): Flow<List<WhitelistEntry>>
 
     /**
-     * 同步快照。
-     * 服务端在 binder 线程上判定，不能挂起等待，因此单独提供一个同步读口。
+     * snapshot
+     * ()
+     * 作用：同步快照。 服务端在 binder 线程上判定，不能挂起等待，因此单独提供一个同步读口。
+     * 备注：—
      */
     fun snapshot(): List<WhitelistEntry>
 
-    /** 包名是否已在白名单中 */
+    /**
+     * contains
+     * (packageName: String)
+     * 作用：包名是否已在白名单中
+     * 备注：—
+     */
     fun contains(packageName: String): Boolean
 
     /**
@@ -47,7 +59,19 @@ interface WhitelistRepo {
         strict: Boolean
     ): Boolean
 
+    /**
+     * add
+     * (packageName: String, signature: String?)
+     * 作用：添加
+     * 备注：挂起函数
+     */
     suspend fun add(packageName: String, signature: String?)
 
+    /**
+     * remove
+     * (packageName: String)
+     * 作用：移除
+     * 备注：挂起函数
+     */
     suspend fun remove(packageName: String)
 }

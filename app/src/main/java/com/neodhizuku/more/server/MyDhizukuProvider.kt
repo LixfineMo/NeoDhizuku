@@ -17,9 +17,10 @@ import org.koin.core.component.inject
 class MyDhizukuProvider : DhizukuProvider(), KoinComponent {
 
     /**
-     * 客户端通过 ContentProvider.call() 拿 IDhizuku 时的入口。
-     * 这里是"识别不到服务"链路的第一站，打点便于区分：
-     * 客户端根本没来（Provider 没被调用） vs 来了但后面某一步失败。
+     * onCreateService
+     * (client: IDhizukuClient)
+     * 作用：客户端通过 ContentProvider.call() 拿 IDhizuku 时的入口。 这里是"识别不到服务"链路的第一站，打点便于区分： 客户端根本没来（Provider 没被调用） vs 来了但后面某一步失败。
+     * 备注：重写父类 / 接口方法
      */
     override fun onCreateService(client: IDhizukuClient): DhizukuService {
         val state = DhizukuState.state

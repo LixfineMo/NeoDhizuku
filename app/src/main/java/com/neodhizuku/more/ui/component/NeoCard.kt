@@ -44,10 +44,10 @@ val LocalCardBlurDp = staticCompositionLocalOf { 0f }
 val LocalCardSolidFallback = staticCompositionLocalOf { false }
 
 /**
- * miuix 引擎下卡片的玻璃层。
- * 组件库的 Card 会在自己的 modifier 之后绘制底色，把 drawBackdrop 挂在 Card 外层
- * 会被这层底色盖掉，所以玻璃必须画在「内容的最底层」，压住底色、托住文字。
- * [tint] 用于状态卡这类需要保留配色的卡片：半透明色叠在模糊结果之上。
+ * MiuixGlassLayer
+ * (backdrop: Backdrop, shape: Shape, radiusPx: Float, tint: Color = Color.Transparent, modifier: Modifier = Modifier)
+ * 作用：miuix 引擎下卡片的玻璃层。 组件库的 Card 会在自己的 modifier 之后绘制底色，把 drawBackdrop 挂在 Card 外层 会被这层底色盖掉，所以玻璃必须画在「内容的最底层」，压住底色、托住文字。 [tint] 用于状态卡这类需要保留配色的卡片：半透明色叠在模糊结果之上。
+ * 备注：Compose 组件
  */
 @Composable
 fun MiuixGlassLayer(
@@ -74,8 +74,10 @@ fun MiuixGlassLayer(
 }
 
 /**
- * 全项目统一卡片。设置背景图且开启局部模糊时，从 [LocalCardGlassBackdrop]
- * 采样背景再按半径模糊，卡片内容始终清晰。
+ * NeoCard
+ * (modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(16.dp), colors: CardColors = CardDefaults.elevatedCardColors(), onClick: (() -> Unit)? = null, enabled: Boolean = true, interactionSource: MutableInteractionSource? = null, content: @Composable ColumnScope.() -> Unit)
+ * 作用：全项目统一卡片。设置背景图且开启局部模糊时，从 [LocalCardGlassBackdrop] 采样背景再按半径模糊，卡片内容始终清晰。
+ * 备注：Compose 组件
  */
 @Composable
 fun NeoCard(
@@ -214,6 +216,12 @@ fun NeoCard(
     }
 }
 
+/**
+ * solidTint
+ * (color: Color, fallback: Color)
+ * 作用：执行 solidTint
+ * 备注：仅内部使用
+ */
 private fun solidTint(color: Color, fallback: Color): Color {
     val base = if (color == Color.Unspecified) fallback else color
     return base.copy(alpha = 0.92f)

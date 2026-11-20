@@ -49,6 +49,12 @@ object RuntimeParamCatalog : KoinComponent {
 
     private val settingsRepo: SettingsRepo by inject()
 
+    /**
+     * bool
+     * (name: String, get: () -> Boolean, set: (Boolean) -> Unit, hint: String = "true / false")
+     * 作用：执行 bool
+     * 备注：仅内部使用
+     */
     private fun bool(
         name: String,
         get: () -> Boolean,
@@ -69,6 +75,12 @@ object RuntimeParamCatalog : KoinComponent {
         hint = hint
     )
 
+    /**
+     * int
+     * (name: String, get: () -> Int, set: (Int) -> Unit, hint: String = "integer")
+     * 作用：执行 int
+     * 备注：仅内部使用
+     */
     private fun int(
         name: String,
         get: () -> Int,
@@ -85,6 +97,12 @@ object RuntimeParamCatalog : KoinComponent {
         hint = hint
     )
 
+    /**
+     * long
+     * (name: String, get: () -> Long, set: (Long) -> Unit, hint: String = "long")
+     * 作用：执行 long
+     * 备注：仅内部使用
+     */
     private fun long(
         name: String,
         get: () -> Long,
@@ -101,6 +119,12 @@ object RuntimeParamCatalog : KoinComponent {
         hint = hint
     )
 
+    /**
+     * str
+     * (name: String, get: () -> String, set: (String) -> Unit, hint: String = "")
+     * 作用：执行 str
+     * 备注：仅内部使用
+     */
     private fun str(
         name: String,
         get: () -> String,
@@ -114,6 +138,12 @@ object RuntimeParamCatalog : KoinComponent {
         hint = hint
     )
 
+    /**
+     * groups
+     * ()
+     * 作用：执行 groups
+     * 备注：—
+     */
     fun groups(): List<ParamGroup> = listOf(
         ParamGroup(
             "SettingsRepo",
@@ -209,7 +239,7 @@ object RuntimeParamCatalog : KoinComponent {
 /** 「实时参数修改」的界面状态。 */
 class RuntimeParamViewModel : ViewModel() {
 
-    /** 每次成功写入后自增，驱动界面重新读取当前值 */
+    /** 每次成功写入或手动刷新后自增，驱动界面重新读取当前值 */
     var revision by mutableStateOf(0)
         private set
 
@@ -219,15 +249,71 @@ class RuntimeParamViewModel : ViewModel() {
     var message by mutableStateOf("")
         private set
 
+    var query by mutableStateOf("")
+        private set
+
+    /** 收起的分组名；默认全部展开 */
+    var collapsed by mutableStateOf<Set<String>>(emptySet())
+        private set
+
+    /**
+     * updateQuery
+     * (value: String)
+     * 作用：更新 Query
+     * 备注：—
+     */
+    fun updateQuery(value: String) {
+        query = value
+    }
+
+    /**
+     * toggleGroup
+     * (name: String)
+     * 作用：切换 Group
+     * 备注：—
+     */
+    fun toggleGroup(name: String) {
+        collapsed = if (name in collapsed) collapsed - name else collapsed + name
+    }
+
+    /**
+     * refresh
+     * ()
+     * 作用：刷新
+     * 备注：—
+     */
+    fun refresh() {
+        message = ""
+        revision++
+    }
+
+    /**
+     * open
+     * (param: RuntimeParam)
+     * 作用：打开
+     * 备注：—
+     */
     fun open(param: RuntimeParam) {
         message = ""
         editing = param
     }
 
+    /**
+     * dismiss
+     * ()
+     * 作用：关闭
+     * 备注：—
+     */
     fun dismiss() {
         editing = null
     }
 
+    /**
+     * confirm
+     * (raw: String)
+     * 作用：确认
+     * 备注：—
+     */
     fun confirm(raw: String) {
         val param = editing ?: return
         val ok = runCatching { param.write(raw) }.getOrDefault(false)

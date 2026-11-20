@@ -12,10 +12,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * 液态玻璃质感：半透明底色 + 顶部镜面高光 + 底部回光 + 内阴影 + 一圈细边。
- * 玻璃感主要来自**顶沿那条细而亮的高光**，不是大面积的白色渐变：
- * 高光越高越窄越像玻璃，铺满半个高度就变成一块发白的塑料。
- * 全部走 `drawWithCache`，按压进度在缓存块里读取，拖动过程中不触发重组。
+ * glassSurface
+ * (tintTop: Color, tintBottom: Color, specularAlpha: Float, rimAlpha: Float, shadeAlpha: Float, borderColors: List<Color>, specularHeight: Dp = 2.5.dp, pressProgress: () -> Float = { 0f })
+ * 作用：液态玻璃质感：半透明底色 + 顶部镜面高光 + 底部回光 + 内阴影 + 一圈细边。 玻璃感主要来自**顶沿那条细而亮的高光**，不是大面积的白色渐变： 高光越高越窄越像玻璃，铺满半个高度就变成一块发白的塑料。 全部走 `drawWithCache`，按压进度在缓存块里读取，拖动过程中不触发重组。
+ * 备注：—
  */
 fun Modifier.glassSurface(
     tintTop: Color,
@@ -91,7 +91,12 @@ fun Modifier.glassSurface(
         shape = CircleShape
     )
 
-/** 玻璃描边上沿/下沿的取色：深色下压暗，浅色下提亮。 */
+/**
+ * glassBorderColors
+ * (dark: Boolean)
+ * 作用：玻璃描边上沿/下沿的取色：深色下压暗，浅色下提亮。
+ * 备注：—
+ */
 fun glassBorderColors(dark: Boolean): List<Color> = if (dark) {
     listOf(Color.White.copy(alpha = 0.22f), Color.White.copy(alpha = 0.04f))
 } else {

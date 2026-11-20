@@ -56,7 +56,12 @@ import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
 
-/** 服务策略页：API 总开关、白名单、关闭服务后的处理方式、所有者转移。 */
+/**
+ * SecurityPage
+ * (windowInsets: WindowInsets, navController: NavController)
+ * 作用：服务策略页：API 总开关、白名单、关闭服务后的处理方式、所有者转移。
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecurityPage(
@@ -262,6 +267,12 @@ fun SecurityPage(
     }
 }
 
+/**
+ * FullAccessAppRow
+ * (item: FullAccessAppItem, onCheckedChange: (Boolean) -> Unit)
+ * 作用：执行 FullAccessAppRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun FullAccessAppRow(
     item: FullAccessAppItem,
@@ -302,7 +313,12 @@ private fun FullAccessAppRow(
     }
 }
 
-/** 跳转子页面的入口行 */
+/**
+ * EntryRow
+ * (title: String, desc: String, onClick: () -> Unit)
+ * 作用：跳转子页面的入口行
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EntryRow(
     title: String,
@@ -338,7 +354,12 @@ private fun EntryRow(
     }
 }
 
-/** 开关行：标题 + 描述 + 右侧开关 */
+/**
+ * SwitchEntry
+ * (title: String, desc: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+ * 作用：开关行：标题 + 描述 + 右侧开关
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SwitchEntry(
     title: String,
@@ -365,7 +386,12 @@ private fun SwitchEntry(
     }
 }
 
-/** 折叠选择器头部：常态显示当前项，右侧是展开箭头，点击整行展开/收起。 */
+/**
+ * DenyModeSelector
+ * (current: DenyMode, expanded: Boolean, onToggle: () -> Unit)
+ * 作用：折叠选择器头部：常态显示当前项，右侧是展开箭头，点击整行展开/收起。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun DenyModeSelector(
     current: DenyMode,
@@ -410,6 +436,12 @@ private fun DenyModeSelector(
     }
 }
 
+/**
+ * DenyModeItem
+ * (label: String, desc: String, selected: Boolean, onClick: () -> Unit)
+ * 作用：执行 DenyModeItem
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun DenyModeItem(
     label: String,
@@ -452,6 +484,12 @@ private fun DenyModeItem(
     }
 }
 
+/**
+ * denyModeLabel
+ * (mode: DenyMode)
+ * 作用：执行 denyModeLabel
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun denyModeLabel(mode: DenyMode): String = stringResource(
     when (mode) {
@@ -463,6 +501,12 @@ private fun denyModeLabel(mode: DenyMode): String = stringResource(
     }
 )
 
+/**
+ * denyModeDesc
+ * (mode: DenyMode)
+ * 作用：执行 denyModeDesc
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun denyModeDesc(mode: DenyMode): String = stringResource(
     when (mode) {
@@ -474,7 +518,12 @@ private fun denyModeDesc(mode: DenyMode): String = stringResource(
     }
 )
 
-/** 能力不足处理的选择器头部，样式与 [DenyModeSelector] 一致。暂不在界面展示。 */
+/**
+ * InsufficientSelector
+ * (current: InsufficientMode, expanded: Boolean, onToggle: () -> Unit)
+ * 作用：能力不足处理的选择器头部，样式与 [DenyModeSelector] 一致。暂不在界面展示。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Suppress("unused")
 @Composable
 private fun InsufficientSelector(
@@ -519,6 +568,12 @@ private fun InsufficientSelector(
     }
 }
 
+/**
+ * insufficientLabel
+ * (mode: InsufficientMode)
+ * 作用：执行 insufficientLabel
+ * 备注：Compose 组件；仅内部使用
+ */
 @Suppress("unused")
 @Composable
 private fun insufficientLabel(mode: InsufficientMode): String = stringResource(
@@ -529,6 +584,12 @@ private fun insufficientLabel(mode: InsufficientMode): String = stringResource(
     }
 )
 
+/**
+ * insufficientDesc
+ * (mode: InsufficientMode)
+ * 作用：执行 insufficientDesc
+ * 备注：Compose 组件；仅内部使用
+ */
 @Suppress("unused")
 @Composable
 private fun insufficientDesc(mode: InsufficientMode): String = stringResource(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
@@ -31,8 +32,10 @@ import top.yukonga.miuix.kmp.basic.CardDefaults as MiuixCardDefaults
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
- * 全应用统一的确认弹窗。原版引擎原样转发 Material3；miuix 引擎用组件库的
- * Card 做大圆角容器，并把配色灌回 MaterialTheme，弹窗里的文字与按钮也跟着走。
+ * NeoAlertDialog
+ * (onDismissRequest: () -> Unit, confirmButton: @Composable () -> Unit, modifier: Modifier = Modifier, dismissButton: @Composable (() -> Unit)? = null, icon: @Composable (() -> Unit)? = null, title: @Composable (() -> Unit)? = null, text: @Composable (() -> Unit)? = null, shape: Shape = AlertDialogDefaults.shape, containerColor: Color = AlertDialogDefaults.containerColor, iconContentColor: Color = AlertDialogDefaults.iconContentColor, titleContentColor: Color = AlertDialogDefaults.titleContentColor, textContentColor: Color = AlertDialogDefaults.textContentColor, tonalElevation: Dp = AlertDialogDefaults.TonalElevation, properties: DialogProperties = DialogProperties())
+ * 作用：全应用统一的确认弹窗。原版引擎原样转发 Material3；miuix 引擎用组件库的 Card 做大圆角容器，并把配色灌回 MaterialTheme，弹窗里的文字与按钮也跟着走。
+ * 备注：Compose 组件
  */
 @Composable
 fun NeoAlertDialog(
@@ -87,7 +90,12 @@ fun NeoAlertDialog(
             )
         ) {
             MiuixCard(
-                modifier = modifier.widthIn(min = 280.dp).widthIn(max = 420.dp),
+                // 兜底：内容再长也不把底部按钮行挤出屏幕（具体列表页仍应自行
+                // 限高 + 滚动，这里只防止其它弹窗出现同类溢出）。
+                modifier = modifier
+                    .widthIn(min = 280.dp)
+                    .widthIn(max = 420.dp)
+                    .heightIn(max = 560.dp),
                 cornerRadius = 28.dp,
                 insideMargin = PaddingValues(24.dp),
                 colors = MiuixCardDefaults.defaultColors(
@@ -134,7 +142,12 @@ fun NeoAlertDialog(
     }
 }
 
-/** 全屏 / 自定义内容弹窗，miuix 引擎下把主题色灌回内容树。 */
+/**
+ * NeoDialog
+ * (onDismissRequest: () -> Unit, properties: DialogProperties = DialogProperties(), content: @Composable () -> Unit)
+ * 作用：全屏 / 自定义内容弹窗，miuix 引擎下把主题色灌回内容树。
+ * 备注：Compose 组件
+ */
 @Composable
 fun NeoDialog(
     onDismissRequest: () -> Unit,

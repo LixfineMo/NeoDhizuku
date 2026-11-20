@@ -276,7 +276,12 @@ object DpmApiCatalog {
         return out
     }
 
-    /** 按类型读一个值；读不到时返回 "?"，由调用方判定后回退 */
+    /**
+     * readOne
+     * (data: Parcel, type: ArgType)
+     * 作用：按类型读一个值；读不到时返回 "?"，由调用方判定后回退
+     * 备注：仅内部使用
+     */
     private fun readOne(data: Parcel, type: ArgType): String = when (type) {
         ArgType.STRING -> runCatching { data.readString() }
             .getOrNull()
@@ -306,6 +311,12 @@ object DpmApiCatalog {
         return nameToCode!!
     }
 
+    /**
+     * loadCodeMap
+     * ()
+     * 作用：加载 CodeMap
+     * 备注：仅内部使用
+     */
     private fun loadCodeMap(): Map<Int, String> {
         val result = LinkedHashMap<Int, String>()
         runCatching {
@@ -330,9 +341,10 @@ object DpmApiCatalog {
     }
 
     /**
-     * 事务码 -> 方法名。
-     * 反射的是运行期的 Stub 常量，因此能跟上系统版本变化；
-     * 反射失败时返回 null，调用方会退回显示事务码。
+     * methodName
+     * (code: Int)
+     * 作用：事务码 -> 方法名。 反射的是运行期的 Stub 常量，因此能跟上系统版本变化； 反射失败时返回 null，调用方会退回显示事务码。
+     * 备注：—
      */
     fun methodName(code: Int): String? = codeToName.orElseLoadCodeToName()[code]
 
@@ -365,14 +377,24 @@ object DpmApiCatalog {
         else fillPattern(spec, data)
     }
 
-    /** 目标 binder 的人话短名，用于日志而不是丢一长串接口描述符 */
+    /**
+     * targetLabel
+     * (descriptor: String?)
+     * 作用：目标 binder 的人话短名，用于日志而不是丢一长串接口描述符
+     * 备注：—
+     */
     fun targetLabel(descriptor: String?): String = when {
         descriptor == null -> "未知接口"
         descriptor == DPM_DESCRIPTOR -> "设备策略接口"
         else -> descriptor.substringAfterLast('.')
     }
 
-    /** 日志里的接口标识：人话名 + 方法名括注；都认不出时至少给事务码 */
+    /**
+     * interfaceLabel
+     * (context: Context, descriptor: String?, code: Int)
+     * 作用：日志里的接口标识：人话名 + 方法名括注；都认不出时至少给事务码
+     * 备注：—
+     */
     fun interfaceLabel(context: Context, descriptor: String?, code: Int): String {
         if (descriptor != DPM_DESCRIPTOR) {
             return "${targetLabel(descriptor)}（事务 $code）"
@@ -407,11 +429,22 @@ object DpmApiCatalog {
      * 为空说明反射失败 —— 此时 [isWipe] 会对所有设备策略调用返回 true，
      * 守卫进入保守模式。调用方应据此提示用户，而不是让用户莫名发现"都用不了了"。
      */
-    /** 调试用：丢弃事务码映射缓存，下次访问时重新反射系统 Stub。 */
+    /**
+     * invalidateCache
+     * ()
+     * 作用：调试用：丢弃事务码映射缓存，下次访问时重新反射系统 Stub。
+     * 备注：—
+     */
     fun invalidateCache() {
         codeToName = null
         nameToCode = null
     }
 
+    /**
+     * isCatalogLoaded
+     * ()
+     * 作用：判断 CatalogLoaded
+     * 备注：—
+     */
     fun isCatalogLoaded(): Boolean = codeToName.orElseLoadCodeToName().isNotEmpty()
 }

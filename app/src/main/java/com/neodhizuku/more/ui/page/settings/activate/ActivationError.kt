@@ -23,6 +23,12 @@ enum class ActivationError(
     UNKNOWN(R.string.activate_err_unknown, R.string.activate_err_unknown_advice);
 
     companion object {
+        /**
+         * from
+         * (throwable: Throwable?)
+         * 作用：执行 from
+         * 备注：—
+         */
         fun from(throwable: Throwable?): ActivationError {
             if (throwable == null) return UNKNOWN
             val message = (throwable.message ?: "") + "\n" + throwable::class.java.name
@@ -43,7 +49,12 @@ enum class ActivationError(
             }
         }
 
-        /** 供用户复制的技术诊断信息（保留原始异常，便于提 issue） */
+        /**
+         * diagnostic
+         * (context: Context, throwable: Throwable?)
+         * 作用：供用户复制的技术诊断信息（保留原始异常，便于提 issue）
+         * 备注：—
+         */
         fun diagnostic(context: Context, throwable: Throwable?): String = buildString {
             append("Dhizuku activation failure\n")
             append("device: ").append(Build.MANUFACTURER).append(' ')

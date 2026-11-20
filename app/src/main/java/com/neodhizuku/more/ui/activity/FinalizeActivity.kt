@@ -9,6 +9,12 @@ import com.neodhizuku.more.server.DhizukuState
 import org.koin.core.component.KoinComponent
 
 class FinalizeActivity : ComponentActivity(), KoinComponent {
+    /**
+     * onCreate
+     * (savedInstanceState: Bundle?)
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (NeoDhizuku.on(NeoDhizuku.FixProvisioningFinalize)) {

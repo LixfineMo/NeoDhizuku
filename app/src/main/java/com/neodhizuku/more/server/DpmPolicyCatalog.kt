@@ -150,22 +150,53 @@ object DpmPolicyCatalog {
 
     private val BY_ID: Map<String, DpmDef> = ALL.associateBy { it.id }
 
+    /**
+     * byId
+     * (id: String)
+     * 作用：执行 byId
+     * 备注：—
+     */
     fun byId(id: String): DpmDef? = BY_ID[id]
 
-    /** 未收录的方法一律放行：不以"认不出"为由拦截，避免误伤正常调用 */
+    /**
+     * defaultAllowed
+     * (id: String)
+     * 作用：未收录的方法一律放行：不以"认不出"为由拦截，避免误伤正常调用
+     * 备注：—
+     */
     fun defaultAllowed(id: String): Boolean = BY_ID[id]?.defaultAllowed ?: true
 
-    /** 按分组取，界面分节用；组内高危排在后 */
+    /**
+     * byGroup
+     * (group: Group)
+     * 作用：按分组取，界面分节用；组内高危排在后
+     * 备注：—
+     */
     fun byGroup(group: Group): List<DpmDef> =
         ALL.filter { it.group == group }.sortedBy { if (it.dangerous) 1 else 0 }
 
-    /** 取本地化名称；取不到回退方法名（资源静态直引，release 不会被裁剪） */
+    /**
+     * label
+     * (context: Context, id: String)
+     * 作用：取本地化名称；取不到回退方法名（资源静态直引，release 不会被裁剪）
+     * 备注：—
+     */
     fun label(context: Context, id: String): String = DpmPolicyStrings.name(context, id)
 
-    /** 取本地化说明；取不到回退空串 */
+    /**
+     * desc
+     * (context: Context, id: String)
+     * 作用：取本地化说明；取不到回退空串
+     * 备注：—
+     */
     fun desc(context: Context, id: String): String = DpmPolicyStrings.desc(context, id)
 
-    /** 分组标题。group.key 本身已是 dpm_group_*，不能再加前缀 */
+    /**
+     * groupLabel
+     * (context: Context, group: Group)
+     * 作用：分组标题。group.key 本身已是 dpm_group_*，不能再加前缀
+     * 备注：—
+     */
     fun groupLabel(context: Context, group: Group): String =
         DpmPolicyStrings.group(context, group.key)
 }

@@ -8,6 +8,12 @@ import java.io.OutputStream
 
 import kotlin.concurrent.thread
 
+/**
+ * transferThread
+ * (input: InputStream, output: OutputStream)
+ * 作用：执行 transferThread
+ * 备注：仅内部使用
+ */
 private fun transferThread(input: InputStream, output: OutputStream) {
     thread(
         isDaemon = true
@@ -39,6 +45,12 @@ private fun transferThread(input: InputStream, output: OutputStream) {
     }
 }
 
+/**
+ * parcelable
+ * ()
+ * 作用：执行 parcelable
+ * 备注：—
+ */
 fun InputStream.parcelable(): ParcelFileDescriptor {
     val pipe = ParcelFileDescriptor.createPipe()
     val read = pipe[0]
@@ -47,6 +59,12 @@ fun InputStream.parcelable(): ParcelFileDescriptor {
     return read
 }
 
+/**
+ * parcelable
+ * ()
+ * 作用：执行 parcelable
+ * 备注：—
+ */
 fun OutputStream.parcelable(): ParcelFileDescriptor {
     val pipe = ParcelFileDescriptor.createPipe()
     val read = pipe[0]

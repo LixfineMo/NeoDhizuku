@@ -37,6 +37,12 @@ import androidx.compose.ui.unit.dp
  */
 internal const val GLASS_REFRACTION_SHADER_ENABLED: Boolean = false
 
+/**
+ * glassLens
+ * (refractionHeight: Dp = 24.dp, refractionAmount: Dp = 24.dp, depthEffect: Boolean = false, chromaticAberration: () -> Float = { 0f }, progress: () -> Float = { 1f },)
+ * 作用：执行 glassLens
+ * 备注：Compose 组件
+ */
 @Composable
 internal fun Modifier.glassLens(
     refractionHeight: Dp = 24.dp,

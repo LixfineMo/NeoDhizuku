@@ -34,6 +34,12 @@ import java.io.File
  */
 object AppResetter : KoinComponent {
 
+    /**
+     * reset
+     * (context: Context)
+     * 作用：复位
+     * 备注：—
+     */
     fun reset(context: Context) {
         val app = context.applicationContext
 
@@ -89,7 +95,12 @@ object AppResetter : KoinComponent {
         NeoLog.i(NeoLog.BOOT) { "重置：应用数据已清空，准备退出管理器" }
     }
 
-    /** 结束整个任务栈并杀掉进程，等用户重新点图标进入。 */
+    /**
+     * exit
+     * (activity: Activity)
+     * 作用：结束整个任务栈并杀掉进程，等用户重新点图标进入。
+     * 备注：—
+     */
     fun exit(activity: Activity) {
         runCatching { activity.finishAffinity() }
         Process.killProcess(Process.myPid())
@@ -97,7 +108,12 @@ object AppResetter : KoinComponent {
     }
 }
 
-/** 从 Compose 的 Context 里找到宿主 Activity。 */
+/**
+ * findActivity
+ * ()
+ * 作用：从 Compose 的 Context 里找到宿主 Activity。
+ * 备注：—
+ */
 internal fun Context.findActivity(): Activity? {
     var current: Context = this
     while (current is ContextWrapper) {

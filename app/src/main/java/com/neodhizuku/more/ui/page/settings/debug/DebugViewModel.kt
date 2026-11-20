@@ -30,6 +30,12 @@ data class DebugState(
     val officialBase: String = UpdateLinks.OFFICIAL_BASE_DEFAULT,
     val timeoutMs: Int = UpdateConfig.DEFAULT_TIMEOUT_MS
 ) {
+    /**
+     * toConfig
+     * ()
+     * 作用：执行 toConfig
+     * 备注：—
+     */
     fun toConfig(): UpdateConfig = UpdateConfig(
         source = source,
         allowInsecure = allowInsecure,
@@ -64,8 +70,18 @@ class DebugViewModel : ViewModel(), KoinComponent {
     var draftTimeout by mutableStateOf("")
         private set
 
+    /** 保存 / 还原的结果，界面直接展示原文 */
+    var message by mutableStateOf("")
+        private set
+
     private var loaded = false
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         if (loaded) return
         loaded = true
@@ -99,48 +115,99 @@ class DebugViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    /**
+     * editOfficialBase
+     * (value: String)
+     * 作用：执行 editOfficialBase
+     * 备注：—
+     */
     fun editOfficialBase(value: String) {
         draftOfficialBase = value
     }
 
+    /**
+     * editCustomUrl
+     * (value: String)
+     * 作用：执行 editCustomUrl
+     * 备注：—
+     */
     fun editCustomUrl(value: String) {
         draftCustomUrl = value
     }
 
+    /**
+     * editTimeout
+     * (value: String)
+     * 作用：执行 editTimeout
+     * 备注：—
+     */
     fun editTimeout(value: String) {
         draftTimeout = value.filter { it.isDigit() }
     }
 
+    /**
+     * setSource
+     * (source: UpdateSource)
+     * 作用：设置 Source
+     * 备注：—
+     */
     fun setSource(source: UpdateSource) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.updateSource = source.key
         }
     }
 
+    /**
+     * setAllowInsecure
+     * (enabled: Boolean)
+     * 作用：设置 AllowInsecure
+     * 备注：—
+     */
     fun setAllowInsecure(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.isUpdateAllowInsecure = enabled
         }
     }
 
-    /** 把编辑框里的内容写进设置。 */
+    /**
+     * save
+     * ()
+     * 作用：把编辑框里的内容写进设置；超时越界时不落库，避免把检测卡死。
+     * 备注：—
+     */
     fun save() {
+        val timeout = draftTimeout.toIntOrNull()
+        if (timeout == null || timeout !in 1_000..120_000) {
+            message = "timeout must be 1000..120000"
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepo.debugOfficialBase = draftOfficialBase
             settingsRepo.updateCustomUrl = draftCustomUrl
-            val timeout = draftTimeout.toIntOrNull()
-            if (timeout != null) settingsRepo.debugTimeoutMs = timeout
+            settingsRepo.debugTimeoutMs = timeout
+            withContext(Dispatchers.Main) { message = "saved" }
         }
     }
 
-    /** 放弃改动，回到已保存的值。 */
+    /**
+     * reset
+     * ()
+     * 作用：放弃改动，回到已保存的值。
+     * 备注：—
+     */
     fun reset() {
         draftOfficialBase = state.officialBase
         draftCustomUrl = state.customUrl
         draftTimeout = state.timeoutMs.toString()
+        message = "reverted"
     }
 
-    /** 拉官方服务器上的最新 Build，按日期号比较。 */
+    /**
+     * fetchLatestBuild
+     * ()
+     * 作用：拉官方服务器上的最新 Build，按日期号比较。
+     * 备注：—
+     */
     fun fetchLatestBuild() {
         if (buildState is BuildState.Loading) return
         viewModelScope.launch {

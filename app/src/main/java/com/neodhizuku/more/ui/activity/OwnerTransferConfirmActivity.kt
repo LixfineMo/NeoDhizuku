@@ -9,6 +9,12 @@ import androidx.activity.ComponentActivity
  * 这里只把用户带到设置页，不再写入任何一次性放行标记。
  */
 class OwnerTransferConfirmActivity : ComponentActivity() {
+    /**
+     * onCreate
+     * (savedInstanceState: Bundle?)
+     * 作用：处理 Create 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         runCatching {

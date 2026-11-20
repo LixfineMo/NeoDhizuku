@@ -46,7 +46,12 @@ import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
-/** 黑名单页面：只列出被拉黑的应用，可单独解除。 */
+/**
+ * BlocklistPage
+ * (windowInsets: WindowInsets, navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp), viewModel: BlocklistViewModel = koinViewModel())
+ * 作用：黑名单页面：只列出被拉黑的应用，可单独解除。
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BlocklistPage(
@@ -100,6 +105,12 @@ fun BlocklistPage(
     }
 }
 
+/**
+ * BlockedItem
+ * (data: AppManagementViewData, onUnblock: () -> Unit)
+ * 作用：执行 BlockedItem
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun BlockedItem(
     data: AppManagementViewData,

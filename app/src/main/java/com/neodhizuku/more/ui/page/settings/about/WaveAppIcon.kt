@@ -103,16 +103,22 @@ private class WaveLayer(
     val alpha: Float
 )
 
-/** 图标下方的一层：不透明，构成液体的主体。 */
+/**
+ * buildBackLayers
+ * (c1: Color, c2: Color, c3: Color)
+ * 作用：图标下方的一层：不透明，构成液体的主体。
+ * 备注：仅内部使用
+ */
 private fun buildBackLayers(c1: Color, c2: Color, c3: Color): List<WaveLayer> = listOf(
     WaveLayer(0.075f, 0.96f, 0.62f, 1.00f, 0.0f, listOf(c1, c2, c1), 1.00f),
     WaveLayer(0.085f, 0.74f, 0.47f, -0.72f, 1.1f, listOf(c2, c3, c2), 0.92f)
 )
 
 /**
- * 图标上方的一层：半透明，盖在图标上，图标因此是"泡在液体里"而不是浮在表面。
- * 三层的 alpha 都压得比较低：叠加后对图标的覆盖约四成，图标仍看得清，
- * 但边缘明显有颜色流过 —— 全部堆到不透明就等于把图标埋掉了。
+ * buildFrontLayers
+ * (c1: Color, c2: Color)
+ * 作用：图标上方的一层：半透明，盖在图标上，图标因此是"泡在液体里"而不是浮在表面。 三层的 alpha 都压得比较低：叠加后对图标的覆盖约四成，图标仍看得清， 但边缘明显有颜色流过 —— 全部堆到不透明就等于把图标埋掉了。
+ * 备注：仅内部使用
  */
 private fun buildFrontLayers(c1: Color, c2: Color): List<WaveLayer> {
     // 首尾同色，渐变在重复平铺时才不会有接缝
@@ -129,6 +135,12 @@ private fun buildFrontLayers(c1: Color, c2: Color): List<WaveLayer> {
     )
 }
 
+/**
+ * drawWaves
+ * (phase: Float, layers: List<WaveLayer>)
+ * 作用：执行 drawWaves
+ * 备注：仅内部使用
+ */
 private fun DrawScope.drawWaves(phase: Float, layers: List<WaveLayer>) {
     val w = size.width
     val h = size.height
@@ -203,6 +215,12 @@ fun WaveAppIcon(onTap: () -> Unit) {
         val sensor = manager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val listener = if (manager != null && sensor != null) {
             object : SensorEventListener {
+                /**
+                 * onSensorChanged
+                 * (event: SensorEvent)
+                 * 作用：处理 SensorChanged 回调
+                 * 备注：重写父类 / 接口方法
+                 */
                 override fun onSensorChanged(event: SensorEvent) {
                     // 低通，避免手抖让方向来回跳
                     val x = event.values.getOrNull(0) ?: return
@@ -216,6 +234,12 @@ fun WaveAppIcon(onTap: () -> Unit) {
                     if (holder.value > holder.maxSeen) holder.maxSeen = holder.value
                 }
 
+                /**
+                 * onAccuracyChanged
+                 * (sensor: Sensor?, accuracy: Int)
+                 * 作用：处理 AccuracyChanged 回调
+                 * 备注：重写父类 / 接口方法
+                 */
                 override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
             }
         } else {
@@ -380,6 +404,12 @@ fun WaveAppIcon(onTap: () -> Unit) {
     }
 }
 
+/**
+ * loadSelfIcon
+ * (context: Context)
+ * 作用：加载 SelfIcon
+ * 备注：仅内部使用
+ */
 private fun loadSelfIcon(context: Context) = try {
     context.packageManager.getApplicationIcon(BuildConfig.APPLICATION_ID)
 } catch (_: PackageManager.NameNotFoundException) {

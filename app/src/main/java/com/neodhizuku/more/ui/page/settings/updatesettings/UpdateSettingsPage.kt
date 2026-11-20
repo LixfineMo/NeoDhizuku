@@ -46,6 +46,12 @@ import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * UpdateSettingsPage
+ * (windowInsets: WindowInsets, navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp), viewModel: UpdateSettingsViewModel = koinViewModel())
+ * 作用：执行 UpdateSettingsPage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateSettingsPage(
@@ -181,6 +187,12 @@ fun UpdateSettingsPage(
     }
 }
 
+/**
+ * sourceLabel
+ * (source: UpdateSource)
+ * 作用：执行 sourceLabel
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun sourceLabel(source: UpdateSource): String = stringResource(
     when (source) {
@@ -190,6 +202,12 @@ private fun sourceLabel(source: UpdateSource): String = stringResource(
     }
 )
 
+/**
+ * SourceDialog
+ * (current: UpdateSource, onPick: (UpdateSource) -> Unit, onDismiss: () -> Unit)
+ * 作用：执行 SourceDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SourceDialog(
     current: UpdateSource,
@@ -262,6 +280,12 @@ private fun SourceDialog(
     )
 }
 
+/**
+ * EntryRow
+ * (title: String, desc: String, onClick: (() -> Unit)? = null)
+ * 作用：执行 EntryRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EntryRow(
     title: String,
@@ -288,6 +312,12 @@ private fun EntryRow(
     }
 }
 
+/**
+ * SwitchEntry
+ * (title: String, desc: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+ * 作用：执行 SwitchEntry
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SwitchEntry(
     title: String,

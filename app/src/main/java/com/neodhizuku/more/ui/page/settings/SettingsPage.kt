@@ -70,7 +70,6 @@ import com.neodhizuku.more.ui.page.settings.app_management.AppManagementPage
 import com.neodhizuku.more.ui.page.settings.blocklist.BlocklistPage
 import com.neodhizuku.more.ui.page.settings.calllog.CallLogPage
 import com.neodhizuku.more.ui.page.settings.delegation.DelegationPage
-import com.neodhizuku.more.ui.page.settings.experimental.Cve98432Page
 import com.neodhizuku.more.ui.page.settings.experimental.ExperimentalPage
 import com.neodhizuku.more.ui.page.settings.home.HomePage
 import com.neodhizuku.more.ui.page.settings.owneridentity.OwnerIdentityPage
@@ -89,7 +88,12 @@ import kotlinx.coroutines.launch
 // 容器页本身也叫 SettingsPage，与子页同名；用别名避免解析歧义
 import com.neodhizuku.more.ui.page.settings.settings.SettingsPage as SettingsScreen
 
-/** 应用主容器：底栏四页用 Pager 承载，其余页面仍是独立路由。 */
+/**
+ * SettingsPage
+ * (windowInsets: WindowInsets)
+ * 作用：应用主容器：底栏四页用 Pager 承载，其余页面仍是独立路由。
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsPage(windowInsets: WindowInsets) {
@@ -240,15 +244,7 @@ fun SettingsPage(windowInsets: WindowInsets) {
                         GlassNavBar(
                             tabs = tabs,
                             selectedIndex = { pagerState.currentPage },
-                            // 连续页码：药丸逐帧跟着 Pager 走，而不是对每个整数页
-                            // 单独跑一段动画（那样会在中间页停住）
-                            selectedPosition = {
-                                (pagerState.currentPage + pagerState.currentPageOffsetFraction)
-                                    .coerceIn(0f, (tabs.size - 1).coerceAtLeast(0).toFloat())
-                            },
                             onNavigate = onSelectTab,
-                            // 拖动松手后直接对齐
-                            onSettleTab = settleTab,
                             backdrop = glassBackdrop,
                         )
                     } else {
@@ -398,12 +394,6 @@ fun SettingsPage(windowInsets: WindowInsets) {
             }
             composable(route = SettingsRoute.Experimental.route) {
                 ExperimentalPage(
-                    windowInsets = windowInsets,
-                    navController = navController
-                )
-            }
-            composable(route = SettingsRoute.Cve98432.route) {
-                Cve98432Page(
                     windowInsets = windowInsets,
                     navController = navController
                 )

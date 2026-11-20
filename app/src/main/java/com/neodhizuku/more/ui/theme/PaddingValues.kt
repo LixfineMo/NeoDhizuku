@@ -6,6 +6,12 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalLayoutDirection
 
+/**
+ * combine
+ * (other: PaddingValues)
+ * 作用：执行 combine
+ * 备注：Compose 组件
+ */
 @Composable
 fun PaddingValues.combine(other: PaddingValues): PaddingValues {
     val layoutDirection = LocalLayoutDirection.current
@@ -19,6 +25,12 @@ fun PaddingValues.combine(other: PaddingValues): PaddingValues {
     )
 }
 
+/**
+ * combineBottom
+ * (extra: androidx.compose.ui.unit.Dp)
+ * 作用：执行 combineBottom
+ * 备注：Compose 组件
+ */
 @Composable
 fun PaddingValues.combineBottom(extra: androidx.compose.ui.unit.Dp): PaddingValues {
     val layoutDirection = LocalLayoutDirection.current

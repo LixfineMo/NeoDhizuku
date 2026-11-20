@@ -18,6 +18,12 @@ enum class UiEngine(val key: String) {
     MIUIX("miuix");
 
     companion object {
+        /**
+         * from
+         * (key: String?)
+         * 作用：执行 from
+         * 备注：—
+         */
         fun from(key: String?): UiEngine = when (key) {
             // 旧版本把该引擎存成 kernelsu，升级后要继续识别，避免退回原版。
             "miuix", "kernelsu" -> MIUIX
@@ -39,6 +45,12 @@ object UiEngineStore {
     private val _engine = MutableStateFlow(UiEngine.ORIGINAL)
     val engine: StateFlow<UiEngine> = _engine
 
+    /**
+     * init
+     * (context: Context)
+     * 作用：初始化
+     * 备注：—
+     */
     fun init(context: Context) {
         val app = context.applicationContext
         _engine.value = UiEngine.from(
@@ -46,6 +58,12 @@ object UiEngineStore {
         )
     }
 
+    /**
+     * set
+     * (context: Context, value: UiEngine)
+     * 作用：设置
+     * 备注：—
+     */
     fun set(context: Context, value: UiEngine) {
         val app = context.applicationContext
         app.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {

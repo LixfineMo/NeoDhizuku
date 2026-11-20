@@ -36,7 +36,12 @@ enum class InsufficientMode {
         /** 默认值：返回失败 */
         val DEFAULT = RETURN_FAIL
 
-        /** 从持久化值还原；无法识别时回退到 [DEFAULT] */
+        /**
+         * from
+         * (value: String?)
+         * 作用：从持久化值还原；无法识别时回退到 [DEFAULT]
+         * 备注：—
+         */
         fun from(value: String?): InsufficientMode =
             entries.firstOrNull { it.name == value } ?: DEFAULT
     }

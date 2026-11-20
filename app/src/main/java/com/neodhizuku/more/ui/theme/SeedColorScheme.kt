@@ -18,6 +18,12 @@ private const val HUE_SHIFT_TERTIARY = 52f
 /** 中性面允许掺入的最大饱和度，超过会让整屏发色、正文难读。 */
 private const val MAX_NEUTRAL_SATURATION = 0.10f
 
+/**
+ * hsv
+ * (h: Float, s: Float, v: Float)
+ * 作用：执行 hsv
+ * 备注：仅内部使用
+ */
 private fun hsv(h: Float, s: Float, v: Float): Color {
     val hue = ((h % 360f) + 360f) % 360f
     return Color(
@@ -27,6 +33,12 @@ private fun hsv(h: Float, s: Float, v: Float): Color {
     )
 }
 
+/**
+ * seedHsv
+ * (seed: Color)
+ * 作用：执行 seedHsv
+ * 备注：仅内部使用
+ */
 private fun seedHsv(seed: Color): FloatArray {
     val out = FloatArray(3)
     android.graphics.Color.colorToHSV(seed.toArgb(), out)
@@ -34,8 +46,10 @@ private fun seedHsv(seed: Color): FloatArray {
 }
 
 /**
- * 只负责按种子色推导配色，不处理 AMOLED。
- * 纯黑统一由调用方套 [applyAmoled]，否则 Monet 与种子色两条路径会压出两套结果。
+ * buildSeedColorScheme
+ * (seed: Color, dark: Boolean)
+ * 作用：只负责按种子色推导配色，不处理 AMOLED。 纯黑统一由调用方套 [applyAmoled]，否则 Monet 与种子色两条路径会压出两套结果。
+ * 备注：—
  */
 fun buildSeedColorScheme(seed: Color, dark: Boolean): ColorScheme {
     val base = seedHsv(seed)

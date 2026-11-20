@@ -25,17 +25,30 @@ object BackgroundImageStore {
     /** 长边上限：超出就按比例缩小，避免大图常驻内存。 */
     private const val MAX_EDGE = 1440
 
+    /**
+     * file
+     * (context: Context)
+     * 作用：执行 file
+     * 备注：—
+     */
     fun file(context: Context): File = File(File(context.filesDir, DIR_NAME), FILE_NAME)
 
+    /**
+     * exists
+     * (context: Context)
+     * 作用：执行 exists
+     * 备注：—
+     */
     fun exists(context: Context): Boolean {
         val f = file(context)
         return f.exists() && f.length() > 0
     }
 
     /**
-     * 从 [uri] 导入背景图。
-     * 分两步解码：先只读尺寸算出采样率，再按采样率真正解码，
-     * 避免直接把原图整张读进内存。
+     * import
+     * (context: Context, uri: Uri)
+     * 作用：从 [uri] 导入背景图。 分两步解码：先只读尺寸算出采样率，再按采样率真正解码， 避免直接把原图整张读进内存。
+     * 备注：—
      */
     fun import(context: Context, uri: Uri): Boolean {
         return runCatching {
@@ -94,6 +107,12 @@ object BackgroundImageStore {
         }
     }
 
+    /**
+     * scaleIfNeeded
+     * (src: Bitmap)
+     * 作用：执行 scaleIfNeeded
+     * 备注：仅内部使用
+     */
     private fun scaleIfNeeded(src: Bitmap): Bitmap {
         val maxEdge = maxOf(src.width, src.height)
         if (maxEdge <= MAX_EDGE) return src
@@ -106,6 +125,12 @@ object BackgroundImageStore {
         )
     }
 
+    /**
+     * clear
+     * (context: Context)
+     * 作用：清空
+     * 备注：—
+     */
     fun clear(context: Context) {
         runCatching {
             val f = file(context)

@@ -45,6 +45,12 @@ class BlocklistViewModel : ViewModel(), KoinComponent {
 
     private var job: Job? = null
 
+    /**
+     * collect
+     * ()
+     * 作用：收集
+     * 备注：—
+     */
     fun collect() {
         state = state.copy(loading = true)
         job?.cancel()
@@ -77,7 +83,12 @@ class BlocklistViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    /** 解除拉黑 */
+    /**
+     * unblock
+     * (uid: Int)
+     * 作用：解除拉黑
+     * 备注：—
+     */
     fun unblock(uid: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val signature = packageManager.getPackageInfoForUid(uid)?.signature ?: return@launch

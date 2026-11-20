@@ -16,8 +16,6 @@ sealed class SettingsRoute(val route: String) {
     /** DAX 化 Xposed 模块：作用域与行为配置 */
     data object HookConfig : SettingsRoute("hook_config")
     data object Experimental : SettingsRoute("experimental")
-    /** 内核漏洞实验室：导入 boot.img、环境自检、执行日志 */
-    data object Cve98432 : SettingsRoute("cve_98432")
     data object Delegation : SettingsRoute("delegation")
     data object Theme : SettingsRoute("theme")
     data object About : SettingsRoute("about")
@@ -31,6 +29,12 @@ sealed class SettingsRoute(val route: String) {
     data object DebugServiceFiles : SettingsRoute("debug_service_files")
     /** [key] 是私有文件相对路径的 URL-safe Base64，不含斜杠 */
     data object DebugServiceFileEdit : SettingsRoute("debug_service_file/{key}") {
+        /**
+         * route
+         * (key: String)
+         * 作用：执行 route
+         * 备注：—
+         */
         fun route(key: String) = "debug_service_file/$key"
     }
     data object QuickActivate : SettingsRoute("quick_activate")
@@ -40,6 +44,12 @@ sealed class SettingsRoute(val route: String) {
             Shizuku;
         }
 
+        /**
+         * route
+         * (mode: Mode)
+         * 作用：执行 route
+         * 备注：—
+         */
         fun route(mode: Mode) = "activate/${mode.name}"
     }
 }

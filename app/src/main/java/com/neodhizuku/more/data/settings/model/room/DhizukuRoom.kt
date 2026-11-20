@@ -30,6 +30,12 @@ import org.koin.core.component.get
 )
 abstract class DhizukuRoom : RoomDatabase() {
     companion object : KoinComponent {
+        /**
+         * createInstance
+         * ()
+         * 作用：创建 Instance
+         * 备注：—
+         */
         fun createInstance(): DhizukuRoom {
             var context: Context = get()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
@@ -56,6 +62,12 @@ abstract class DhizukuRoom : RoomDatabase() {
 
     abstract val runtimeLogDao: RuntimeLogDao
 
+    /**
+     * trimLogs
+     * (retentionMillis: Long)
+     * 作用：执行 trimLogs
+     * 备注：挂起函数
+     */
     suspend fun trimLogs(retentionMillis: Long) {
         val before = System.currentTimeMillis() - retentionMillis
         auditDao.deleteBefore(before)

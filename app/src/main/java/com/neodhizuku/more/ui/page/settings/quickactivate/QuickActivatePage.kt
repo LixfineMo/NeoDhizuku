@@ -67,6 +67,12 @@ import com.neodhizuku.more.ui.theme.exclude
 
 import kotlinx.coroutines.launch
 
+/**
+ * QuickActivatePage
+ * (windowInsets: WindowInsets, navController: NavController)
+ * 作用：执行 QuickActivatePage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickActivatePage(
@@ -236,6 +242,12 @@ fun QuickActivatePage(
     }
 }
 
+/**
+ * WarningCard
+ * ()
+ * 作用：执行 WarningCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun WarningCard() {
     NeoCard(
@@ -273,6 +285,12 @@ private fun WarningCard() {
     }
 }
 
+/**
+ * UnsupportedCard
+ * ()
+ * 作用：执行 UnsupportedCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun UnsupportedCard() {
     NeoCard(
@@ -301,6 +319,12 @@ private fun UnsupportedCard() {
     }
 }
 
+/**
+ * StepCard
+ * (index: Int, title: String, description: String, buttonText: String, enabled: Boolean, onClick: () -> Unit)
+ * 作用：执行 StepCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun StepCard(
     index: Int,
@@ -348,6 +372,12 @@ private fun StepCard(
     }
 }
 
+/**
+ * ResultDialog
+ * (ok: Boolean, text: String, onDismiss: () -> Unit)
+ * 作用：执行 ResultDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ResultDialog(ok: Boolean, text: String, onDismiss: () -> Unit) {
     AlertDialog(
@@ -379,6 +409,12 @@ private fun ResultDialog(ok: Boolean, text: String, onDismiss: () -> Unit) {
     )
 }
 
+/**
+ * CommandDialog
+ * (onDismiss: () -> Unit)
+ * 作用：执行 CommandDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun CommandDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current

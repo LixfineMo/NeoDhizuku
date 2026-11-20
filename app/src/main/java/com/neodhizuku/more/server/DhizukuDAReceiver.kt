@@ -11,12 +11,24 @@ import com.neodhizuku.more.R
 import org.koin.core.component.KoinComponent
 
 class DhizukuDAReceiver : DeviceAdminReceiver(), KoinComponent {
+    /**
+     * onReceive
+     * (context: Context, intent: Intent)
+     * 作用：处理 Receive 回调
+     * 备注：重写父类 / 接口方法
+     */
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         DaemonReceiver().onReceive(context, intent)
     }
 
+    /**
+     * onEnabled
+     * (context: Context, intent: Intent)
+     * 作用：处理 Enabled 回调
+     * 备注：重写父类 / 接口方法
+     */
     override fun onEnabled(context: Context, intent: Intent) {
         val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
         super.onEnabled(context, intent)

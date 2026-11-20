@@ -129,17 +129,35 @@ object ApiPolicyCatalog {
         }
     }
 
+    /**
+     * byId
+     * (id: String)
+     * 作用：执行 byId
+     * 备注：—
+     */
     fun byId(id: String): ApiDef? = BY_ID[id]
 
-    /** 按 func 反查；未纳管的 func 返回 null（保持放行，不以未知为由拦截） */
+    /**
+     * byFunc
+     * (func: String?)
+     * 作用：按 func 反查；未纳管的 func 返回 null（保持放行，不以未知为由拦截）
+     * 备注：—
+     */
     fun byFunc(func: String?): ApiDef? = BY_FUNC[func]
 
-    /** 未纳管的 func 返回 null（保持放行，不以未知为由拦截） */
+    /**
+     * defaultAllowed
+     * (id: String)
+     * 作用：未纳管的 func 返回 null（保持放行，不以未知为由拦截）
+     * 备注：—
+     */
     fun defaultAllowed(id: String): Boolean = BY_ID[id]?.defaultAllowed ?: true
 
     /**
-     * 日志用的人话名。
-     * 认不出时原样返回 func，保证日志里总能看出在调什么。
+     * labelOf
+     * (func: String?)
+     * 作用：日志用的人话名。 认不出时原样返回 func，保证日志里总能看出在调什么。
+     * 备注：—
      */
     fun labelOf(func: String?): String = BY_FUNC[func]?.label ?: (func ?: "查询授权状态")
 }

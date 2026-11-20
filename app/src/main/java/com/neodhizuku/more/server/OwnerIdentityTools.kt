@@ -43,19 +43,30 @@ object OwnerIdentityTools {
 
     data class ActionResult(val ok: Boolean, val detail: String)
 
+    /**
+     * dpm
+     * (context: Context)
+     * 作用：执行 dpm
+     * 备注：仅内部使用
+     */
     private fun dpm(context: Context): DevicePolicyManager =
         context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
 
-    /** 当前这个实例是否就是设备所有者 —— 转移操作的必要前提。 */
+    /**
+     * isSelfDeviceOwner
+     * (context: Context)
+     * 作用：当前这个实例是否就是设备所有者 —— 转移操作的必要前提。
+     * 备注：—
+     */
     fun isSelfDeviceOwner(context: Context): Boolean = runCatching {
         dpm(context).isDeviceOwnerApp(context.packageName)
     }.getOrDefault(false)
 
     /**
-     * 枚举可作为操作对象的管理员组件。
-     * 主来源是 PackageManager 的 receiver 查询：它不要求调用方是 DO，
-     * 因此「两个都未激活」时也能列出来。activeAdmins 只用来补充
-     * 「已激活」标记，拿不到（无权限）也不影响列表完整性。
+     * candidates
+     * (context: Context)
+     * 作用：枚举可作为操作对象的管理员组件。 主来源是 PackageManager 的 receiver 查询：它不要求调用方是 DO， 因此「两个都未激活」时也能列出来。activeAdmins 只用来补充 「已激活」标记，拿不到（无权限）也不影响列表完整性。
+     * 备注：—
      */
     fun candidates(context: Context): List<Entry> {
         val pm = context.packageManager
@@ -112,10 +123,10 @@ object OwnerIdentityTools {
     }
 
     /**
-     * 移除一个设备管理员组件（含被改过包名的实例）。
-     * 优先走 DPM：调用方是 DO、或目标就是自己的 admin 组件时可用。
-     * 若目标包名本身仍是 device owner，再试一次 clearDeviceOwnerApp
-     * （只有 DO 自己能调，参数不符时系统会抛异常，这里吞掉即可）。
+     * remove
+     * (context: Context, target: ComponentName)
+     * 作用：移除一个设备管理员组件（含被改过包名的实例）。 优先走 DPM：调用方是 DO、或目标就是自己的 admin 组件时可用。 若目标包名本身仍是 device owner，再试一次 clearDeviceOwnerApp （只有 DO 自己能调，参数不符时系统会抛异常，这里吞掉即可）。
+     * 备注：—
      */
     @Suppress("DEPRECATION")
     fun remove(context: Context, target: ComponentName): ActionResult {
@@ -146,9 +157,10 @@ object OwnerIdentityTools {
     }
 
     /**
-     * 用 shell 身份强清残留。adb shell dpm 允许 remove-active-admin，
-     * 这是「系统显示未激活、卸载却报设备管理器」这种错位状态最有效的解法。
-     * 组件名先用 unflattenFromString 规范化，避免把用户输入直接拼进命令。
+     * removeViaShell
+     * (context: Context, target: ComponentName)
+     * 作用：用 shell 身份强清残留。adb shell dpm 允许 remove-active-admin， 这是「系统显示未激活、卸载却报设备管理器」这种错位状态最有效的解法。 组件名先用 unflattenFromString 规范化，避免把用户输入直接拼进命令。
+     * 备注：挂起函数
      */
     suspend fun removeViaShell(context: Context, target: ComponentName): ActionResult {
         val flat = target.flattenToShortString()
@@ -209,7 +221,12 @@ object OwnerIdentityTools {
         }
     }
 
-    /** 解析用户手输的 `pkg/cls`，非法输入返回 null。 */
+    /**
+     * parse
+     * (raw: String)
+     * 作用：解析用户手输的 `pkg/cls`，非法输入返回 null。
+     * 备注：—
+     */
     fun parse(raw: String): ComponentName? = runCatching {
         val text = raw.trim()
         if (text.isEmpty()) return null

@@ -53,7 +53,12 @@ data object DhizukuState : KoinComponent {
     var state by mutableStateOf(State())
         private set
 
-    /** 调试用：直接覆盖内存中的身份状态；下一次 sync 会按系统真实值重算。 */
+    /**
+     * setDebugState
+     * (deviceOwner: Boolean, profileOwner: Boolean, deviceAdmin: Boolean)
+     * 作用：调试用：直接覆盖内存中的身份状态；下一次 sync 会按系统真实值重算。
+     * 备注：—
+     */
     fun setDebugState(deviceOwner: Boolean, profileOwner: Boolean, deviceAdmin: Boolean) {
         state = State(deviceOwner, profileOwner, deviceAdmin)
     }
@@ -69,6 +74,12 @@ data object DhizukuState : KoinComponent {
 
     private val syncing = AtomicBoolean(false)
 
+    /**
+     * sync
+     * (context: Context)
+     * 作用：同步
+     * 备注：—
+     */
     fun sync(context: Context) {
         val dpm =
             context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
@@ -153,14 +164,31 @@ data object DhizukuState : KoinComponent {
         return out
     }
 
-    /** 供界面展示的三项原始状态，用于判断身份是否残留 */
+    /**
+     * snapshot
+     * (context: Context)
+     * 作用：供界面展示的三项原始状态，用于判断身份是否残留
+     * 备注：—
+     */
     fun snapshot(context: Context): State {
         syncQuiet(context)
         return state
     }
 
+    /**
+     * syncQuiet
+     * (context: Context)
+     * 作用：同步 Quiet
+     * 备注：仅内部使用
+     */
     private fun syncQuiet(context: Context) = runCatching { sync(context) }
 
+    /**
+     * onReceive
+     * (context: Context, dpm: DevicePolicyManager, admin: ComponentName, current: State = state)
+     * 作用：处理 Receive 回调
+     * 备注：仅内部使用
+     */
     private fun onReceive(
         context: Context,
         dpm: DevicePolicyManager,
@@ -173,13 +201,31 @@ data object DhizukuState : KoinComponent {
         autoDaemonService(context, current)
     }
 
+    /**
+     * onEnabled
+     * (context: Context, dpm: DevicePolicyManager, admin: ComponentName)
+     * 作用：处理 Enabled 回调
+     * 备注：仅内部使用
+     */
     private fun onEnabled(context: Context, dpm: DevicePolicyManager, admin: ComponentName) {
         grantPermissions(context, dpm, admin)
     }
 
+    /**
+     * onDisabled
+     * (context: Context, dpm: DevicePolicyManager, admin: ComponentName)
+     * 作用：处理 Disabled 回调
+     * 备注：仅内部使用
+     */
     private fun onDisabled(context: Context, dpm: DevicePolicyManager, admin: ComponentName) {
     }
 
+    /**
+     * grantPermissions
+     * (context: Context, dpm: DevicePolicyManager, admin: ComponentName)
+     * 作用：执行 grantPermissions
+     * 备注：仅内部使用
+     */
     private fun grantPermissions(context: Context, dpm: DevicePolicyManager, admin: ComponentName) {
         val permissions = getAllRequestedPermissions(context, admin).filter {
             it ?: return@filter false
@@ -202,6 +248,12 @@ data object DhizukuState : KoinComponent {
         }
     }
 
+    /**
+     * getAllRequestedPermissions
+     * (context: Context, admin: ComponentName)
+     * 作用：读取 AllRequestedPermissions
+     * 备注：仅内部使用
+     */
     private fun getAllRequestedPermissions(context: Context, admin: ComponentName) = try {
         val packageInfo: PackageInfo =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -221,6 +273,12 @@ data object DhizukuState : KoinComponent {
         emptyArray()
     }
 
+    /**
+     * getPermissionInfo
+     * (context: Context, permission: String)
+     * 作用：读取 PermissionInfo
+     * 备注：仅内部使用
+     */
     private fun getPermissionInfo(context: Context, permission: String) = try {
         context.packageManager.getPermissionInfo(permission, 0)
     } catch (e: Exception) {
@@ -228,14 +286,21 @@ data object DhizukuState : KoinComponent {
     }
 
     /**
-     * 同步拉起守护服务，供 BroadcastReceiver 在 onReceive 内调用。
-     * [sync] 的副作用跑在 IO 协程上，开机这种冷启动场景下协程可能来不及执行，
-     * 进程就已经被回收。接收器必须有一个同步入口把服务启动请求发出去。
+     * startDaemonNow
+     * (context: Context)
+     * 作用：同步拉起守护服务，供 BroadcastReceiver 在 onReceive 内调用。 [sync] 的副作用跑在 IO 协程上，开机这种冷启动场景下协程可能来不及执行， 进程就已经被回收。接收器必须有一个同步入口把服务启动请求发出去。
+     * 备注：—
      */
     fun startDaemonNow(context: Context) {
         autoDaemonService(context.applicationContext, state)
     }
 
+    /**
+     * autoDaemonService
+     * (context: Context, current: State = state)
+     * 作用：执行 autoDaemonService
+     * 备注：仅内部使用
+     */
     private fun autoDaemonService(context: Context, current: State = state) {
         val intent = Intent(context, DaemonService::class.java)
 

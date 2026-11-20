@@ -70,6 +70,12 @@ import com.neodhizuku.more.ui.theme.combine
 
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * AppManagementPage
+ * (windowInsets: WindowInsets, contentPadding: PaddingValues = PaddingValues(0.dp), viewModel: AppManagementViewModel = koinViewModel())
+ * 作用：执行 AppManagementPage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppManagementPage(
@@ -131,6 +137,12 @@ fun AppManagementPage(
     }
 }
 
+/**
+ * ItemsWidget
+ * (viewModel: AppManagementViewModel, contentPadding: PaddingValues)
+ * 作用：执行 ItemsWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ItemsWidget(
     viewModel: AppManagementViewModel,
@@ -150,6 +162,12 @@ private fun ItemsWidget(
     }
 }
 
+/**
+ * ItemWidget
+ * (viewModel: AppManagementViewModel, data: AppManagementViewData)
+ * 作用：执行 ItemWidget
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun LazyItemScope.ItemWidget(
     viewModel: AppManagementViewModel,

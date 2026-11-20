@@ -39,8 +39,10 @@ import androidx.compose.ui.unit.dp
 import com.neodhizuku.more.ui.theme.exclude
 
 /**
- * 调试分区共用的页面骨架。
- * 统一处理 windowInsets、返回键、标题，避免每个二级页面各写一遍 Scaffold。
+ * DebugScaffold
+ * (title: String, windowInsets: WindowInsets, onBack: () -> Unit, actions: @Composable RowScope.() -> Unit = {}, content: @Composable (PaddingValues) -> Unit)
+ * 作用：调试分区共用的页面骨架。 统一处理 windowInsets、返回键、标题，避免每个二级页面各写一遍 Scaffold。
+ * 备注：Compose 组件；使用了实验性 API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +77,12 @@ fun DebugScaffold(
     }
 }
 
-/** 调试主页的跳转卡片；[danger] 为真时整张卡用错误色标红。 */
+/**
+ * DebugMenuCard
+ * (title: String, desc: String, onClick: () -> Unit, danger: Boolean = false)
+ * 作用：调试主页的跳转卡片；[danger] 为真时整张卡用错误色标红。
+ * 备注：Compose 组件
+ */
 @Composable
 fun DebugMenuCard(
     title: String,
@@ -121,7 +128,12 @@ fun DebugMenuCard(
     }
 }
 
-/** 详细运行信息里的一行：变量名保持原样，值可点击复制。 */
+/**
+ * DebugInfoRow
+ * (label: String, value: String, onCopy: ((String) -> Unit)? = null)
+ * 作用：详细运行信息里的一行：变量名保持原样，值可点击复制。
+ * 备注：Compose 组件
+ */
 @Composable
 fun DebugInfoRow(
     label: String,
@@ -151,8 +163,10 @@ fun DebugInfoRow(
 }
 
 /**
- * 修改运行参数的弹窗。
- * 标题直接用变量名（不翻译），输入框预填当前值。确认才写，取消不写。
+ * DebugValueDialog
+ * (name: String, value: String, hint: String = "", onConfirm: (String) -> Unit, onDismiss: () -> Unit)
+ * 作用：修改运行参数的弹窗。 标题直接用变量名（不翻译），输入框预填当前值。确认才写，取消不写。
+ * 备注：Compose 组件
  */
 @Composable
 fun DebugValueDialog(

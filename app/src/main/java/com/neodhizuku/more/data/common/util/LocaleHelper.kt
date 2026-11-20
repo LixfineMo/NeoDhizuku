@@ -71,10 +71,22 @@ object LocaleHelper {
         Language("uz", "Oʻzbekcha", false)
     )
 
+    /**
+     * current
+     * (context: Context)
+     * 作用：执行 current
+     * 备注：—
+     */
     fun current(context: Context): String =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_LANGUAGE, "") ?: ""
 
+    /**
+     * save
+     * (context: Context, tag: String)
+     * 作用：保存
+     * 备注：—
+     */
     fun save(context: Context, tag: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -82,7 +94,12 @@ object LocaleHelper {
             .apply()
     }
 
-    /** 把 tag（如 zh-rCN）解析成 Locale，无法解析则返回 null */
+    /**
+     * toLocale
+     * (tag: String)
+     * 作用：把 tag（如 zh-rCN）解析成 Locale，无法解析则返回 null
+     * 备注：—
+     */
     fun toLocale(tag: String): Locale? {
         if (tag.isEmpty()) return null
         // Android 资源目录用 -r 分隔地区（zh-rCN），语言标签用连字符（zh-CN）
@@ -100,7 +117,12 @@ object LocaleHelper {
         }
     }
 
-    /** 生成已应用语言的 Context，供 attachBaseContext 使用 */
+    /**
+     * wrap
+     * (context: Context)
+     * 作用：生成已应用语言的 Context，供 attachBaseContext 使用
+     * 备注：—
+     */
     fun wrap(context: Context): Context {
         val locale = toLocale(current(context)) ?: return context
         val config = context.resources.configuration
@@ -119,7 +141,12 @@ object LocaleHelper {
         }
     }
 
-    /** 从 Context 里往上找 Activity，用于切换语言后重建界面 */
+    /**
+     * findActivity
+     * (context: Context)
+     * 作用：从 Context 里往上找 Activity，用于切换语言后重建界面
+     * 备注：—
+     */
     fun findActivity(context: Context): Activity? {
         var current = context
         while (current is ContextWrapper) {

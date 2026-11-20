@@ -38,7 +38,12 @@ object AlertNotifier {
     /** 资源缺失时的兜底渠道名，保证通知渠道一定能建起来。 */
     private const val CHANNEL_NAME_FALLBACK = "NeoDhizuku 安全警示"
 
-    /** 安全地取字符串：取不到就用兜底值，绝不抛异常。 */
+    /**
+     * str
+     * (context: Context, res: Int, fallback: String, vararg args: Any)
+     * 作用：安全地取字符串：取不到就用兜底值，绝不抛异常。
+     * 备注：仅内部使用
+     */
     private fun str(context: Context, res: Int, fallback: String, vararg args: Any): String =
         runCatching {
             if (args.isEmpty()) context.getString(res) else context.getString(res, *args)
@@ -57,6 +62,12 @@ object AlertNotifier {
     /** 单项接口策略拒绝 */
     private const val ID_API_DENIED = 2400
 
+    /**
+     * ensureChannel
+     * (context: Context)
+     * 作用：确保 Channel
+     * 备注：—
+     */
     fun ensureChannel(context: Context) {
         // 通知是辅助功能，任何一步失败都只记录、不外抛
         runCatching {
@@ -76,6 +87,12 @@ object AlertNotifier {
         }
     }
 
+    /**
+     * canPost
+     * (context: Context)
+     * 作用：执行 canPost
+     * 备注：仅内部使用
+     */
     private fun canPost(context: Context): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
         return ContextCompat.checkSelfPermission(
@@ -84,6 +101,12 @@ object AlertNotifier {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    /**
+     * post
+     * (context: Context, id: Int, title: String, text: String, contentIntent: PendingIntent? = null)
+     * 作用：执行 post
+     * 备注：仅内部使用
+     */
     private fun post(
         context: Context,
         id: Int,
@@ -112,9 +135,10 @@ object AlertNotifier {
     }
 
     /**
-     * 授权请求兜底通知。
-     * 弹窗因后台启动限制没能直接拉起时，改由用户点通知进入授权页 ——
-     * 用户点击属于用户发起，不受 Android 10+ 后台启动 Activity 的限制。
+     * permissionRequest
+     * (context: Context, uid: Int, token: String?)
+     * 作用：授权请求兜底通知。 弹窗因后台启动限制没能直接拉起时，改由用户点通知进入授权页 —— 用户点击属于用户发起，不受 Android 10+ 后台启动 Activity 的限制。
+     * 备注：—
      */
     fun permissionRequest(context: Context, uid: Int, token: String?) {
         val label = runCatching {
@@ -151,8 +175,10 @@ object AlertNotifier {
     }
 
     /**
-     * 第三方转移请求被开关拦下。
-     * 点击通知打开设置页，用户可在服务板块开启开关；不再写入任何放行标记。
+     * transferBlocked
+     * (context: Context, appLabel: String)
+     * 作用：第三方转移请求被开关拦下。 点击通知打开设置页，用户可在服务板块开启开关；不再写入任何放行标记。
+     * 备注：—
      */
     fun transferBlocked(context: Context, appLabel: String) {
         val intent = Intent(context, SettingsActivity::class.java)
@@ -179,9 +205,10 @@ object AlertNotifier {
     }
 
     /**
-     * 擦除设备数据的请求被拦截。
-     * 这条通知必须能点进去 —— 用户确认后才可能放行，因此带 PendingIntent
-     * 打开确认页。用 FLAG_ACTIVITY_NEW_TASK：通知栏发起不在任何任务栈内。
+     * wipeBlocked
+     * (context: Context, appLabel: String)
+     * 作用：擦除设备数据的请求被拦截。 这条通知必须能点进去 —— 用户确认后才可能放行，因此带 PendingIntent 打开确认页。用 FLAG_ACTIVITY_NEW_TASK：通知栏发起不在任何任务栈内。
+     * 备注：—
      */
     fun wipeBlocked(context: Context, appLabel: String) {
         val uid = WipeGuard.lastRejectedUid
@@ -209,10 +236,10 @@ object AlertNotifier {
     }
 
     /**
-     * 守卫降级：反射不到方法对照表，守卫进入保守模式（一律拦截）。
-     * 这条通知必须发。守卫失效后用户会发现"设备策略类操作全都用不了了"，
-     * 但不说清楚原因，用户只会以为是 bug —— 最终往往是关掉加固了事，
-     * 反而退回到无保护状态。
+     * guardDegraded
+     * (context: Context)
+     * 作用：守卫降级：反射不到方法对照表，守卫进入保守模式（一律拦截）。 这条通知必须发。守卫失效后用户会发现"设备策略类操作全都用不了了"， 但不说清楚原因，用户只会以为是 bug —— 最终往往是关掉加固了事， 反而退回到无保护状态。
+     * 备注：—
      */
     fun guardDegraded(context: Context) {
         post(

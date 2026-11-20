@@ -226,6 +226,12 @@ private class SubGroup<T>(val key: Long, val items: List<T>)
 
 private class DayGroup<T>(val day: Long, val subGroups: List<SubGroup<T>>)
 
+/**
+ * groupByDayThenBy
+ * (entries: List<T>, timeOf: (T) -> Long, subKey: (T) -> Long)
+ * 作用：执行 groupByDayThenBy
+ * 备注：仅内部使用
+ */
 private fun <T> groupByDayThenBy(
     entries: List<T>,
     timeOf: (T) -> Long,
@@ -244,14 +250,24 @@ private fun <T> groupByDayThenBy(
     }
 }
 
-/** 取应用名，取不到就退回包名 */
+/**
+ * appLabel
+ * (context: Context, packageName: String)
+ * 作用：取应用名，取不到就退回包名
+ * 备注：仅内部使用
+ */
 private fun appLabel(context: Context, packageName: String): String = runCatching {
     val pm = context.packageManager
     val info = pm.getApplicationInfo(packageName, 0)
     pm.getApplicationLabel(info).toString()
 }.getOrNull() ?: packageName
 
-/** 长按复制。用系统 ClipboardManager，不依赖 Compose 剪贴板 API */
+/**
+ * copyText
+ * (context: Context, text: String)
+ * 作用：长按复制。用系统 ClipboardManager，不依赖 Compose 剪贴板 API
+ * 备注：仅内部使用
+ */
 private fun copyText(context: Context, text: String) {
     runCatching {
         val manager =
@@ -287,6 +303,12 @@ private fun ZipOutputStream.writeTextEntry(name: String, content: String) {
  * 包内固定两个文件：call_log.txt（调用记录）、runtime_log.txt（运行日志）。
  * 直接复用页面复制用的文本格式，导出的内容与长按复制一致。
  */
+/**
+ * buildLogZip
+ * (context: Context, audit: List<AuditEntity>, runtime: List<RuntimeLogEntity>)
+ * 作用：构建 LogZip
+ * 备注：仅内部使用
+ */
 private fun buildLogZip(
     context: Context,
     audit: List<AuditEntity>,
@@ -307,6 +329,12 @@ private fun buildLogZip(
     FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 }.getOrNull()
 
+/**
+ * shareLogZip
+ * (context: Context, uri: Uri)
+ * 作用：执行 shareLogZip
+ * 备注：仅内部使用
+ */
 private fun shareLogZip(context: Context, uri: Uri) {
     val send = Intent(Intent.ACTION_SEND).apply {
         type = "application/zip"
@@ -325,7 +353,43 @@ private fun shareLogZip(context: Context, uri: Uri) {
 
 /* ------------------------------ 调用记录 ------------------------------ */
 
-/** 一条调用记录转成纯文本（含时间、包名、动作、详情、日志片段） */
+/**
+ * 折叠后的一条调用记录。客户端一秒内连发同一个接口（例如遍历委派范围时
+ * 连续多次 getDelegatePackages）会落多条完全一样的记录，逐条铺开看起来
+ * 像「一次请求被识别成好几个」。这里按秒 + 应用 + 动作 + 详情合并并显示次数。
+ * 导出仍用原始全量列表，不丢任何一条。
+ */
+private data class AuditItem(val entity: AuditEntity, val count: Int)
+
+/**
+ * foldAudit
+ * (entries: List<AuditEntity>)
+ * 作用：执行 foldAudit
+ * 备注：仅内部使用
+ */
+private fun foldAudit(entries: List<AuditEntity>): List<AuditItem> {
+    val order = ArrayList<AuditItem>()
+    val index = HashMap<String, Int>()
+    entries.forEach { entity ->
+        val key = "${entity.timestamp / 1000L}|${entity.uid}|${entity.packageName}" +
+            "|${entity.api}|${entity.detail}"
+        val at = index[key]
+        if (at == null) {
+            index[key] = order.size
+            order.add(AuditItem(entity, 1))
+        } else {
+            order[at] = order[at].copy(count = order[at].count + 1)
+        }
+    }
+    return order
+}
+
+/**
+ * auditLine
+ * (entity: AuditEntity)
+ * 作用：一条调用记录转成纯文本（含时间、包名、动作、详情、日志片段）
+ * 备注：仅内部使用
+ */
 private fun auditLine(entity: AuditEntity): String = buildString {
     append(formatClock(entity.timestamp)).append("  ").append(entity.packageName)
     append("\n  ").append(AuditLogStore.describe(entity.api))
@@ -337,9 +401,21 @@ private fun auditLine(entity: AuditEntity): String = buildString {
     }
 }
 
+/**
+ * auditText
+ * (list: List<AuditEntity>)
+ * 作用：执行 auditText
+ * 备注：仅内部使用
+ */
 private fun auditText(list: List<AuditEntity>): String =
     list.joinToString("\n") { auditLine(it) }
 
+/**
+ * AuditList
+ * (entries: List<AuditEntity>, contentPadding: PaddingValues = PaddingValues(0.dp))
+ * 作用：执行 AuditList
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun AuditList(
     entries: List<AuditEntity>,
@@ -353,8 +429,9 @@ private fun AuditList(
 
     // entries 已按时间倒序。groupBy 返回 LinkedHashMap，键顺序 = 首次出现顺序，
     // 因此「最新日期在最上」「当天内最近调用过的应用在最上」都天然成立，无需再排序。
-    val grouped = remember(entries) {
-        groupByDayThenBy(entries, { it.timestamp }) { it.uid.toLong() }
+    val folded = remember(entries) { foldAudit(entries) }
+    val grouped = remember(folded) {
+        groupByDayThenBy(folded, { it.entity.timestamp }) { it.entity.uid.toLong() }
     }
     val today = dayStart(System.currentTimeMillis())
 
@@ -365,34 +442,35 @@ private fun AuditList(
     ) {
         grouped.forEach { dayGroup ->
             val dayStartMs = dayGroup.day
-            val dayCount = dayGroup.subGroups.sumOf { it.items.size }
+            val dayCount = dayGroup.subGroups.sumOf { sub -> sub.items.sumOf { it.count } }
             item(key = "aday_$dayStartMs") {
                 DayCard(
                     label = dayLabel(dayStartMs),
                     count = dayCount,
                     defaultExpanded = dayStartMs == today,
-                    copyText = auditText(dayGroup.subGroups.flatMap { it.items })
+                    // 复制 / 导出仍给全量原始记录，折叠只影响界面展示
+                    copyText = auditText(entries.filter { dayStart(it.timestamp) == dayStartMs })
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         dayGroup.subGroups.forEach { appGroup ->
                             val list = appGroup.items
-                            val packageName = list.first().packageName
+                            val packageName = list.first().entity.packageName
                             AppCard(
                                 title = appLabel(context, packageName),
                                 subtitle = packageName,
-                                count = list.size,
-                                latest = formatClock(list.first().timestamp),
-                                copyText = auditText(list)
+                                count = list.sumOf { it.count },
+                                latest = formatClock(list.first().entity.timestamp),
+                                copyText = auditText(list.map { it.entity })
                             ) {
                                 Column {
-                                    list.forEachIndexed { index, entity ->
+                                    list.forEachIndexed { index, item ->
                                         if (index > 0) {
                                             HorizontalDivider(
                                                 modifier = Modifier.padding(vertical = 8.dp),
                                                 color = MaterialTheme.colorScheme.outlineVariant
                                             )
                                         }
-                                        AuditRow(entity)
+                                        AuditRow(item.entity, item.count)
                                     }
                                 }
                             }
@@ -404,8 +482,14 @@ private fun AuditList(
     }
 }
 
+/**
+ * AuditRow
+ * (entity: AuditEntity, count: Int = 1)
+ * 作用：执行 AuditRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
-private fun AuditRow(entity: AuditEntity) {
+private fun AuditRow(entity: AuditEntity, count: Int = 1) {
     var showLog by remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -413,7 +497,7 @@ private fun AuditRow(entity: AuditEntity) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = formatClock(entity.timestamp),
+                text = formatClock(entity.timestamp) + if (count > 1) "  ×$count" else "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -457,11 +541,29 @@ private fun AuditRow(entity: AuditEntity) {
 /* ------------------------------ 运行日志 ------------------------------ */
 
 /** 运行日志按秒归组：同一秒内的日志并成一张卡，避免逐行刷屏 */
+/**
+ * secondStart
+ * (timestamp: Long)
+ * 作用：执行 secondStart
+ * 备注：仅内部使用
+ */
 private fun secondStart(timestamp: Long): Long = timestamp / 1000L * 1000L
 
+/**
+ * runtimeLine
+ * (entity: RuntimeLogEntity)
+ * 作用：执行 runtimeLine
+ * 备注：仅内部使用
+ */
 private fun runtimeLine(entity: RuntimeLogEntity): String =
     "${formatClockMs(entity.timestamp)} ${entity.level}/${entity.sub} ${entity.message}"
 
+/**
+ * runtimeText
+ * (list: List<RuntimeLogEntity>)
+ * 作用：执行 runtimeText
+ * 备注：仅内部使用
+ */
 private fun runtimeText(list: List<RuntimeLogEntity>): String =
     list.joinToString("\n") { runtimeLine(it) }
 
@@ -477,8 +579,10 @@ private data class RuntimeLineItem(
 )
 
 /**
- * 按「级别 + 分类 + 内容」折叠重复项。
- * 保留首次出现那条的时间戳，重复次数累加到 [RuntimeLineItem.count]。
+ * dedupe
+ * (list: List<RuntimeLogEntity>)
+ * 作用：按「级别 + 分类 + 内容」折叠重复项。 保留首次出现那条的时间戳，重复次数累加到 [RuntimeLineItem.count]。
+ * 备注：仅内部使用
  */
 private fun dedupe(list: List<RuntimeLogEntity>): List<RuntimeLineItem> {
     val order = ArrayList<RuntimeLineItem>()
@@ -496,6 +600,12 @@ private fun dedupe(list: List<RuntimeLogEntity>): List<RuntimeLineItem> {
     return order
 }
 
+/**
+ * RuntimeList
+ * (entries: List<RuntimeLogEntity>, contentPadding: PaddingValues = PaddingValues(0.dp))
+ * 作用：执行 RuntimeList
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun RuntimeList(
     entries: List<RuntimeLogEntity>,
@@ -548,6 +658,12 @@ private fun RuntimeList(
     }
 }
 
+/**
+ * RuntimeRow
+ * (entity: RuntimeLogEntity, count: Int = 1)
+ * 作用：执行 RuntimeRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun RuntimeRow(entity: RuntimeLogEntity, count: Int = 1) {
     val color = when (entity.level) {
@@ -597,6 +713,12 @@ private fun RuntimeRow(entity: RuntimeLogEntity, count: Int = 1) {
  * 点击切换展开；长按把 `copyText` 整段复制到剪贴板。
  * 用系统 ClipboardManager 而非 Compose 剪贴板，避免版本差异。
  */
+/**
+ * ExpandableCard
+ * (modifier: Modifier = Modifier, defaultExpanded: Boolean = false, copyText: String, header: @Composable (expanded: Boolean) -> Unit, content: @Composable () -> Unit)
+ * 作用：执行 ExpandableCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ExpandableCard(
     modifier: Modifier = Modifier,
@@ -627,7 +749,12 @@ private fun ExpandableCard(
     }
 }
 
-/** 日期分组卡 */
+/**
+ * DayCard
+ * (label: String, count: Int, defaultExpanded: Boolean, copyText: String, content: @Composable () -> Unit)
+ * 作用：日期分组卡
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun DayCard(
     label: String,
@@ -669,7 +796,12 @@ private fun DayCard(
     )
 }
 
-/** 调用记录的「单个应用」卡 */
+/**
+ * AppCard
+ * (title: String, subtitle: String, count: Int, latest: String, copyText: String, content: @Composable () -> Unit)
+ * 作用：调用记录的「单个应用」卡
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun AppCard(
     title: String,
@@ -731,7 +863,12 @@ private fun AppCard(
     )
 }
 
-/** 运行日志的「某一秒」卡 */
+/**
+ * SecondCard
+ * (label: String, count: Int, copyText: String, content: @Composable () -> Unit)
+ * 作用：运行日志的「某一秒」卡
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SecondCard(
     label: String,
@@ -775,6 +912,12 @@ private fun SecondCard(
     )
 }
 
+/**
+ * EmptyHint
+ * (text: String)
+ * 作用：执行 EmptyHint
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EmptyHint(text: String) {
     Box(modifier = Modifier.fillMaxSize()) {

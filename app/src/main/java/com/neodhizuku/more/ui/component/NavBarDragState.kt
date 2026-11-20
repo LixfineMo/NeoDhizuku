@@ -94,6 +94,12 @@ internal class NavBarDragState(
     /** 本次手势累计的横向位移，用于判定是点击还是拖动。 */
     private var dragDistance = 0f
 
+    /**
+     * updateValue
+     * (target: Float)
+     * 作用：更新 Value
+     * 备注：—
+     */
     fun updateValue(target: Float) {
         val v = target.coerceIn(valueRange)
         if (value.targetValue == v) return
@@ -101,9 +107,10 @@ internal class NavBarDragState(
     }
 
     /**
-     * 拖动中直接落位，不走弹簧。
-     * [updateValue] 每收到一个 move 事件就重启一次 animateTo，药丸会稳定落后
-     * 手指一截；侧栏要求严格跟手，这里只做一次同步 snap。
+     * dragTo
+     * (target: Float)
+     * 作用：拖动中直接落位，不走弹簧。 [updateValue] 每收到一个 move 事件就重启一次 animateTo，药丸会稳定落后 手指一截；侧栏要求严格跟手，这里只做一次同步 snap。
+     * 备注：—
      */
     fun dragTo(target: Float) {
         val v = target.coerceIn(valueRange)
@@ -111,17 +118,33 @@ internal class NavBarDragState(
         dragJob = scope.launch { value.snapTo(v) }
     }
 
-    /** 松手落位：位置立即对齐到目标页，同时解除按压与缩放。 */
+    /**
+     * land
+     * (target: Float)
+     * 作用：松手落位：位置立即对齐到目标页，同时解除按压与缩放。
+     * 备注：—
+     */
     fun land(target: Float) {
         snapTo(target)
         release()
     }
 
+    /**
+     * addShift
+     * (delta: Float)
+     * 作用：添加 Shift
+     * 备注：—
+     */
     fun addShift(delta: Float) {
         scope.launch { shift.snapTo(shift.value + delta) }
     }
 
-    /** 打一次瞬时速度，随后自动衰减回 0。 */
+    /**
+     * addVelocity
+     * (delta: Float)
+     * 作用：打一次瞬时速度，随后自动衰减回 0。
+     * 备注：—
+     */
     fun addVelocity(delta: Float) {
         scope.launch {
             velocity.stop()
@@ -130,7 +153,12 @@ internal class NavBarDragState(
         }
     }
 
-    /** 松手：药丸落到目标页，整体位移回弹，按压态解除。 */
+    /**
+     * settle
+     * (target: Float)
+     * 作用：松手：药丸落到目标页，整体位移回弹，按压态解除。
+     * 备注：—
+     */
     fun settle(target: Float) {
         val v = target.coerceIn(valueRange)
         scope.launch { value.animateTo(v, valueSpec) }
@@ -140,9 +168,10 @@ internal class NavBarDragState(
     }
 
     /**
-     * 只解除按压与回弹，不碰位置。
-     * 纯点击时用它：药丸的位置交给 Pager 的翻页动画逐帧驱动（[followTo]），
-     * 这里再跑一段弹簧反而会和 Pager 抢位置，两边都不到位。
+     * releaseOnly
+     * ()
+     * 作用：只解除按压与回弹，不碰位置。 纯点击时用它：药丸的位置交给 Pager 的翻页动画逐帧驱动（[followTo]）， 这里再跑一段弹簧反而会和 Pager 抢位置，两边都不到位。
+     * 备注：—
      */
     fun releaseOnly() {
         scope.launch { shift.animateTo(0f, releaseSpec) }
@@ -150,7 +179,12 @@ internal class NavBarDragState(
         release()
     }
 
-    /** 外部页码变化时平滑跟随。 */
+    /**
+     * animateToValue
+     * (target: Float)
+     * 作用：外部页码变化时平滑跟随。
+     * 备注：—
+     */
     fun animateToValue(target: Float) {
         val v = target.coerceIn(valueRange)
         scope.launch { value.animateTo(v, valueSpec) }
@@ -170,10 +204,10 @@ internal class NavBarDragState(
     }
 
     /**
-     * 宽屏侧栏专用：只写位置，不做速度形变、不起协程。
-     * [followToSync] 每帧为 velocity 另起两个协程，翻页 300ms 里会起几十个
-     * 互相取消的协程；侧栏还叠着阴影/玻璃，平板上会明显掉帧。侧栏不需要
-     * 果冻形变（拖动时由 [addVelocity] 单独驱动），这里只保留同步落位。
+     * followToLite
+     * (target: Float)
+     * 作用：宽屏侧栏专用：只写位置，不做速度形变、不起协程。 [followToSync] 每帧为 velocity 另起两个协程，翻页 300ms 里会起几十个 互相取消的协程；侧栏还叠着阴影/玻璃，平板上会明显掉帧。侧栏不需要 果冻形变（拖动时由 [addVelocity] 单独驱动），这里只保留同步落位。
+     * 备注：挂起函数
      */
     suspend fun followToLite(target: Float) {
         value.snapTo(target.coerceIn(valueRange))
@@ -209,9 +243,10 @@ internal class NavBarDragState(
     }
 
     /**
-     * 无动画对齐到指定页。
-     * 底栏进入二级页面时会被整块移出组合，返回后 `remember` 重建，
-     * 此时不能用动画补一段位移（会看到药丸从第 0 项滑过来），直接落位。
+     * snapTo
+     * (target: Float)
+     * 作用：无动画对齐到指定页。 底栏进入二级页面时会被整块移出组合，返回后 `remember` 重建， 此时不能用动画补一段位移（会看到药丸从第 0 项滑过来），直接落位。
+     * 备注：—
      */
     fun snapTo(target: Float) {
         val v = target.coerceIn(valueRange)
@@ -220,6 +255,12 @@ internal class NavBarDragState(
         scope.launch { velocity.snapTo(0f) }
     }
 
+    /**
+     * press
+     * ()
+     * 作用：执行 press
+     * 备注：仅内部使用
+     */
     private fun press() {
         scope.launch {
             launch { press.animateTo(1f, pressSpec) }
@@ -227,6 +268,12 @@ internal class NavBarDragState(
         }
     }
 
+    /**
+     * release
+     * ()
+     * 作用：释放
+     * 备注：仅内部使用
+     */
     private fun release() {
         scope.launch {
             launch { press.animateTo(0f, pressSpec) }

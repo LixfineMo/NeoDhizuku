@@ -49,8 +49,10 @@ private const val CROP_MIN_SCALE = 1f
 private const val CROP_MAX_SCALE = 3f
 
 /**
- * 背景图显示调整：拖动平移、双指或滑杆缩放，预览与实际背景使用同一组参数。
- * 偏移量按预览尺寸归一化保存，换分辨率的设备上不需要重新调整。
+ * BackgroundCropDialog
+ * (initialScale: Float, initialOffsetX: Float, initialOffsetY: Float, onDismiss: () -> Unit)
+ * 作用：背景图显示调整：拖动平移、双指或滑杆缩放，预览与实际背景使用同一组参数。 偏移量按预览尺寸归一化保存，换分辨率的设备上不需要重新调整。
+ * 备注：Compose 组件
  */
 @Composable
 fun BackgroundCropDialog(

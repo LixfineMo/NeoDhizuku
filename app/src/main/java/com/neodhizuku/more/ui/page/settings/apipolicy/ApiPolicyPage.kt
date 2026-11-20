@@ -49,9 +49,10 @@ import com.neodhizuku.more.ui.theme.exclude
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * 单项接口配置：逐个接口决定「哪个应用能用、用到哪一步」。
- * 与「拒绝服务」相互独立 —— 拒绝服务是整体开关，这里是细项；
- * 但拒绝服务优先：首页停服时按拒绝模式统一处理，此处配置不参与。
+ * ApiPolicyPage
+ * (windowInsets: WindowInsets, navController: NavController, viewModel: ApiPolicyViewModel = koinViewModel())
+ * 作用：单项接口配置：逐个接口决定「哪个应用能用、用到哪一步」。 与「拒绝服务」相互独立 —— 拒绝服务是整体开关，这里是细项； 但拒绝服务优先：首页停服时按拒绝模式统一处理，此处配置不参与。
+ * 备注：Compose 组件；使用了实验性 API
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -210,6 +211,12 @@ fun ApiPolicyPage(
     }
 }
 
+/**
+ * SectionTitle
+ * (text: String)
+ * 作用：执行 SectionTitle
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -219,6 +226,12 @@ private fun SectionTitle(text: String) {
     )
 }
 
+/**
+ * AppPolicyCard
+ * (item: ApiPolicyAppItem, configured: Boolean, onClick: () -> Unit)
+ * 作用：执行 AppPolicyCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun AppPolicyCard(
     item: ApiPolicyAppItem,
@@ -264,6 +277,12 @@ private fun AppPolicyCard(
     }
 }
 
+/**
+ * ApiCheckRow
+ * (label: String, desc: String, checked: Boolean, explicit: Boolean, onCheckedChange: (Boolean) -> Unit)
+ * 作用：执行 ApiCheckRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ApiCheckRow(
     label: String,
@@ -299,6 +318,12 @@ private fun ApiCheckRow(
     }
 }
 
+/**
+ * AppPolicyDialog
+ * (item: ApiPolicyAppItem, global: Map<String, Boolean>, appConfig: Map<String, Boolean>, onDismiss: () -> Unit, onToggle: (DpmPolicyCatalog.DpmDef, Boolean) -> Unit, onClearAll: () -> Unit)
+ * 作用：执行 AppPolicyDialog
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun AppPolicyDialog(
     item: ApiPolicyAppItem,

@@ -1,10 +1,13 @@
 package com.neodhizuku.more.ui.page.settings.delegation
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +57,12 @@ import com.neodhizuku.more.ui.theme.exclude
 
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * DelegationPage
+ * (windowInsets: WindowInsets, navController: NavController, contentPadding: PaddingValues = PaddingValues(0.dp), viewModel: DelegationViewModel = koinViewModel())
+ * 作用：执行 DelegationPage
+ * 备注：Compose 组件；使用了实验性 API
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DelegationPage(
@@ -191,6 +200,12 @@ fun DelegationPage(
     }
 }
 
+/**
+ * SectionTitle
+ * (text: String)
+ * 作用：执行 SectionTitle
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SectionTitle(text: String) {
     Text(
@@ -200,7 +215,12 @@ private fun SectionTitle(text: String) {
     )
 }
 
-/** 关键字过滤：应用名或包名匹配即可。 */
+/**
+ * SearchField
+ * (value: String, onValueChange: (String) -> Unit)
+ * 作用：关键字过滤：应用名或包名匹配即可。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun SearchField(
     value: String,
@@ -230,6 +250,12 @@ private fun SearchField(
     )
 }
 
+/**
+ * DelegationRow
+ * (entry: DelegationEntry, onClick: () -> Unit)
+ * 作用：执行 DelegationRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun DelegationRow(
     entry: DelegationEntry,
@@ -271,7 +297,12 @@ private fun DelegationRow(
     }
 }
 
-/** 作用域 id 到界面文案。取资源走 Context，便于在非组合上下文（如 joinToString）里使用。 */
+/**
+ * scopeLabel
+ * (context: Context, scope: String)
+ * 作用：作用域 id 到界面文案。取资源走 Context，便于在非组合上下文（如 joinToString）里使用。
+ * 备注：仅内部使用
+ */
 private fun scopeLabel(context: Context, scope: String): String = context.getString(
     when (scope) {
         android.app.admin.DevicePolicyManager.DELEGATION_APP_RESTRICTIONS ->
@@ -308,6 +339,12 @@ private fun scopeLabel(context: Context, scope: String): String = context.getStr
     }
 )
 
+/**
+ * scopeDesc
+ * (scope: String)
+ * 作用：执行 scopeDesc
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun scopeDesc(scope: String): String = stringResource(
     when (scope) {
@@ -330,6 +367,12 @@ private fun scopeDesc(scope: String): String = stringResource(
     }
 )
 
+/**
+ * NoteCard
+ * ()
+ * 作用：执行 NoteCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun NoteCard() {
     NeoCard {
@@ -359,6 +402,12 @@ private fun NoteCard() {
     }
 }
 
+/**
+ * OwnerRequiredCard
+ * ()
+ * 作用：执行 OwnerRequiredCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun OwnerRequiredCard() {
     NeoCard {
@@ -370,6 +419,12 @@ private fun OwnerRequiredCard() {
     }
 }
 
+/**
+ * EmptyCard
+ * (text: String)
+ * 作用：执行 EmptyCard
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun EmptyCard(text: String) {
     NeoCard {
@@ -382,6 +437,12 @@ private fun EmptyCard(text: String) {
     }
 }
 
+/**
+ * ClearAllRow
+ * (onClick: () -> Unit)
+ * 作用：执行 ClearAllRow
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ClearAllRow(onClick: () -> Unit) {
     NeoCard {
@@ -402,7 +463,12 @@ private fun ClearAllRow(onClick: () -> Unit) {
     }
 }
 
-/** 编辑某个应用被委派的范围；尚未持有委派时用于主动派发。 */
+/**
+ * ScopeDialog
+ * (entry: DelegationEntry, onDismiss: () -> Unit, onSave: (Set<String>) -> Unit, onClear: () -> Unit)
+ * 作用：编辑某个应用被委派的范围；尚未持有委派时用于主动派发。
+ * 备注：Compose 组件；仅内部使用
+ */
 @Composable
 private fun ScopeDialog(
     entry: DelegationEntry,
@@ -421,7 +487,14 @@ private fun ScopeDialog(
         onDismissRequest = onDismiss,
         title = { Text(entry.label) },
         text = {
-            Column {
+            // 作用域有 10+ 项，不限制高度会把确认 / 取消按钮顶出屏幕
+            // （miuix 弹窗是普通 Column，没有 Material3 那层高度约束）。
+            // 这里限高 + 自身滚动，保证按钮永远留在弹窗底部可见范围内。
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 320.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 if (!hasExisting) {
                     Text(
                         text = stringResource(R.string.delegation_grant_hint),

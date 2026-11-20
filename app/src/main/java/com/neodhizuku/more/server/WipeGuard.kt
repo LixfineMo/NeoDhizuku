@@ -35,14 +35,24 @@ object WipeGuard {
     var lastRejectedAt: Long = 0L
         private set
 
-    /** 记录一次被拦截的请求 */
+    /**
+     * noteRejected
+     * (uid: Int, label: String)
+     * 作用：记录一次被拦截的请求
+     * 备注：—
+     */
     fun noteRejected(uid: Int, label: String) {
         lastRejectedUid = uid
         lastRejectedLabel = label
         lastRejectedAt = System.currentTimeMillis()
     }
 
-    /** 该 uid 当前是否持有有效的放行标记 */
+    /**
+     * isGranted
+     * (uid: Int)
+     * 作用：该 uid 当前是否持有有效的放行标记
+     * 备注：—
+     */
     @Synchronized
     fun isGranted(uid: Int): Boolean {
         // 顺带回收全部过期标记：只清当前 uid 的话，其它 uid 的过期标记会一直
@@ -53,7 +63,12 @@ object WipeGuard {
         return true
     }
 
-    /** 回收过期标记。擦除放行属于高风险状态，不该比需要它的时候活得更久 */
+    /**
+     * purgeExpired
+     * ()
+     * 作用：回收过期标记。擦除放行属于高风险状态，不该比需要它的时候活得更久
+     * 备注：—
+     */
     @Synchronized
     fun purgeExpired() {
         val now = SystemClock.uptimeMillis()
@@ -64,20 +79,35 @@ object WipeGuard {
         }
     }
 
-    /** 写入放行标记（用户在确认页通过全部警告后调用） */
+    /**
+     * grant
+     * (uid: Int)
+     * 作用：写入放行标记（用户在确认页通过全部警告后调用）
+     * 备注：—
+     */
     @Synchronized
     fun grant(uid: Int) {
         grants[uid] = SystemClock.uptimeMillis() + GRANT_TTL_MILLIS
         NeoLog.w(NeoLog.SERVER) { "wipe guard: 已授予放行 uid=$uid（5 分钟内有效，一次性）" }
     }
 
-    /** 用掉放行标记 */
+    /**
+     * consume
+     * (uid: Int)
+     * 作用：用掉放行标记
+     * 备注：—
+     */
     @Synchronized
     fun consume(uid: Int) {
         grants.remove(uid)
     }
 
-    /** 撤销全部放行标记 */
+    /**
+     * revokeAll
+     * ()
+     * 作用：撤销全部放行标记
+     * 备注：—
+     */
     @Synchronized
     fun revokeAll() {
         grants.clear()

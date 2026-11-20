@@ -60,11 +60,29 @@ object RuntimeInfoCollector : KoinComponent {
     private val appRepo: AppRepo by inject()
     private val logRepo: LogRepo by inject()
 
+    /**
+     * section
+     * (name: String, vararg rows: Pair<String, String>)
+     * 作用：执行 section
+     * 备注：仅内部使用
+     */
     private fun section(name: String, vararg rows: Pair<String, String>) =
         InfoSection(name, rows.toList())
 
+    /**
+     * safe
+     * (block: () -> String)
+     * 作用：执行 safe
+     * 备注：仅内部使用
+     */
     private fun safe(block: () -> String): String = runCatching(block).getOrDefault("!")
 
+    /**
+     * collect
+     * (context: Context)
+     * 作用：收集
+     * 备注：—
+     */
     fun collect(context: Context): List<InfoSection> {
         val app = context.applicationContext
         val out = mutableListOf<InfoSection>()
@@ -280,6 +298,12 @@ object RuntimeInfoCollector : KoinComponent {
         return out
     }
 
+    /**
+     * signature
+     * (context: Context)
+     * 作用：执行 signature
+     * 备注：仅内部使用
+     */
     private fun signature(context: Context): String = safe {
         val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             context.packageManager.getPackageInfo(
@@ -318,17 +342,95 @@ class RuntimeInfoViewModel : ViewModel() {
     var copied by mutableStateOf("")
         private set
 
+    var query by mutableStateOf("")
+        private set
+
+    /** 收起的分区名；默认全部展开 */
+    var collapsed by mutableStateOf<Set<String>>(emptySet())
+        private set
+
+    /** 本次快照的采集时刻，界面用它区分新旧数据 */
+    var collectedAt by mutableStateOf(0L)
+        private set
+
+    /**
+     * updateQuery
+     * (value: String)
+     * 作用：更新 Query
+     * 备注：—
+     */
+    fun updateQuery(value: String) {
+        query = value
+    }
+
+    /**
+     * toggle
+     * (name: String)
+     * 作用：切换
+     * 备注：—
+     */
+    fun toggle(name: String) {
+        collapsed = if (name in collapsed) collapsed - name else collapsed + name
+    }
+
+    /**
+     * timeLabel
+     * ()
+     * 作用：执行 timeLabel
+     * 备注：—
+     */
+    fun timeLabel(): String = if (collectedAt == 0L) "-" else
+        java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+            .format(java.util.Date(collectedAt))
+
+    /**
+     * refresh
+     * (context: Context)
+     * 作用：刷新
+     * 备注：—
+     */
     fun refresh(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = runCatching { RuntimeInfoCollector.collect(context.applicationContext) }
                 .getOrDefault(emptyList())
-            withContext(Dispatchers.Main) { sections = result }
+            withContext(Dispatchers.Main) {
+                sections = result
+                collectedAt = System.currentTimeMillis()
+            }
         }
     }
 
+    /**
+     * copy
+     * (context: Context, value: String)
+     * 作用：复制
+     * 备注：—
+     */
     fun copy(context: Context, value: String) {
         val manager = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
         manager?.setPrimaryClip(ClipData.newPlainText("NeoDhizuku", value))
         copied = value.take(60)
+    }
+
+    /**
+     * copyAll
+     * (context: Context)
+     * 作用：整份快照拼成纯文本，便于一次贴到 issue 里。
+     * 备注：—
+     */
+    fun copyAll(context: Context) {
+        val rows = sections.sumOf { it.rows.size }
+        val text = buildString {
+            sections.forEach { section ->
+                append("## ").append(section.name).append('\n')
+                section.rows.forEach { (label, value) ->
+                    append(label).append(" = ").append(value).append('\n')
+                }
+                append('\n')
+            }
+        }
+        val manager = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        manager?.setPrimaryClip(ClipData.newPlainText("NeoDhizuku", text))
+        copied = "snapshot ($rows rows, ${sections.size} sections)"
     }
 }

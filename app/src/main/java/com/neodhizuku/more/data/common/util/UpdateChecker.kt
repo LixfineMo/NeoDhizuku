@@ -79,6 +79,12 @@ enum class UpdateSource(val key: String) {
     Custom("custom");
 
     companion object {
+        /**
+         * of
+         * (key: String?)
+         * 作用：执行 of
+         * 备注：—
+         */
         fun of(key: String?): UpdateSource =
             entries.firstOrNull { it.key == key } ?: Official
 
@@ -114,7 +120,12 @@ data class UpdateConfig(
 /** 地址处理。 */
 object UrlUtil {
 
-    /** 拿掉协议、端口和路径，只留主机名。 */
+    /**
+     * hostOf
+     * (raw: String)
+     * 作用：拿掉协议、端口和路径，只留主机名。
+     * 备注：—
+     */
     fun hostOf(raw: String): String {
         val s = raw.trim()
         if (s.isBlank()) return ""
@@ -128,7 +139,12 @@ object UrlUtil {
         }
     }
 
-    /** 主机名拼成基址，已经是 IPv6 的自动加方括号。 */
+    /**
+     * baseOf
+     * (host: String, port: Int = UpdateLinks.OFFICIAL_PORT)
+     * 作用：主机名拼成基址，已经是 IPv6 的自动加方括号。
+     * 备注：—
+     */
     fun baseOf(host: String, port: Int = UpdateLinks.OFFICIAL_PORT): String {
         val h = host.trim().trim('[', ']')
         if (h.isBlank()) return ""
@@ -137,10 +153,10 @@ object UrlUtil {
     }
 
     /**
-     * 补齐地址：没有协议就按明文 http 补，只有主机就补上清单路径。
-     * 手填的地址经常写成 `127.0.0.1:9000` 这种不带协议的写法，直接丢给 URL 会
-     * 连协议都认不出来；而只填主机的话，服务端收到的是根路径请求，拿不到清单。
-     * 已经带路径的（比如 `/update`）原样保留，不覆盖用户意图。
+     * withDefaultPath
+     * (raw: String, path: String = UpdateLinks.OFFICIAL_VERSION_PATH)
+     * 作用：补齐地址：没有协议就按明文 http 补，只有主机就补上清单路径。 手填的地址经常写成 `127.0.0.1:9000` 这种不带协议的写法，直接丢给 URL 会 连协议都认不出来；而只填主机的话，服务端收到的是根路径请求，拿不到清单。 已经带路径的（比如 `/update`）原样保留，不覆盖用户意图。
+     * 备注：—
      */
     fun withDefaultPath(
         raw: String,
@@ -155,7 +171,12 @@ object UrlUtil {
         return s
     }
 
-    /** 清单里可能是相对路径（服务端按来访地址下发），这里补成绝对地址。 */
+    /**
+     * absolute
+     * (url: String, base: String)
+     * 作用：清单里可能是相对路径（服务端按来访地址下发），这里补成绝对地址。
+     * 备注：—
+     */
     fun absolute(url: String, base: String): String {
         val u = url.trim()
         if (u.isBlank()) return ""
@@ -176,22 +197,50 @@ object OfficialEndpoint {
     /** 探测超时，比清单读取短得多，只判断端口通不通。 */
     private const val PROBE_TIMEOUT_MS = 1_500
 
+    /**
+     * remember
+     * (host: String)
+     * 作用：执行 remember
+     * 备注：—
+     */
     fun remember(host: String) {
         if (host.isNotBlank()) cached = host.trim()
     }
 
+    /**
+     * forget
+     * ()
+     * 作用：执行 forget
+     * 备注：—
+     */
     fun forget() {
         cached = ""
     }
 
-    /** 调试用：读/写进程内的选中域名缓存。 */
+    /**
+     * debugCachedHost
+     * ()
+     * 作用：调试用：读/写进程内的选中域名缓存。
+     * 备注：—
+     */
     fun debugCachedHost(): String = cached
 
+    /**
+     * setDebugCachedHost
+     * (host: String)
+     * 作用：设置 DebugCachedHost
+     * 备注：—
+     */
     fun setDebugCachedHost(host: String) {
         cached = host.trim()
     }
 
-    /** 端口能不能连上；DNS 解析失败也算不通。 */
+    /**
+     * probe
+     * (host: String, port: Int = UpdateLinks.OFFICIAL_PORT)
+     * 作用：端口能不能连上；DNS 解析失败也算不通。
+     * 备注：—
+     */
     fun probe(host: String, port: Int = UpdateLinks.OFFICIAL_PORT): Boolean {
         val h = host.trim().trim('[', ']')
         if (h.isBlank()) return false
@@ -204,10 +253,10 @@ object OfficialEndpoint {
     }
 
     /**
-     * 挑一个能用的官方域名。
-     * 先试记下来的那个，不通才逐个试列表；命中就回传给调用方存进设置，
-     * 下次启动直接用，不用每次都解析一轮。全不通时返回第一个，让上层按正常
-     * 失败流程处理，而不是在这里把错误吞掉。
+     * resolve
+     * (savedHost: String, port: Int = UpdateLinks.OFFICIAL_PORT, onPicked: (String) -> Unit = {})
+     * 作用：挑一个能用的官方域名。 先试记下来的那个，不通才逐个试列表；命中就回传给调用方存进设置， 下次启动直接用，不用每次都解析一轮。全不通时返回第一个，让上层按正常 失败流程处理，而不是在这里把错误吞掉。
+     * 备注：—
      */
     fun resolve(
         savedHost: String,
@@ -246,6 +295,12 @@ enum class UpdateChannel(val key: String) {
     Alpha("alpha");
 
     companion object {
+        /**
+         * of
+         * (key: String?)
+         * 作用：执行 of
+         * 备注：—
+         */
         fun of(key: String?): UpdateChannel? =
             entries.firstOrNull { it.key.equals(key, ignoreCase = true) }
     }
@@ -282,6 +337,12 @@ data class UpdateManifest(
     val channels: Map<UpdateChannel, UpdateInfo>,
     val latestUrl: String
 ) {
+    /**
+     * get
+     * (channel: UpdateChannel)
+     * 作用：读取
+     * 备注：—
+     */
     fun get(channel: UpdateChannel): UpdateInfo? = channels[channel]
 }
 
@@ -318,10 +379,10 @@ sealed interface BuildResult {
 object UpdateChecker {
 
     /**
-     * 取版本清单。
-     * 字段类型不保证一致 —— `isAlpha` 一类的标记在仓库里是字符串 `"true"`，
-     * 版本号也可能是字符串，所以统一按容错方式读；读不出来就当作 0 / false，
-     * 宁可判成"无更新"也不能因为解析问题弹个假更新。
+     * fetch
+     * (config: UpdateConfig, onHostPicked: (String) -> Unit = {})
+     * 作用：取版本清单。 字段类型不保证一致 —— `isAlpha` 一类的标记在仓库里是字符串 `"true"`， 版本号也可能是字符串，所以统一按容错方式读；读不出来就当作 0 / false， 宁可判成"无更新"也不能因为解析问题弹个假更新。
+     * 备注：—
      */
     fun fetch(
         config: UpdateConfig,
@@ -344,7 +405,12 @@ object UpdateChecker {
         NeoLog.w(NeoLog.UI) { "更新：读取版本清单失败：${it.message}" }
     }.getOrNull()
 
-    /** 取更新日志正文；地址为空或取不到都返回空串。 */
+    /**
+     * fetchChangelog
+     * (url: String, config: UpdateConfig)
+     * 作用：取更新日志正文；地址为空或取不到都返回空串。
+     * 备注：—
+     */
     fun fetchChangelog(url: String, config: UpdateConfig): String {
         if (url.isBlank()) return ""
         if (!isUrlAllowed(url, config.allowInsecure)) return ""
@@ -400,10 +466,10 @@ object UpdateChecker {
     }
 
     /**
-     * 从服务器拉最新 Build。
-     * 读的是**同一份**版本清单（[UpdateConfig.versionJsonUrl]）里的 `build` 节点，
-     * 读同一份版本清单，只比日期号（形如 20261010），不比 versionCode ——
-     * 同一天的多个构建版本号可能倒着来，日期才是唯一的先后依据。
+     * fetchLatestBuild
+     * (config: UpdateConfig, onHostPicked: (String) -> Unit = {})
+     * 作用：从服务器拉最新 Build。 读的是**同一份**版本清单（[UpdateConfig.versionJsonUrl]）里的 `build` 节点， 读同一份版本清单，只比日期号（形如 20261010），不比 versionCode —— 同一天的多个构建版本号可能倒着来，日期才是唯一的先后依据。
+     * 备注：—
      */
     fun fetchLatestBuild(
         config: UpdateConfig,
@@ -427,16 +493,22 @@ object UpdateChecker {
         NeoLog.w(NeoLog.UI) { "构建：读取索引失败：${it.message}" }
     }.getOrDefault(BuildResult.Failed(null))
 
-    /** 明文地址默认拒绝；开了开关才放行。 */
+    /**
+     * isUrlAllowed
+     * (url: String, allowInsecure: Boolean)
+     * 作用：明文地址默认拒绝；开了开关才放行。
+     * 备注：—
+     */
     fun isUrlAllowed(url: String, allowInsecure: Boolean): Boolean {
         if (allowInsecure) return true
         return url.startsWith("https://", ignoreCase = true)
     }
 
     /**
-     * 解析清单。
-     * 三种写法都认，见类注释。解析不出来返回空清单而不是抛异常，
-     * 让上层统一走"检测失败"，避免把解析问题显示成"发现新版本"。
+     * parseManifest
+     * (json: JSONObject, base: String = "")
+     * 作用：解析清单。 三种写法都认，见类注释。解析不出来返回空清单而不是抛异常， 让上层统一走"检测失败"，避免把解析问题显示成"发现新版本"。
+     * 备注：—
      */
     fun parseManifest(json: JSONObject, base: String = ""): UpdateManifest {
         val latestUrl = UrlUtil.absolute(
@@ -463,8 +535,10 @@ object UpdateChecker {
     }
 
     /**
-     * 官方源才需要选域名；用户在调试页填了自己的地址（内网 IP 之类）就照用，
-     * 不做探测 —— 探测自家局域网没有任何意义，还会把连接拖慢。
+     * resolveOfficial
+     * (config: UpdateConfig, onHostPicked: (String) -> Unit)
+     * 作用：官方源才需要选域名；用户在调试页填了自己的地址（内网 IP 之类）就照用， 不做探测 —— 探测自家局域网没有任何意义，还会把连接拖慢。
+     * 备注：仅内部使用
      */
     private fun resolveOfficial(
         config: UpdateConfig,
@@ -481,7 +555,12 @@ object UpdateChecker {
         return config.copy(officialBase = UrlUtil.baseOf(host))
     }
 
-    /** 清单里的相对地址要按这个基址补全，下载才不会绕到公网。 */
+    /**
+     * linkBaseOf
+     * (config: UpdateConfig)
+     * 作用：清单里的相对地址要按这个基址补全，下载才不会绕到公网。
+     * 备注：仅内部使用
+     */
     private fun linkBaseOf(config: UpdateConfig): String = when (config.source) {
         UpdateSource.Official -> config.officialBase
         UpdateSource.Custom -> {
@@ -493,6 +572,12 @@ object UpdateChecker {
         UpdateSource.GitHub -> ""
     }
 
+    /**
+     * portOf
+     * (noScheme: String)
+     * 作用：执行 portOf
+     * 备注：仅内部使用
+     */
     private fun portOf(noScheme: String): Int {
         val hostPart = noScheme.substringBefore('/')
         val tail = if (hostPart.startsWith("[")) {
@@ -503,6 +588,12 @@ object UpdateChecker {
         return tail.toIntOrNull() ?: UpdateLinks.OFFICIAL_PORT
     }
 
+    /**
+     * parseEntry
+     * (json: JSONObject, latestUrl: String, base: String)
+     * 作用：解析 Entry
+     * 备注：仅内部使用
+     */
     private fun parseEntry(json: JSONObject, latestUrl: String, base: String): UpdateInfo? {
         val hasAny = json.has("version") || json.has("versionCode") || json.has("apkUrl")
         if (!hasAny) return null
@@ -577,6 +668,12 @@ object UpdateChecker {
         return result
     }
 
+    /**
+     * buildEntry
+     * (obj: JSONObject, date: Int)
+     * 作用：构建 Entry
+     * 备注：仅内部使用
+     */
     private fun buildEntry(obj: JSONObject, date: Int): BuildEntry = BuildEntry(
         date = date,
         version = obj.optString("version").trim(),
@@ -585,6 +682,12 @@ object UpdateChecker {
             .ifBlank { obj.optString("url").trim() }
     )
 
+    /**
+     * getText
+     * (url: String, timeoutMs: Int)
+     * 作用：读取 Text
+     * 备注：仅内部使用
+     */
     private fun getText(url: String, timeoutMs: Int): String? {
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
@@ -603,6 +706,12 @@ object UpdateChecker {
         }
     }
 
+    /**
+     * optInt
+     * (json: JSONObject, key: String)
+     * 作用：执行 optInt
+     * 备注：仅内部使用
+     */
     private fun optInt(json: JSONObject, key: String): Int {
         val value = json.opt(key) ?: return 0
         return when (value) {
@@ -612,7 +721,12 @@ object UpdateChecker {
         }
     }
 
-    /** 布尔标记容错：可能是 true / "true" / 1。 */
+    /**
+     * optFlag
+     * (json: JSONObject, key: String)
+     * 作用：布尔标记容错：可能是 true / "true" / 1。
+     * 备注：仅内部使用
+     */
     private fun optFlag(json: JSONObject, key: String): Boolean {
         val value = json.opt(key) ?: return false
         return when (value) {
